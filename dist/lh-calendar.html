@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Help Calendar</title>
+<meta name="description" content="What you can apply for right now, what opens soon, and what you have already missed — the seasons behind US grants and assistance, in one view.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============================================================================
+   Lesko Help — Season Calendar
+   Visual system carried over from the Lesko Help quiz: cream ground, navy ink,
+   the red italic, the gold pill, and the four card suits as category marks.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ TOKENS */
+:root {
+  /* Ground & ink */
+  --cream:        #FDF4E7;
+  --cream-deep:   #F7E9D4;
+  --paper:        #FFFFFF;
+  --ink:          #12213F;
+  --ink-soft:     #47546E;
+  --ink-faint:    #7C879B;
+  --rule:         #E4D9C6;
+  --rule-strong:  #CFC0A6;
+
+  /* Lesko brand */
+  --red:          #E5372C;
+  --gold:         #F2C230;
+  --gold-deep:    #D9A806;
+  --blue:         #2B62D9;
+  --green:        #0F8A4D;
+
+  /* Semantic status — deliberately separate from the brand accents */
+  --st-open:      #0F8A4D;
+  --st-open-bg:   #E7F4EC;
+  --st-closing:   #C2410C;
+  --st-closing-bg:#FCEDE3;
+  --st-soon:      #2B62D9;
+  --st-soon-bg:   #E8EEFC;
+  --st-later:     #6B5E8A;
+  --st-later-bg:  #EFEBF6;
+  --st-always:    #47546E;
+  --st-always-bg: #ECEFF4;
+  --st-watch:     #8A6D0F;
+  --st-watch-bg:  #F8F1DA;
+
+  /* Type */
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --shadow-card: 0 1px 2px rgba(18, 33, 63, .05), 0 8px 24px -12px rgba(18, 33, 63, .12);
+  --shadow-lift: 0 2px 4px rgba(18, 33, 63, .07), 0 16px 32px -16px rgba(18, 33, 63, .20);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cream:        #141B2B;
+    --cream-deep:   #1B2334;
+    --paper:        #1E2739;
+    --ink:          #F3EADA;
+    --ink-soft:     #B3BDD0;
+    --ink-faint:    #8492AB;
+    --rule:         #2E3A52;
+    --rule-strong:  #445273;
+
+    --red:          #FF6B5E;
+    --gold:         #F6CE55;
+    --gold-deep:    #F2C230;
+    --blue:         #7A9BF0;
+    --green:        #4FC384;
+
+    --st-open:      #4FC384;
+    --st-open-bg:   #17301F;
+    --st-closing:   #FF9257;
+    --st-closing-bg:#33200F;
+    --st-soon:      #7A9BF0;
+    --st-soon-bg:   #16203A;
+    --st-later:     #B39BE0;
+    --st-later-bg:  #241C35;
+    --st-always:    #A6B2C8;
+    --st-always-bg: #222C3F;
+    --st-watch:     #E4C46A;
+    --st-watch-bg:  #2C2512;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, .30), 0 8px 24px -12px rgba(0, 0, 0, .55);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -16px rgba(0, 0, 0, .65);
+  }
+}
+
+:root[data-theme="dark"] {
+  --cream:        #141B2B;
+  --cream-deep:   #1B2334;
+  --paper:        #1E2739;
+  --ink:          #F3EADA;
+  --ink-soft:     #B3BDD0;
+  --ink-faint:    #8492AB;
+  --rule:         #2E3A52;
+  --rule-strong:  #445273;
+
+  --red:          #FF6B5E;
+  --gold:         #F6CE55;
+  --gold-deep:    #F2C230;
+  --blue:         #7A9BF0;
+  --green:        #4FC384;
+
+  --st-open:      #4FC384;
+  --st-open-bg:   #17301F;
+  --st-closing:   #FF9257;
+  --st-closing-bg:#33200F;
+  --st-soon:      #7A9BF0;
+  --st-soon-bg:   #16203A;
+  --st-later:     #B39BE0;
+  --st-later-bg:  #241C35;
+  --st-always:    #A6B2C8;
+  --st-always-bg: #222C3F;
+  --st-watch:     #E4C46A;
+  --st-watch-bg:  #2C2512;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .30), 0 8px 24px -12px rgba(0, 0, 0, .55);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -16px rgba(0, 0, 0, .65);
+}
+
+/* ------------------------------------------------------------------- BASE */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2.5px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* The four-colour checkerboard frame from the Lesko Help shell. Decorative,
+   so it is hidden from assistive tech and dropped on narrow screens. */
+.frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  border: 10px solid transparent;
+  border-image: repeating-linear-gradient(
+    90deg,
+    var(--blue)  0 28px, var(--red)   28px 56px,
+    var(--gold) 56px 84px, var(--green) 84px 112px
+  ) 10 round;
+}
+@media (max-width: 720px) { .frame { display: none; } }
+
+.shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 24px 96px;
+}
+@media (max-width: 720px) { .shell { padding: 20px 16px 64px; } }
+
+/* ------------------------------------------------------------------ TYPE */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 500; text-wrap: balance; margin: 0; }
+
+/* --------------------------------------------------------------- MASTHEAD */
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.brand-mark {
+  width: 54px; height: 54px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: grid; place-items: center;
+  font-family: var(--display);
+  font-size: 27px;
+  line-height: 1;
+}
+
+.brand-name { font-family: var(--display); font-size: 21px; line-height: 1.15; }
+.brand-name em { display: block; color: var(--red); font-style: italic; font-size: 19px; }
+.brand-name b { display: block; font-weight: 500; }
+
+.suits { display: flex; gap: 10px; font-size: 19px; line-height: 1; }
+.suit-blue { color: var(--blue); } .suit-red { color: var(--red); }
+.suit-gold { color: var(--gold-deep); } .suit-green { color: var(--green); }
+
+/* ------------------------------------------------------------------- HERO */
+.hero { margin-top: 30px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+@media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 22px; } }
+
+.hero h1 { font-size: clamp(38px, 6vw, 62px); line-height: 1.02; letter-spacing: -.015em; }
+.hero h1 em { color: var(--red); font-style: italic; }
+
+.hero p { margin: 16px 0 0; max-width: 34em; font-size: 17px; color: var(--ink-soft); }
+
+.today-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-card);
+}
+.today-card .eyebrow { display: block; margin-bottom: 10px; }
+.today-date { font-family: var(--display); font-size: 24px; line-height: 1.15; }
+.today-tally { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+.tally-row {
+  display: flex; align-items: baseline; gap: 9px;
+  font-size: 14px; color: var(--ink-soft);
+}
+.tally-num {
+  font-family: var(--mono); font-size: 15px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.6em; text-align: right;
+}
+
+/* ---------------------------------------------------------------- CONTROLS */
+.controls {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.control-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.control-row > .eyebrow { flex: none; width: 92px; }
+@media (max-width: 640px) { .control-row > .eyebrow { width: auto; } }
+
+.chip {
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 999px;
+  padding: 7px 15px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: background .14s ease, border-color .14s ease;
+}
+.chip:hover { background: var(--cream-deep); }
+.chip[aria-pressed="true"] {
+  background: var(--gold);
+  border-color: var(--gold-deep);
+  color: #12213F;
+  font-weight: 600;
+}
+.chip .count {
+  font-family: var(--mono); font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  opacity: .62;
+}
+.chip[aria-pressed="true"] .count { opacity: .78; }
+.chip .suit { font-size: 15px; }
+
+/* ------------------------------------------------------------------ BOARD */
+.board { margin-top: 40px; display: flex; flex-direction: column; gap: 40px; }
+
+.group-head {
+  display: flex; align-items: baseline; gap: 14px;
+  padding-bottom: 11px;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 20px;
+}
+.group-head h2 { font-size: 27px; letter-spacing: -.01em; }
+.group-head .group-note { font-size: 14px; color: var(--ink-soft); margin-left: auto; text-align: right; }
+@media (max-width: 640px) {
+  .group-head { flex-wrap: wrap; }
+  .group-head .group-note { margin-left: 0; text-align: left; width: 100%; }
+}
+
+/* Each status group carries its own left stripe colour on its cards. */
+.group[data-status="open"]    { --grp: var(--st-open);    --grp-bg: var(--st-open-bg); }
+.group[data-status="closing"] { --grp: var(--st-closing); --grp-bg: var(--st-closing-bg); }
+.group[data-status="soon"]    { --grp: var(--st-soon);    --grp-bg: var(--st-soon-bg); }
+.group[data-status="later"]   { --grp: var(--st-later);   --grp-bg: var(--st-later-bg); }
+.group[data-status="always"]  { --grp: var(--st-always);  --grp-bg: var(--st-always-bg); }
+.group[data-status="watch"]   { --grp: var(--st-watch);   --grp-bg: var(--st-watch-bg); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; align-items: stretch; }
+/* A group holding one or two cards should not stretch them across a three-up
+   row and leave the rest of it empty. */
+.cards[data-n="1"] { grid-template-columns: minmax(0, 430px); }
+.cards[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) { .cards[data-n="2"] { grid-template-columns: minmax(0, 1fr); } }
+
+/* ------------------------------------------------------------------- CARD */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--grp, var(--rule-strong));
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; gap: 11px;
+}
+
+.card-top { display: flex; align-items: flex-start; gap: 11px; }
+.card-suit { font-size: 17px; line-height: 1.35; flex: none; }
+.card-title { font-family: var(--display); font-size: 20px; line-height: 1.2; letter-spacing: -.005em; }
+.card-also { font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
+
+.badge {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+  background: var(--grp-bg); color: var(--grp);
+  white-space: nowrap; flex: none; margin-left: auto;
+}
+
+.card-what { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+
+/* The window line — the single most important row on the card. */
+/* Inline spans on a block, not flex items — so the line wraps between whole
+   phrases ("23 days left") instead of splitting one down the middle. */
+.window {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  font-variant-numeric: tabular-nums;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: var(--cream-deep);
+}
+.window .lead { color: var(--grp, var(--ink)); font-weight: 600; white-space: nowrap; }
+.window .dates { color: var(--ink-soft); white-space: nowrap; }
+.window .sep { color: var(--ink-faint); padding: 0 5px; }
+.window .dates.wrapok { white-space: normal; }
+
+.keydate {
+  display: flex; gap: 9px; align-items: baseline;
+  font-size: 13.5px; color: var(--ink-soft);
+  padding-left: 2px;
+}
+.keydate .kd-date {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  color: var(--ink); white-space: nowrap; flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Red flag — the thing Lesko would actually shout about. */
+.urgent {
+  font-size: 13.5px;
+  line-height: 1.45;
+  padding: 10px 12px 10px 13px;
+  border-radius: 9px;
+  background: var(--st-closing-bg);
+  border-left: 3px solid var(--st-closing);
+  color: var(--ink);
+}
+.urgent b { font-weight: 600; }
+
+.caveat {
+  font-size: 12.5px; line-height: 1.45;
+  color: var(--ink-faint);
+  padding-left: 13px;
+  border-left: 2px solid var(--rule);
+}
+
+details.prep { font-size: 13.5px; }
+details.prep summary {
+  cursor: pointer; list-style: none;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-faint);
+  padding: 3px 0;
+}
+details.prep summary::-webkit-details-marker { display: none; }
+details.prep summary::before { content: "+ "; }
+details[open].prep summary::before { content: "– "; }
+details.prep summary:hover { color: var(--ink); }
+details.prep ul { margin: 8px 0 0; padding-left: 18px; color: var(--ink-soft); }
+details.prep li { margin-bottom: 5px; }
+details.prep p { margin: 8px 0 0; color: var(--ink-soft); }
+
+.card-foot {
+  margin-top: auto; padding-top: 11px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-size: 13px;
+}
+.card-foot .where { color: var(--ink-faint); }
+.card-foot a {
+  font-weight: 600; color: var(--red);
+  text-decoration-thickness: 1.5px; text-underline-offset: 2.5px;
+  margin-left: auto;
+}
+
+/* ------------------------------------------------------------- YEAR STRIP */
+.year {
+  margin-top: 56px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+@media (max-width: 640px) { .year { padding: 18px 14px; } }
+
+.year-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+.year-head h2 { font-size: 26px; }
+.year-head p { margin: 0; font-size: 14px; color: var(--ink-soft); flex: 1 1 22em; }
+
+/* overflow-x:auto forces overflow-y to auto too, so the TODAY flag above the
+   header row needs headroom or it gets clipped. */
+.year-scroll { overflow-x: auto; margin-top: 20px; padding-top: 20px; padding-bottom: 6px; }
+
+.gantt {
+  min-width: 700px;
+  display: grid;
+  grid-template-columns: 215px 1fr;
+  gap: 0 14px;
+}
+.gantt-months, .gantt-row { display: contents; }
+
+.gantt-label {
+  font-size: 13px; line-height: 1.25;
+  padding: 7px 0;
+  display: flex; align-items: center; gap: 7px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink);
+}
+.gantt-label .suit { flex: none; font-size: 13px; }
+.gantt-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.gantt-track {
+  position: relative;
+  border-top: 1px solid var(--rule);
+  height: 35px;
+}
+/* Faint month gridlines behind every bar. */
+.gantt-track::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg, var(--rule) 0 1px, transparent 1px calc(100% / 12)
+  );
+  opacity: .55;
+  pointer-events: none;
+}
+
+.gantt-track.gantt-head {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: end;
+  height: auto;
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-faint);
+  border-top: none;
+  padding-bottom: 9px;
+}
+.gantt-track.gantt-head::before { display: none; }
+.gantt-head .m { text-align: center; }
+.gantt-head .m.newyear { color: var(--ink); font-weight: 600; }
+.gantt-label.gantt-head { border-top: none; }
+
+.bar {
+  position: absolute;
+  top: 7px;
+  z-index: 1;
+  height: 21px;
+  border-radius: 5px;
+  background: var(--bar, var(--st-always));
+  display: flex; align-items: center;
+  padding: 0 8px;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .05em;
+  color: #fff;
+  white-space: nowrap; overflow: hidden;
+}
+:root[data-theme="dark"] .bar,
+:root:not([data-theme="light"]) .bar { color: #121A28; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .bar { color: #fff; }
+}
+
+/* A window we only know approximately is drawn hatched, not solid. */
+.bar.approx {
+  background-image: repeating-linear-gradient(
+    115deg, rgba(255,255,255,.34) 0 5px, transparent 5px 11px
+  );
+}
+.bar.clip-left  { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.bar.clip-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+.bar.always {
+  background: transparent;
+  border: 1.5px dashed var(--rule-strong);
+  color: var(--ink-faint);
+}
+
+/* Today marker rides above every track. */
+.gantt-today {
+  position: absolute; top: 0; bottom: 0;
+  width: 2px; background: var(--red);
+  z-index: 2; pointer-events: none;
+}
+.gantt-today.labelled::after {
+  content: "TODAY";
+  position: absolute; top: -16px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: .1em; color: var(--red);
+}
+
+.legend {
+  margin-top: 18px; padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  display: flex; gap: 20px; flex-wrap: wrap;
+  font-size: 12.5px; color: var(--ink-soft);
+}
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.swatch { width: 22px; height: 11px; border-radius: 3px; flex: none; }
+.swatch.hatch { background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.34) 0 4px, transparent 4px 9px); }
+.swatch.dash { background: transparent; border: 1.5px dashed var(--rule-strong); }
+
+/* ------------------------------------------------------------------ EMPTY */
+.empty {
+  padding: 44px 20px; text-align: center;
+  color: var(--ink-faint); font-size: 15px;
+  border: 1.5px dashed var(--rule-strong); border-radius: 14px;
+}
+
+/* ----------------------------------------------------------------- FOOTER */
+.foot {
+  margin-top: 56px; padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px; color: var(--ink-faint);
+  display: flex; gap: 22px; flex-wrap: wrap; justify-content: space-between;
+}
+.foot p { margin: 0; max-width: 46em; }
+.foot b { color: var(--ink-soft); font-weight: 600; }
+
+</style>
+</head>
+<body>
+
+<div class="frame" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">?</div>
+      <div class="brand-name">
+        <em>Lesko</em>
+        <b>Help</b>
+      </div>
+    </div>
+    <div class="suits" aria-hidden="true">
+      <span class="suit-blue">&spades;</span>
+      <span class="suit-red">&hearts;</span>
+      <span class="suit-gold">&diams;</span>
+      <span class="suit-green">&clubs;</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Everything has a <em>season.</em></h1>
+      <p>
+        Most help in America is not first-come-you-qualify — it is first-come-you-applied.
+        Windows open, funding runs out, and the door shuts months before anyone tells you.
+        This is the calendar of those windows: what is open today, what opens next,
+        and what to start gathering now.
+      </p>
+    </div>
+
+    <aside class="today-card">
+      <span class="eyebrow">As of today</span>
+      <div class="today-date" id="today-date">—</div>
+      <div class="today-tally" id="tally"></div>
+    </aside>
+  </section>
+
+  <section class="controls" aria-label="Filter the calendar">
+    <div class="control-row">
+      <span class="eyebrow" id="lbl-status">Show</span>
+      <div class="control-row" role="group" aria-labelledby="lbl-status" id="filter-status"></div>
+    </div>
+    <div class="control-row">
+      <span class="eyebrow" id="lbl-cat">Topic</span>
+      <div class="control-row" role="group" aria-labelledby="lbl-cat" id="filter-cat"></div>
+    </div>
+  </section>
+
+  <main class="board" id="board"></main>
+
+  <section class="year">
+    <div class="year-head">
+      <h2>The year ahead</h2>
+      <p>
+        The next twelve months, starting this one. A January-to-December grid would
+        cut every winter programme in half — and winter is where most of the money is.
+      </p>
+    </div>
+
+    <div class="year-scroll">
+      <div class="gantt" id="gantt"></div>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch" style="background: var(--st-open)"></i> Open now</span>
+      <span><i class="swatch" style="background: var(--st-closing)"></i> Closing soon</span>
+      <span><i class="swatch" style="background: var(--st-soon)"></i> Opens soon</span>
+      <span><i class="swatch" style="background: var(--st-later)"></i> Later in the year</span>
+      <span><i class="swatch hatch" style="background-color: var(--st-soon)"></i> Striped = usual dates, yours may differ</span>
+      <span><i class="swatch dash"></i> No fixed window</span>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>
+      <b>This calendar tells you when. It does not decide whether you qualify —
+      and it is not an application.</b>
+      Dates marked <i>usual</i> or <i>differs by state</i> are patterns, not promises;
+      always confirm with the office named on the card. Reviewed 7 September 2026.
+      Sources for every date are in <code>docs/research.md</code>.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================================
+   Lesko Help — Season Calendar dataset
+   ----------------------------------------------------------------------------
+   This is the ONLY file you need to edit to keep the calendar current.
+   No code knowledge required — every entry is plain text and dates.
+
+   HOW TO EDIT
+   -----------
+   Each program is one { ... } block. Dates are always "YYYY-MM-DD".
+
+     opens / closes   The real application window. Use null for "no window".
+     precision        "exact"   — this date is published and firm
+                      "typical" — most places use it, but it moves
+                      "varies"  — genuinely different in every state
+                      Anything not "exact" is drawn with a striped bar and
+                      labelled, so we never imply we know more than we do.
+     rolls            true if a late application is held for the next round
+                      rather than simply rejected.
+
+   HONESTY RULE
+   ------------
+   If we are not sure of a date, say so in `caveat` and set precision.
+   A wrong date in this calendar costs somebody a benefit. "Check your state"
+   is always a better answer than a confident guess.
+
+   Last full review: 2026-09-07
+   ========================================================================== */
+
+const LH_CATEGORIES = {
+  home:   { suit: '♠', name: 'Home & energy',    color: 'blue'  },
+  health: { suit: '♥', name: 'Health & coverage', color: 'red'   },
+  money:  { suit: '♦', name: 'Money & tax',       color: 'gold'  },
+  family: { suit: '♣', name: 'School & family',   color: 'green' },
+};
+
+const LH_PROGRAMS = [
+
+  /* ---------------------------------------------------------------- HEALTH */
+  {
+    id: 'aca-open-enrollment',
+    name: 'Marketplace health insurance',
+    alsoCalled: 'Obamacare, ACA, HealthCare.gov',
+    cat: 'health',
+    what: 'The one time a year almost anyone can start or switch a health plan. Most people who enroll here pay a reduced premium.',
+    opens: '2026-11-01',
+    closes: '2027-01-15',
+    precision: 'exact',
+    cadence: 'Every year, same window',
+    keyDates: [
+      { date: '2026-12-15', label: 'Sign up by Dec 15 if you want coverage to start Jan 1' },
+    ],
+    prepDays: 21,
+    prep: [
+      'Your best guess at next year’s household income',
+      'Names and birth dates for everyone on the plan',
+      'Any job-based insurance offer you turned down',
+    ],
+    missedIt: 'You can still enroll if you lose a job, move, marry, or have a baby — that opens a 60-day window of your own.',
+    where: 'HealthCare.gov, or your state’s own marketplace',
+    link: 'https://www.healthcare.gov/',
+    caveat: 'A few states run their own marketplace and stay open later — several run to Jan 31.',
+  },
+  {
+    id: 'medicare-open-enrollment',
+    name: 'Medicare Open Enrollment',
+    alsoCalled: 'Medicare Annual Election Period, AEP',
+    cat: 'health',
+    what: 'Change your Medicare Advantage or Part D drug plan for next year. Worth checking even if you are happy — plans change what they cover every year.',
+    opens: '2026-10-15',
+    closes: '2026-12-07',
+    precision: 'exact',
+    cadence: 'Every year, Oct 15 – Dec 7',
+    keyDates: [
+      { date: '2027-01-01', label: 'Whatever you pick starts Jan 1' },
+    ],
+    prepDays: 14,
+    prep: [
+      'Your red-white-and-blue Medicare card',
+      'A list of every prescription you take, with the dose',
+      'The pharmacy and doctors you want to keep',
+    ],
+    missedIt: 'If you are on Medicare Advantage you get a second chance Jan 1 – Mar 31 to switch once.',
+    where: 'Medicare.gov, or free one-on-one help from your state SHIP counselor',
+    link: 'https://www.medicare.gov/health-drug-plans/open-enrollment',
+  },
+  {
+    id: 'medicare-advantage-oep',
+    name: 'Medicare Advantage second chance',
+    alsoCalled: 'MA Open Enrollment Period',
+    cat: 'health',
+    what: 'Already on a Medicare Advantage plan and regretting it? You get one switch in this window.',
+    opens: '2027-01-01',
+    closes: '2027-03-31',
+    precision: 'exact',
+    cadence: 'Every year, Jan 1 – Mar 31',
+    prepDays: 14,
+    prep: ['Your current plan’s member card', 'What went wrong — cost, doctors dropped, drug not covered'],
+    where: 'Medicare.gov',
+    link: 'https://www.medicare.gov/health-drug-plans/open-enrollment',
+    caveat: 'Only for people already enrolled in a Medicare Advantage plan. Not a way in from Original Medicare.',
+  },
+  {
+    id: 'medicaid-chip',
+    name: 'Medicaid & CHIP',
+    alsoCalled: 'Medical assistance, children’s health insurance',
+    cat: 'health',
+    what: 'Free or very low cost health coverage. There is no season — apply the day you need it.',
+    opens: null,
+    closes: null,
+    precision: 'exact',
+    cadence: 'Open every day of the year',
+    prep: ['Proof of income for the last month', 'Who lives in your household'],
+    where: 'Your state Medicaid office, or HealthCare.gov will pass you over',
+    link: 'https://www.medicaid.gov/about-us/where-can-people-get-help-medicaid-chip/index.html',
+    renewal: 'You do have to renew, usually once a year. Watch your mail — most people who lose Medicaid lose it for missing that letter, not for earning too much.',
+  },
+
+  /* ------------------------------------------------------------------ HOME */
+  {
+    id: 'liheap-heating',
+    name: 'Help paying the heating bill',
+    alsoCalled: 'LIHEAP, HEAP, energy assistance, fuel assistance',
+    cat: 'home',
+    what: 'A payment straight to your utility or fuel dealer. This is the single most time-sensitive thing on this calendar.',
+    opens: '2026-10-01',
+    closes: '2027-04-30',
+    precision: 'typical',
+    cadence: 'Every winter',
+    keyDates: [
+      { date: '2026-11-01', label: 'The later, more common opening date — many states start here' },
+    ],
+    prepDays: 30,
+    prep: [
+      'Your most recent heating bill',
+      'Income for everyone in the house, last 30 days',
+      'Social Security numbers for the household',
+    ],
+    urgent: 'Most states hand this out first-come, first-served and stop when the money runs out — often long before the official closing date. Apply the week it opens, not the month it closes.',
+    where: 'Your state or county energy assistance office',
+    link: 'https://www.acf.hhs.gov/ocs/programs/liheap',
+    caveat: 'Every state sets its own dates. Massachusetts opens Oct 1. Illinois opens Oct 1 for seniors, people with a disability, families with children under 5, and anyone shut off — everyone else Nov 1. Pennsylvania opens Nov 2. Check yours.',
+  },
+  {
+    id: 'liheap-cooling',
+    name: 'Help paying the cooling bill',
+    alsoCalled: 'LIHEAP cooling, summer crisis program',
+    cat: 'home',
+    what: 'Same program as the heating help, pointed at summer electric bills. Some states will also buy you a window air conditioner or a fan.',
+    opens: '2026-05-01',
+    closes: '2026-09-30',
+    precision: 'varies',
+    cadence: 'Every summer, in the states that run one',
+    prepDays: 21,
+    prep: ['Your most recent electric bill', 'Income for the last 30 days', 'A doctor’s note if someone in the house has a heat-sensitive condition'],
+    where: 'Your state or county energy assistance office',
+    link: 'https://www.acf.hhs.gov/ocs/programs/liheap',
+    caveat: 'Not every state runs a cooling program at all, and the ones that do vary the most of anything on this calendar.',
+  },
+  {
+    id: 'weatherization',
+    name: 'Free home weatherization',
+    alsoCalled: 'WAP, weatherisation assistance',
+    cat: 'home',
+    what: 'Crews come out and insulate, seal, and fix or replace an unsafe furnace — free, and you keep the savings every month afterward.',
+    opens: null,
+    closes: null,
+    precision: 'exact',
+    cadence: 'Apply any time — but expect a waiting list',
+    prep: ['Proof of income', 'Your landlord’s written permission if you rent'],
+    where: 'Your state weatherization agency, usually the same office as the energy bill help',
+    link: 'https://www.energy.gov/scep/wap/weatherization-assistance-program',
+    urgent: 'The list is long in most places — measured in months or years. Getting on it early is the whole game. Applying for heating bill help often puts you on this list too, so ask.',
+  },
+  {
+    id: 'section8-waitlist',
+    name: 'Section 8 waiting lists',
+    alsoCalled: 'Housing Choice Voucher, HCV, public housing list',
+    cat: 'home',
+    what: 'Housing authorities open their waiting list for a few days, sometimes only once every several years. When it opens you often have under a week.',
+    opens: null,
+    closes: null,
+    precision: 'varies',
+    cadence: 'Unpredictable — by housing authority, sometimes years apart',
+    watch: true,
+    prep: [
+      'Have your paperwork ready before it opens — IDs and birth certificates for everyone',
+      'Income and where you live now',
+      'An email address you actually check',
+    ],
+    urgent: 'This is the one to set an alert for. Some lists close in 48 hours. Sign up for notifications from every housing authority within reach, not just your own city.',
+    where: 'Every public housing authority near you — apply to more than one',
+    link: 'https://www.hud.gov/helping-americans/public-indian-housing/pha-contact-information',
+  },
+  {
+    id: 'fema-individual-assistance',
+    name: 'Disaster help after a storm, fire, or flood',
+    alsoCalled: 'FEMA Individual Assistance, IA',
+    cat: 'home',
+    what: 'Money for somewhere to stay, repairs, and replacing what you lost. Only opens when your county gets a federal disaster declaration.',
+    opens: null,
+    closes: null,
+    precision: 'exact',
+    cadence: 'Only after a declaration — then usually a 60-day window',
+    watch: true,
+    prep: ['Photos of the damage before you clean up', 'Your insurance policy and claim number', 'Proof you lived there'],
+    urgent: 'The clock starts on the declaration date, not on the day of the storm. Sixty days is the standard window and it is easy to lose the first month waiting on an insurance decision — file with FEMA anyway, you can update it later.',
+    where: 'DisasterAssistance.gov',
+    link: 'https://www.disasterassistance.gov/',
+  },
+
+  /* ----------------------------------------------------------------- MONEY */
+  {
+    id: 'tax-filing-season',
+    name: 'Tax season — and the refunds that come with it',
+    alsoCalled: 'EITC, Earned Income Credit, Child Tax Credit, free tax prep',
+    cat: 'money',
+    what: 'For a lot of families this is the biggest single payment of the year. Filing is how you claim the Earned Income Credit and Child Tax Credit — you do not get them any other way.',
+    opens: '2027-01-26',
+    closes: '2027-04-15',
+    precision: 'typical',
+    cadence: 'Every year, late January to April 15',
+    keyDates: [
+      { date: '2027-02-15', label: 'Refunds with the EITC or Child Tax Credit cannot legally go out before now' },
+      { date: '2027-04-15', label: 'Filing deadline — or ask for an extension' },
+    ],
+    prepDays: 30,
+    prep: [
+      'Every W-2 and 1099 — they arrive by Jan 31',
+      'Last year’s return if you have it',
+      'Social Security numbers for your children',
+      'Bank account and routing number for direct deposit',
+    ],
+    urgent: 'Do not pay for this. Free in-person tax prep (VITA) is available to most households on this calendar, and the volunteers are trained and checked. Paid preparers can take several hundred dollars out of exactly the refund you were counting on.',
+    where: 'A free VITA site near you, or IRS Free File online',
+    link: 'https://www.irs.gov/individuals/free-tax-return-preparation-for-you-by-volunteers',
+    caveat: 'The IRS announces the exact opening day each January. Late January is the pattern; treat this date as close, not final.',
+  },
+  {
+    id: 'tax-extension-deadline',
+    name: 'Last day if you filed an extension',
+    alsoCalled: 'October tax deadline',
+    cat: 'money',
+    what: 'If you asked for more time on your 2025 taxes back in April, this is where the extra time runs out.',
+    opens: '2026-04-16',
+    closes: '2026-10-15',
+    precision: 'exact',
+    cadence: 'Every year, Oct 15',
+    prepDays: 21,
+    prep: ['The forms you were missing in April', 'Last year’s return'],
+    where: 'A free VITA site, or IRS Free File',
+    link: 'https://www.irs.gov/filing/individuals/when-to-file',
+    caveat: 'An extension gave you more time to file, never more time to pay. Interest has been running since April.',
+  },
+  {
+    id: 'property-tax-relief',
+    name: 'Property tax breaks for your home',
+    alsoCalled: 'Homestead exemption, senior freeze, circuit breaker',
+    cat: 'money',
+    what: 'Knocks money off the property tax on the home you live in. Bigger discounts for seniors, veterans, and people with a disability in most states.',
+    opens: null,
+    closes: null,
+    precision: 'varies',
+    cadence: 'Once a year — deadline set by your state or county',
+    prep: ['Proof this is your main home', 'Your deed or tax bill', 'Proof of age, disability, or service if you are claiming that rate'],
+    where: 'Your county assessor or tax collector',
+    link: 'https://www.usa.gov/property-taxes',
+    caveat: 'The deadline is genuinely local — spring is common but it ranges across the whole year. Many people qualify for years without ever filing, because nobody tells you. Ask your assessor directly.',
+  },
+
+  /* ---------------------------------------------------------------- FAMILY */
+  {
+    id: 'fafsa-2627',
+    name: 'FAFSA for this school year (2026–27)',
+    alsoCalled: 'Federal student aid, Pell Grant',
+    cat: 'family',
+    what: 'Still open. If you are in school right now and never filed, you may be leaving a Pell Grant on the table for the year you are already in.',
+    opens: '2025-09-24',
+    closes: '2027-06-30',
+    precision: 'exact',
+    cadence: 'This cycle closes Jun 30, 2027',
+    prepDays: 0,
+    prep: ['Your FSA ID', 'Your 2024 tax return', 'Bank balances and any investments'],
+    where: 'studentaid.gov',
+    link: 'https://studentaid.gov/h/apply-for-aid/fafsa',
+    caveat: 'Federal deadline is Jun 30, 2027, but your state and your college almost certainly closed their own aid months ago. Money may still be there — file anyway and ask the financial aid office.',
+  },
+  {
+    id: 'fafsa-2728',
+    name: 'FAFSA for next school year (2027–28)',
+    alsoCalled: 'Federal student aid, Pell Grant',
+    cat: 'family',
+    what: 'The form behind Pell Grants, work-study, and most state and college aid. Free to file, and the number one reason people miss aid is simply never filing.',
+    opens: '2026-10-01',
+    closes: '2028-06-30',
+    precision: 'typical',
+    cadence: 'Every year, opens around Oct 1',
+    keyDates: [
+      { date: '2026-12-01', label: 'Priority season starts — state and college deadlines begin landing' },
+      { date: '2027-03-01', label: 'A very common state priority deadline' },
+    ],
+    prepDays: 21,
+    prep: [
+      'An FSA ID for the student and one parent — make these first, they take a day or two to verify',
+      'Your 2025 tax return',
+      'Bank balances and any investments',
+    ],
+    urgent: 'The federal deadline is nearly two years out and it is a trap. The money that runs out is state and college money, and much of that is first-come, first-served with deadlines between December and March. File in October.',
+    where: 'studentaid.gov — free, and never pay a site that offers to file it for you',
+    link: 'https://studentaid.gov/h/apply-for-aid/fafsa',
+    caveat: 'Oct 1 is the statutory date. The last two cycles opened a few days early — 2026–27 opened Sep 24, 2025. Check late September.',
+  },
+  {
+    id: 'scholarships-national',
+    name: 'National scholarship season',
+    alsoCalled: 'Big-name scholarships, corporate scholarships',
+    cat: 'family',
+    what: 'The large national awards open in late summer and close before the new year. This is the crowded half of the season.',
+    opens: '2026-08-01',
+    closes: '2026-12-31',
+    precision: 'typical',
+    cadence: 'Every year, opens Aug–Sep, closes Oct–Dec',
+    prepDays: 21,
+    prep: [
+      'One essay you can adapt, written now rather than in December',
+      'Two people who have already agreed to write you a reference',
+      'Your transcript',
+    ],
+    where: 'Free search sites, and your school counselor',
+    link: 'https://studentaid.gov/understand-aid/types/scholarships',
+    caveat: 'Deadlines are per-scholarship. This band shows when the season is busy, not a single date.',
+  },
+  {
+    id: 'scholarships-local',
+    name: 'Local scholarship season',
+    alsoCalled: 'Community foundation, employer, and school scholarships',
+    cat: 'family',
+    what: 'Smaller awards from your community foundation, your high school, your parents’ employer, your union, your church. Far fewer applicants than the national ones.',
+    opens: '2027-01-01',
+    closes: '2027-04-30',
+    precision: 'typical',
+    cadence: 'Every year, opens January, closes March–April',
+    prepDays: 21,
+    prep: ['The essay you already wrote in the fall', 'Your counselor’s list of local awards — ask for it in December'],
+    urgent: 'Best odds on this whole calendar. A local award with eleven applicants beats a national one with eleven thousand, and almost nobody bothers.',
+    where: 'Your school counselor and your local community foundation',
+    link: 'https://studentaid.gov/understand-aid/types/scholarships',
+  },
+  {
+    id: 'sun-bucks',
+    name: 'SUN Bucks (summer food money)',
+    alsoCalled: 'Summer EBT, S-EBT',
+    cat: 'family',
+    what: 'Grocery money on a card for each school-age child, to cover the summer months when school meals stop.',
+    opens: '2027-03-01',
+    closes: '2027-08-31',
+    precision: 'typical',
+    cadence: 'Every year — applications processed from spring, deadline Aug 31',
+    rolls: true,
+    prepDays: 21,
+    prep: ['Each child’s school and grade', 'Household income'],
+    where: 'Your state human services or education department',
+    link: 'https://www.fns.usda.gov/sebt',
+    caveat: 'Many families never need to apply — if your child already gets free or reduced-price school meals, or you get SNAP, most states enrol you automatically.',
+    missedIt: 'Applications sent in after Aug 31 are not thrown away. They are held and counted for the following summer.',
+  },
+  {
+    id: 'school-meals',
+    name: 'Free & reduced-price school meals',
+    alsoCalled: 'School lunch application, NSLP',
+    cat: 'family',
+    what: 'Breakfast and lunch at school. Worth applying even if you think you earn too much — and it is the doorway to summer food money, fee waivers, and reduced-cost internet.',
+    opens: '2026-07-15',
+    closes: '2027-06-30',
+    precision: 'typical',
+    cadence: 'Apply at the start of the school year, or any day after',
+    prepDays: 0,
+    prep: ['Household income for last month', 'Each child’s name and school'],
+    where: 'Your child’s school or district office',
+    link: 'https://www.fns.usda.gov/nslp',
+    urgent: 'Apply now rather than in the spring — approval unlocks other things, and several of those close before the school year ends.',
+  },
+  {
+    id: 'head-start',
+    name: 'Head Start & Early Head Start',
+    alsoCalled: 'Free preschool, early childhood',
+    cat: 'family',
+    what: 'Free preschool and childcare from birth to five, plus health and dental checks and help for the whole family.',
+    opens: '2027-02-01',
+    closes: '2027-06-30',
+    precision: 'varies',
+    cadence: 'Main enrolment in spring for the fall — but spots open all year',
+    prepDays: 30,
+    prep: ['Your child’s birth certificate', 'Immunisation records', 'Proof of income'],
+    where: 'Your local Head Start centre',
+    link: 'https://www.acf.hhs.gov/ohs/how-apply',
+    caveat: 'Centres set their own dates. Spring for a fall start is the pattern, but children move away all year and seats reopen — always ask to be on the list.',
+  },
+  {
+    id: 'holiday-assistance',
+    name: 'Holiday help — toys, coats, and a Christmas dinner',
+    alsoCalled: 'Angel Tree, Toys for Tots, adopt-a-family',
+    cat: 'family',
+    what: 'Gifts for your children, winter coats, and a holiday food box. Run by local charities, so the sign-up is short and strict.',
+    opens: '2026-09-01',
+    closes: '2026-10-31',
+    precision: 'typical',
+    cadence: 'Every year — sign up in the fall, receive in December',
+    prepDays: 0,
+    prep: [
+      'Birth certificates for each child',
+      'Proof of address',
+      'Clothing and shoe sizes, and one thing each child actually wants',
+    ],
+    urgent: 'This window is far earlier than people expect. Most local Salvation Army offices take no applications at all after October — asking in December is too late by two months.',
+    where: 'Your local Salvation Army, Toys for Tots chapter, or church',
+    link: 'https://www.salvationarmyusa.org/usn/provide-toys-for-children/',
+    caveat: 'Every local office sets its own dates. Some open Sep 1, most open Oct 1, and popular ones fill in days. Call yours in early September.',
+  },
+
+  /* ------------------------------------------------- ALWAYS-ON ESSENTIALS */
+  {
+    id: 'snap',
+    name: 'SNAP food benefits',
+    alsoCalled: 'Food stamps, EBT',
+    cat: 'family',
+    what: 'Monthly grocery money on a card. No season — apply the day you need it, and emergency cases can be approved in 7 days.',
+    opens: null,
+    closes: null,
+    precision: 'exact',
+    cadence: 'Open every day of the year',
+    prep: ['Income for the last 30 days', 'Rent or mortgage and utility bills — these raise your benefit', 'Who lives with you'],
+    where: 'Your state human services office',
+    link: 'https://www.fns.usda.gov/snap/state-directory',
+    renewal: 'Recertification comes round every 6 or 12 months and the notice is easy to miss. Put your renewal month on this calendar the day you are approved.',
+  },
+  {
+    id: 'wic',
+    name: 'WIC',
+    alsoCalled: 'Women, Infants and Children',
+    cat: 'family',
+    what: 'Food, formula, and breastfeeding support if you are pregnant or have a child under five. Income limits are higher than people assume — many working families qualify.',
+    opens: null,
+    closes: null,
+    precision: 'exact',
+    cadence: 'Open every day of the year',
+    prep: ['Proof of pregnancy or your child’s birth certificate', 'Proof of income', 'Proof of address'],
+    where: 'Your local WIC clinic',
+    link: 'https://www.fns.usda.gov/wic',
+    renewal: 'Certification runs 6 months to a year depending on age, and it lapses silently. Diary the end date.',
+  },
+];
+
+/* Sources behind every date above are listed in docs/research.md.
+   Reviewed 2026-09-07. Anything marked "typical" or "varies" is a pattern,
+   not a promise — the card says so on the front, not in a footnote. */
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { LH_CATEGORIES, LH_PROGRAMS };
+}
+
+</script>
+<script>
+/* ============================================================================
+   Lesko Help — Season Calendar
+   Takes the dataset in data/programs.js and answers one question first:
+   what can somebody actually apply for today?
+
+   Everything here is derived from today's date, so the page is correct on any
+   day it is opened without anyone editing it. Append ?date=YYYY-MM-DD to the
+   URL to preview how the board will look on a future day.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------- DAY MATH */
+  // Dates are parsed at UTC noon so that adding days never trips over a
+  // daylight-saving boundary and lands on the wrong calendar day.
+  function day(iso) {
+    var p = iso.split('-');
+    return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
+  }
+  function daysBetween(from, to) {
+    return Math.round((to - from) / 86400000);
+  }
+
+  var override = new URLSearchParams(location.search).get('date');
+  var TODAY = override && /^\d{4}-\d{2}-\d{2}$/.test(override)
+    ? day(override)
+    : (function () {
+        var n = new Date();
+        return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate(), 12));
+      })();
+
+  var MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function longDate(d) {
+    return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+  }
+  function shortDate(d) {
+    return MON[d.getUTCMonth()] + ' ' + d.getUTCDate();
+  }
+  function shortDateYear(d) {
+    return MON[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+  }
+  // "in 24 days" reads better than "24 days" in a sentence, and "tomorrow"
+  // beats "in 1 day" every time.
+  function countdown(n) {
+    if (n === 0) return 'today';
+    if (n === 1) return 'tomorrow';
+    if (n < 14) return 'in ' + n + ' days';
+    if (n < 60) return 'in ' + n + ' days';
+    if (n < 400) {
+      var m = Math.round(n / 30.4);
+      return 'in about ' + m + ' month' + (m === 1 ? '' : 's');
+    }
+    return 'in about ' + Math.round(n / 365) + ' years';
+  }
+  function remaining(n) {
+    if (n === 0) return 'last day';
+    if (n === 1) return '1 day left';
+    if (n < 70) return n + ' days left';
+    var m = Math.round(n / 30.4);
+    return 'about ' + m + ' months left';
+  }
+
+  /* --------------------------------------------------------------- STATUS */
+  // The window is closing soon inside this many days.
+  var CLOSING_SOON = 30;
+  // The window opens soon inside this many days — long enough to be useful
+  // for gathering paperwork, short enough not to swamp the board.
+  var OPENING_SOON = 75;
+
+  var GROUPS = [
+    { key: 'closing', title: 'Closing soon',
+      note: 'The window shuts within a month. Do these this week.' },
+    { key: 'open', title: 'Open right now',
+      note: 'You can apply today. Nothing is standing in the way.' },
+    { key: 'soon', title: 'Opens soon — start getting ready',
+      note: 'Not open yet. Gather the paperwork now so you can file the week it opens.' },
+    { key: 'watch', title: 'No fixed season — watch for it',
+      note: 'These open without much warning and close fast. Be ready before they do.' },
+    { key: 'always', title: 'Open every day of the year',
+      note: 'No deadline at all. The only reason not to have applied is not knowing about it.' },
+    { key: 'later', title: 'Later in the year',
+      note: 'Nothing to do yet. Here so it does not arrive as a surprise.' },
+    { key: 'closed', title: 'Closed for this round',
+      note: 'The window has passed. Here is when it comes back.' },
+  ];
+
+  function statusOf(p) {
+    if (p.watch) return 'watch';
+    if (!p.opens && !p.closes) return 'always';
+
+    var o = day(p.opens), c = day(p.closes);
+
+    if (TODAY >= o && TODAY <= c) {
+      return daysBetween(TODAY, c) <= CLOSING_SOON ? 'closing' : 'open';
+    }
+    if (TODAY < o) {
+      return daysBetween(TODAY, o) <= OPENING_SOON ? 'soon' : 'later';
+    }
+    return 'closed';
+  }
+
+  // The one-line summary that sits in the tinted box on every card. This is
+  // the line most people will read and nothing else.
+  function windowLine(p, status) {
+    var o = p.opens ? day(p.opens) : null;
+    var c = p.closes ? day(p.closes) : null;
+
+    if (status === 'always')
+      return { lead: 'Open now', parts: ['no deadline, apply any day'] };
+    if (status === 'watch')
+      return { lead: 'No fixed dates', parts: [p.cadence] };
+    if (status === 'open' || status === 'closing')
+      return { lead: 'Open now',
+               parts: ['closes ' + shortDateYear(c), remaining(daysBetween(TODAY, c))] };
+    if (status === 'soon' || status === 'later')
+      return { lead: 'Opens ' + shortDateYear(o),
+               parts: [countdown(daysBetween(TODAY, o))] };
+    return { lead: 'Closed ' + shortDateYear(c), parts: [p.cadence] };
+  }
+
+  /* ------------------------------------------------------------- ELEMENTS */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function suitSpan(catKey) {
+    var c = LH_CATEGORIES[catKey];
+    var s = el('span', 'card-suit suit-' + c.color, c.suit);
+    s.setAttribute('title', c.name);
+    return s;
+  }
+
+  /* ----------------------------------------------------------------- CARD */
+  function buildCard(p, status) {
+    var card = el('article', 'card');
+
+    var top = el('div', 'card-top');
+    top.appendChild(suitSpan(p.cat));
+
+    var titleWrap = el('div');
+    titleWrap.appendChild(el('h3', 'card-title', p.name));
+    if (p.alsoCalled) titleWrap.appendChild(el('div', 'card-also', 'Also called: ' + p.alsoCalled));
+    top.appendChild(titleWrap);
+
+    var badgeText = {
+      closing: 'Closing soon', open: 'Open now', soon: 'Opens soon',
+      watch: 'Watch for it', always: 'Always open', later: 'Later', closed: 'Closed',
+    }[status];
+    top.appendChild(el('span', 'badge', badgeText));
+    card.appendChild(top);
+
+    card.appendChild(el('p', 'card-what', p.what));
+
+    var w = windowLine(p, status);
+    var win = el('div', 'window');
+    win.appendChild(el('span', 'lead', w.lead));
+
+    var parts = w.parts.slice();
+    if (p.precision === 'varies') parts.push('dates differ by state');
+    else if (p.precision === 'typical') parts.push('usual dates, check yours');
+
+    parts.forEach(function (text) {
+      win.appendChild(el('span', 'sep', '·'));
+      // Long phrases are allowed to wrap internally; short ones are kept
+      // whole so a countdown never splits across two lines.
+      win.appendChild(el('span', 'dates' + (text.length > 28 ? ' wrapok' : ''), text));
+    });
+    card.appendChild(win);
+
+    // Only show key dates that have not already gone by.
+    (p.keyDates || []).forEach(function (k) {
+      var d = day(k.date);
+      if (daysBetween(TODAY, d) < 0) return;
+      var row = el('div', 'keydate');
+      row.appendChild(el('span', 'kd-date', shortDate(d)));
+      row.appendChild(el('span', null, k.label));
+      card.appendChild(row);
+    });
+
+    if (p.urgent) {
+      var u = el('div', 'urgent');
+      u.appendChild(el('b', null, 'Worth knowing. '));
+      u.appendChild(document.createTextNode(p.urgent));
+      card.appendChild(u);
+    }
+
+    // The paperwork list is the practical payload, but it is long — so it
+    // collapses, and opens itself for anything you could act on today.
+    if (p.prep && p.prep.length) {
+      var det = el('details', 'prep');
+      var actionable = status === 'open' || status === 'closing' ||
+                       status === 'always' || status === 'watch';
+      if (actionable) det.open = true;
+
+      var label = 'What to have ready';
+      if (status === 'soon' && p.prepDays) {
+        var lead = daysBetween(TODAY, day(p.opens)) - p.prepDays;
+        label = lead <= 0
+          ? 'Start gathering now — ' + p.prep.length + ' things'
+          : 'Start gathering ' + countdown(Math.max(lead, 0)) + ' — ' + p.prep.length + ' things';
+      }
+      det.appendChild(el('summary', null, label));
+
+      var ul = el('ul');
+      p.prep.forEach(function (item) { ul.appendChild(el('li', null, item)); });
+      det.appendChild(ul);
+
+      if (p.missedIt) det.appendChild(el('p', null, 'If you miss it: ' + p.missedIt));
+      if (p.renewal) det.appendChild(el('p', null, 'Renewing: ' + p.renewal));
+      card.appendChild(det);
+    }
+
+    if (p.caveat) card.appendChild(el('div', 'caveat', p.caveat));
+
+    var foot = el('div', 'card-foot');
+    foot.appendChild(el('span', 'where', p.where));
+    if (p.link) {
+      var a = el('a', null, 'Go there →');
+      a.href = p.link;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.setAttribute('aria-label', 'Open the official page for ' + p.name);
+      foot.appendChild(a);
+    }
+    card.appendChild(foot);
+
+    return card;
+  }
+
+  /* ---------------------------------------------------------------- STATE */
+  var filters = { status: 'all', cat: 'all' };
+
+  var decorated = LH_PROGRAMS.map(function (p) {
+    return { p: p, status: statusOf(p) };
+  });
+
+  function visible() {
+    return decorated.filter(function (d) {
+      if (filters.status !== 'all' && d.status !== filters.status) return false;
+      if (filters.cat !== 'all' && d.p.cat !== filters.cat) return false;
+      return true;
+    });
+  }
+
+  /* ---------------------------------------------------------------- TALLY */
+  function renderTally() {
+    var box = document.getElementById('tally');
+    box.textContent = '';
+
+    var openNow = decorated.filter(function (d) {
+      return d.status === 'open' || d.status === 'closing' || d.status === 'always';
+    }).length;
+    var closing = decorated.filter(function (d) { return d.status === 'closing'; }).length;
+    var soon = decorated.filter(function (d) { return d.status === 'soon'; }).length;
+
+    [
+      [openNow, 'open to apply for today'],
+      [closing, 'closing within a month'],
+      [soon, 'worth getting ready for'],
+    ].forEach(function (row) {
+      var r = el('div', 'tally-row');
+      r.appendChild(el('span', 'tally-num', String(row[0])));
+      r.appendChild(el('span', null, row[1]));
+      box.appendChild(r);
+    });
+  }
+
+  /* -------------------------------------------------------------- FILTERS */
+  function renderFilters() {
+    var statusRow = document.getElementById('filter-status');
+    var catRow = document.getElementById('filter-cat');
+    statusRow.textContent = '';
+    catRow.textContent = '';
+
+    function chip(row, label, key, group, count, suitHTML) {
+      var b = el('button', 'chip');
+      b.type = 'button';
+      if (suitHTML) {
+        var s = el('span', 'suit ' + suitHTML.cls, suitHTML.glyph);
+        b.appendChild(s);
+      }
+      b.appendChild(document.createTextNode(label));
+      if (count != null) b.appendChild(el('span', 'count', String(count)));
+      b.setAttribute('aria-pressed', String(filters[group] === key));
+      b.addEventListener('click', function () {
+        filters[group] = filters[group] === key ? 'all' : key;
+        render();
+      });
+      row.appendChild(b);
+    }
+
+    chip(statusRow, 'Everything', 'all', 'status', decorated.length);
+    GROUPS.forEach(function (g) {
+      var n = decorated.filter(function (d) { return d.status === g.key; }).length;
+      if (!n) return;
+      var short = { closing: 'Closing soon', open: 'Open now', soon: 'Opens soon',
+                    watch: 'Watch for it', always: 'All year', later: 'Later',
+                    closed: 'Closed' }[g.key];
+      chip(statusRow, short, g.key, 'status', n);
+    });
+
+    chip(catRow, 'All four', 'all', 'cat', null);
+    Object.keys(LH_CATEGORIES).forEach(function (k) {
+      var c = LH_CATEGORIES[k];
+      var n = decorated.filter(function (d) { return d.p.cat === k; }).length;
+      chip(catRow, c.name, k, 'cat', n, { glyph: c.suit, cls: 'suit-' + c.color });
+    });
+  }
+
+  /* ---------------------------------------------------------------- BOARD */
+  function renderBoard() {
+    var board = document.getElementById('board');
+    board.textContent = '';
+
+    var items = visible();
+    if (!items.length) {
+      board.appendChild(el('div', 'empty',
+        'Nothing matches those two filters together. Try clearing one.'));
+      return;
+    }
+
+    GROUPS.forEach(function (g) {
+      var inGroup = items.filter(function (d) { return d.status === g.key; });
+      if (!inGroup.length) return;
+
+      var section = el('section', 'group');
+      section.setAttribute('data-status', g.key);
+
+      var head = el('div', 'group-head');
+      head.appendChild(el('h2', null, g.title));
+      head.appendChild(el('span', 'group-note', g.note));
+      section.appendChild(head);
+
+      // Soonest thing first inside every group — that is the reading order
+      // people actually want.
+      inGroup.sort(function (a, b) {
+        var ka = sortKey(a), kb = sortKey(b);
+        return ka - kb;
+      });
+
+      var cards = el('div', 'cards');
+      cards.setAttribute('data-n', String(inGroup.length));
+      inGroup.forEach(function (d) { cards.appendChild(buildCard(d.p, d.status)); });
+      section.appendChild(cards);
+      board.appendChild(section);
+    });
+  }
+
+  function sortKey(d) {
+    if (d.status === 'open' || d.status === 'closing') return daysBetween(TODAY, day(d.p.closes));
+    if (d.status === 'soon' || d.status === 'later') return daysBetween(TODAY, day(d.p.opens));
+    return 0;
+  }
+
+  /* ----------------------------------------------------------- YEAR STRIP */
+  // A rolling 12 months starting this month. A January-to-December grid would
+  // cut the winter programmes — the ones that matter most — clean in half.
+  function renderYear() {
+    var wrap = document.getElementById('gantt');
+    wrap.textContent = '';
+
+    var startYear = TODAY.getUTCFullYear();
+    var startMonth = TODAY.getUTCMonth();
+    var windowStart = Date.UTC(startYear, startMonth, 1, 12);
+    var windowEnd = Date.UTC(startYear, startMonth + 12, 1, 12);
+    var span = windowEnd - windowStart;
+
+    function pct(ms) { return ((ms - windowStart) / span) * 100; }
+    var todayPct = pct(TODAY.getTime());
+
+    // Month header
+    wrap.appendChild(el('div', 'gantt-label gantt-head'));
+    var head = el('div', 'gantt-track gantt-head');
+    for (var i = 0; i < 12; i++) {
+      var mi = (startMonth + i) % 12;
+      var yr = startYear + Math.floor((startMonth + i) / 12);
+      var m = el('div', 'm' + (mi === 0 ? ' newyear' : ''),
+                 mi === 0 ? MON[mi] + ' ' + yr : MON[mi]);
+      head.appendChild(m);
+    }
+    var marker = el('div', 'gantt-today labelled');
+    marker.style.left = todayPct + '%';
+    head.appendChild(marker);
+    wrap.appendChild(head);
+
+    var items = visible().slice().sort(function (a, b) {
+      var ao = a.p.opens ? day(a.p.opens).getTime() : Infinity;
+      var bo = b.p.opens ? day(b.p.opens).getTime() : Infinity;
+      return ao - bo;
+    });
+
+    items.forEach(function (d) {
+      var p = d.p;
+      var cat = LH_CATEGORIES[p.cat];
+
+      var label = el('div', 'gantt-label');
+      label.appendChild(el('span', 'suit suit-' + cat.color, cat.suit));
+      label.appendChild(el('span', null, p.name));
+      label.setAttribute('title', p.name);
+      wrap.appendChild(label);
+
+      var track = el('div', 'gantt-track');
+
+      var bar;
+      if (!p.opens || !p.closes || d.status === 'watch') {
+        bar = el('div', 'bar always', d.status === 'watch' ? 'Could open any time' : 'Open all year');
+        bar.style.left = '0%';
+        bar.style.width = '100%';
+      } else {
+        var o = day(p.opens).getTime(), c = day(p.closes).getTime();
+        // Clip to the visible year rather than dropping the row — a window
+        // that started before this month is still open today.
+        var rawLeft = pct(o), rawRight = pct(c);
+        var left = Math.max(rawLeft, 0);
+        var right = Math.min(rawRight, 100);
+        if (right <= 0 || left >= 100) return; // genuinely outside the year
+        // A window that runs past either edge of the visible year gets a
+        // squared-off end, so a clipped bar never reads as a real boundary.
+        var clip = (rawLeft < 0 ? ' clip-left' : '') + (rawRight > 100 ? ' clip-right' : '');
+        bar = el('div', 'bar' + (p.precision === 'exact' ? '' : ' approx') + clip);
+        bar.style.left = left + '%';
+        bar.style.width = Math.max(right - left, 1.2) + '%';
+        bar.style.setProperty('--bar', barColour(d.status));
+        if (right - left > 13) {
+          bar.textContent = MON[day(p.opens).getUTCMonth()].toUpperCase() +
+                            ' – ' + MON[day(p.closes).getUTCMonth()].toUpperCase();
+        }
+        bar.setAttribute('title', p.name + ' · ' + longDate(day(p.opens)) +
+                         ' to ' + longDate(day(p.closes)));
+      }
+      track.appendChild(bar);
+
+      var m = el('div', 'gantt-today');
+      m.style.left = todayPct + '%';
+      track.appendChild(m);
+
+      wrap.appendChild(track);
+    });
+  }
+
+  function barColour(status) {
+    return ({
+      open: 'var(--st-open)', closing: 'var(--st-closing)',
+      soon: 'var(--st-soon)', later: 'var(--st-later)',
+      closed: 'var(--st-always)', always: 'var(--st-always)',
+      watch: 'var(--st-watch)',
+    })[status] || 'var(--st-always)';
+  }
+
+  /* ------------------------------------------------------------------ RUN */
+  function render() {
+    renderFilters();
+    renderBoard();
+    renderYear();
+  }
+
+  document.getElementById('today-date').textContent = longDate(TODAY);
+  renderTally();
+  render();
+})();
+
+</script>
+</body>
+</html>

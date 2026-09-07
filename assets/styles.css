@@ -1,0 +1,552 @@
+/* ============================================================================
+   Lesko Help — Season Calendar
+   Visual system carried over from the Lesko Help quiz: cream ground, navy ink,
+   the red italic, the gold pill, and the four card suits as category marks.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ TOKENS */
+:root {
+  /* Ground & ink */
+  --cream:        #FDF4E7;
+  --cream-deep:   #F7E9D4;
+  --paper:        #FFFFFF;
+  --ink:          #12213F;
+  --ink-soft:     #47546E;
+  --ink-faint:    #7C879B;
+  --rule:         #E4D9C6;
+  --rule-strong:  #CFC0A6;
+
+  /* Lesko brand */
+  --red:          #E5372C;
+  --gold:         #F2C230;
+  --gold-deep:    #D9A806;
+  --blue:         #2B62D9;
+  --green:        #0F8A4D;
+
+  /* Semantic status — deliberately separate from the brand accents */
+  --st-open:      #0F8A4D;
+  --st-open-bg:   #E7F4EC;
+  --st-closing:   #C2410C;
+  --st-closing-bg:#FCEDE3;
+  --st-soon:      #2B62D9;
+  --st-soon-bg:   #E8EEFC;
+  --st-later:     #6B5E8A;
+  --st-later-bg:  #EFEBF6;
+  --st-always:    #47546E;
+  --st-always-bg: #ECEFF4;
+  --st-watch:     #8A6D0F;
+  --st-watch-bg:  #F8F1DA;
+
+  /* Type */
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --shadow-card: 0 1px 2px rgba(18, 33, 63, .05), 0 8px 24px -12px rgba(18, 33, 63, .12);
+  --shadow-lift: 0 2px 4px rgba(18, 33, 63, .07), 0 16px 32px -16px rgba(18, 33, 63, .20);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cream:        #141B2B;
+    --cream-deep:   #1B2334;
+    --paper:        #1E2739;
+    --ink:          #F3EADA;
+    --ink-soft:     #B3BDD0;
+    --ink-faint:    #8492AB;
+    --rule:         #2E3A52;
+    --rule-strong:  #445273;
+
+    --red:          #FF6B5E;
+    --gold:         #F6CE55;
+    --gold-deep:    #F2C230;
+    --blue:         #7A9BF0;
+    --green:        #4FC384;
+
+    --st-open:      #4FC384;
+    --st-open-bg:   #17301F;
+    --st-closing:   #FF9257;
+    --st-closing-bg:#33200F;
+    --st-soon:      #7A9BF0;
+    --st-soon-bg:   #16203A;
+    --st-later:     #B39BE0;
+    --st-later-bg:  #241C35;
+    --st-always:    #A6B2C8;
+    --st-always-bg: #222C3F;
+    --st-watch:     #E4C46A;
+    --st-watch-bg:  #2C2512;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, .30), 0 8px 24px -12px rgba(0, 0, 0, .55);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -16px rgba(0, 0, 0, .65);
+  }
+}
+
+:root[data-theme="dark"] {
+  --cream:        #141B2B;
+  --cream-deep:   #1B2334;
+  --paper:        #1E2739;
+  --ink:          #F3EADA;
+  --ink-soft:     #B3BDD0;
+  --ink-faint:    #8492AB;
+  --rule:         #2E3A52;
+  --rule-strong:  #445273;
+
+  --red:          #FF6B5E;
+  --gold:         #F6CE55;
+  --gold-deep:    #F2C230;
+  --blue:         #7A9BF0;
+  --green:        #4FC384;
+
+  --st-open:      #4FC384;
+  --st-open-bg:   #17301F;
+  --st-closing:   #FF9257;
+  --st-closing-bg:#33200F;
+  --st-soon:      #7A9BF0;
+  --st-soon-bg:   #16203A;
+  --st-later:     #B39BE0;
+  --st-later-bg:  #241C35;
+  --st-always:    #A6B2C8;
+  --st-always-bg: #222C3F;
+  --st-watch:     #E4C46A;
+  --st-watch-bg:  #2C2512;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .30), 0 8px 24px -12px rgba(0, 0, 0, .55);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -16px rgba(0, 0, 0, .65);
+}
+
+/* ------------------------------------------------------------------- BASE */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2.5px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* The four-colour checkerboard frame from the Lesko Help shell. Decorative,
+   so it is hidden from assistive tech and dropped on narrow screens. */
+.frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  border: 10px solid transparent;
+  border-image: repeating-linear-gradient(
+    90deg,
+    var(--blue)  0 28px, var(--red)   28px 56px,
+    var(--gold) 56px 84px, var(--green) 84px 112px
+  ) 10 round;
+}
+@media (max-width: 720px) { .frame { display: none; } }
+
+.shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 24px 96px;
+}
+@media (max-width: 720px) { .shell { padding: 20px 16px 64px; } }
+
+/* ------------------------------------------------------------------ TYPE */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 500; text-wrap: balance; margin: 0; }
+
+/* --------------------------------------------------------------- MASTHEAD */
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.brand-mark {
+  width: 54px; height: 54px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: grid; place-items: center;
+  font-family: var(--display);
+  font-size: 27px;
+  line-height: 1;
+}
+
+.brand-name { font-family: var(--display); font-size: 21px; line-height: 1.15; }
+.brand-name em { display: block; color: var(--red); font-style: italic; font-size: 19px; }
+.brand-name b { display: block; font-weight: 500; }
+
+.suits { display: flex; gap: 10px; font-size: 19px; line-height: 1; }
+.suit-blue { color: var(--blue); } .suit-red { color: var(--red); }
+.suit-gold { color: var(--gold-deep); } .suit-green { color: var(--green); }
+
+/* ------------------------------------------------------------------- HERO */
+.hero { margin-top: 30px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+@media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 22px; } }
+
+.hero h1 { font-size: clamp(38px, 6vw, 62px); line-height: 1.02; letter-spacing: -.015em; }
+.hero h1 em { color: var(--red); font-style: italic; }
+
+.hero p { margin: 16px 0 0; max-width: 34em; font-size: 17px; color: var(--ink-soft); }
+
+.today-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-card);
+}
+.today-card .eyebrow { display: block; margin-bottom: 10px; }
+.today-date { font-family: var(--display); font-size: 24px; line-height: 1.15; }
+.today-tally { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+.tally-row {
+  display: flex; align-items: baseline; gap: 9px;
+  font-size: 14px; color: var(--ink-soft);
+}
+.tally-num {
+  font-family: var(--mono); font-size: 15px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.6em; text-align: right;
+}
+
+/* ---------------------------------------------------------------- CONTROLS */
+.controls {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.control-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.control-row > .eyebrow { flex: none; width: 92px; }
+@media (max-width: 640px) { .control-row > .eyebrow { width: auto; } }
+
+.chip {
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 999px;
+  padding: 7px 15px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: background .14s ease, border-color .14s ease;
+}
+.chip:hover { background: var(--cream-deep); }
+.chip[aria-pressed="true"] {
+  background: var(--gold);
+  border-color: var(--gold-deep);
+  color: #12213F;
+  font-weight: 600;
+}
+.chip .count {
+  font-family: var(--mono); font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  opacity: .62;
+}
+.chip[aria-pressed="true"] .count { opacity: .78; }
+.chip .suit { font-size: 15px; }
+
+/* ------------------------------------------------------------------ BOARD */
+.board { margin-top: 40px; display: flex; flex-direction: column; gap: 40px; }
+
+.group-head {
+  display: flex; align-items: baseline; gap: 14px;
+  padding-bottom: 11px;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 20px;
+}
+.group-head h2 { font-size: 27px; letter-spacing: -.01em; }
+.group-head .group-note { font-size: 14px; color: var(--ink-soft); margin-left: auto; text-align: right; }
+@media (max-width: 640px) {
+  .group-head { flex-wrap: wrap; }
+  .group-head .group-note { margin-left: 0; text-align: left; width: 100%; }
+}
+
+/* Each status group carries its own left stripe colour on its cards. */
+.group[data-status="open"]    { --grp: var(--st-open);    --grp-bg: var(--st-open-bg); }
+.group[data-status="closing"] { --grp: var(--st-closing); --grp-bg: var(--st-closing-bg); }
+.group[data-status="soon"]    { --grp: var(--st-soon);    --grp-bg: var(--st-soon-bg); }
+.group[data-status="later"]   { --grp: var(--st-later);   --grp-bg: var(--st-later-bg); }
+.group[data-status="always"]  { --grp: var(--st-always);  --grp-bg: var(--st-always-bg); }
+.group[data-status="watch"]   { --grp: var(--st-watch);   --grp-bg: var(--st-watch-bg); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; align-items: stretch; }
+/* A group holding one or two cards should not stretch them across a three-up
+   row and leave the rest of it empty. */
+.cards[data-n="1"] { grid-template-columns: minmax(0, 430px); }
+.cards[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) { .cards[data-n="2"] { grid-template-columns: minmax(0, 1fr); } }
+
+/* ------------------------------------------------------------------- CARD */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--grp, var(--rule-strong));
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; gap: 11px;
+}
+
+.card-top { display: flex; align-items: flex-start; gap: 11px; }
+.card-suit { font-size: 17px; line-height: 1.35; flex: none; }
+.card-title { font-family: var(--display); font-size: 20px; line-height: 1.2; letter-spacing: -.005em; }
+.card-also { font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
+
+.badge {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+  background: var(--grp-bg); color: var(--grp);
+  white-space: nowrap; flex: none; margin-left: auto;
+}
+
+.card-what { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+
+/* The window line — the single most important row on the card. */
+/* Inline spans on a block, not flex items — so the line wraps between whole
+   phrases ("23 days left") instead of splitting one down the middle. */
+.window {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  font-variant-numeric: tabular-nums;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: var(--cream-deep);
+}
+.window .lead { color: var(--grp, var(--ink)); font-weight: 600; white-space: nowrap; }
+.window .dates { color: var(--ink-soft); white-space: nowrap; }
+.window .sep { color: var(--ink-faint); padding: 0 5px; }
+.window .dates.wrapok { white-space: normal; }
+
+.keydate {
+  display: flex; gap: 9px; align-items: baseline;
+  font-size: 13.5px; color: var(--ink-soft);
+  padding-left: 2px;
+}
+.keydate .kd-date {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  color: var(--ink); white-space: nowrap; flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Red flag — the thing Lesko would actually shout about. */
+.urgent {
+  font-size: 13.5px;
+  line-height: 1.45;
+  padding: 10px 12px 10px 13px;
+  border-radius: 9px;
+  background: var(--st-closing-bg);
+  border-left: 3px solid var(--st-closing);
+  color: var(--ink);
+}
+.urgent b { font-weight: 600; }
+
+.caveat {
+  font-size: 12.5px; line-height: 1.45;
+  color: var(--ink-faint);
+  padding-left: 13px;
+  border-left: 2px solid var(--rule);
+}
+
+details.prep { font-size: 13.5px; }
+details.prep summary {
+  cursor: pointer; list-style: none;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-faint);
+  padding: 3px 0;
+}
+details.prep summary::-webkit-details-marker { display: none; }
+details.prep summary::before { content: "+ "; }
+details[open].prep summary::before { content: "– "; }
+details.prep summary:hover { color: var(--ink); }
+details.prep ul { margin: 8px 0 0; padding-left: 18px; color: var(--ink-soft); }
+details.prep li { margin-bottom: 5px; }
+details.prep p { margin: 8px 0 0; color: var(--ink-soft); }
+
+.card-foot {
+  margin-top: auto; padding-top: 11px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-size: 13px;
+}
+.card-foot .where { color: var(--ink-faint); }
+.card-foot a {
+  font-weight: 600; color: var(--red);
+  text-decoration-thickness: 1.5px; text-underline-offset: 2.5px;
+  margin-left: auto;
+}
+
+/* ------------------------------------------------------------- YEAR STRIP */
+.year {
+  margin-top: 56px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+@media (max-width: 640px) { .year { padding: 18px 14px; } }
+
+.year-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+.year-head h2 { font-size: 26px; }
+.year-head p { margin: 0; font-size: 14px; color: var(--ink-soft); flex: 1 1 22em; }
+
+/* overflow-x:auto forces overflow-y to auto too, so the TODAY flag above the
+   header row needs headroom or it gets clipped. */
+.year-scroll { overflow-x: auto; margin-top: 20px; padding-top: 20px; padding-bottom: 6px; }
+
+.gantt {
+  min-width: 700px;
+  display: grid;
+  grid-template-columns: 215px 1fr;
+  gap: 0 14px;
+}
+.gantt-months, .gantt-row { display: contents; }
+
+.gantt-label {
+  font-size: 13px; line-height: 1.25;
+  padding: 7px 0;
+  display: flex; align-items: center; gap: 7px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink);
+}
+.gantt-label .suit { flex: none; font-size: 13px; }
+.gantt-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.gantt-track {
+  position: relative;
+  border-top: 1px solid var(--rule);
+  height: 35px;
+}
+/* Faint month gridlines behind every bar. */
+.gantt-track::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg, var(--rule) 0 1px, transparent 1px calc(100% / 12)
+  );
+  opacity: .55;
+  pointer-events: none;
+}
+
+.gantt-track.gantt-head {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: end;
+  height: auto;
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-faint);
+  border-top: none;
+  padding-bottom: 9px;
+}
+.gantt-track.gantt-head::before { display: none; }
+.gantt-head .m { text-align: center; }
+.gantt-head .m.newyear { color: var(--ink); font-weight: 600; }
+.gantt-label.gantt-head { border-top: none; }
+
+.bar {
+  position: absolute;
+  top: 7px;
+  z-index: 1;
+  height: 21px;
+  border-radius: 5px;
+  background: var(--bar, var(--st-always));
+  display: flex; align-items: center;
+  padding: 0 8px;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .05em;
+  color: #fff;
+  white-space: nowrap; overflow: hidden;
+}
+:root[data-theme="dark"] .bar,
+:root:not([data-theme="light"]) .bar { color: #121A28; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .bar { color: #fff; }
+}
+
+/* A window we only know approximately is drawn hatched, not solid. */
+.bar.approx {
+  background-image: repeating-linear-gradient(
+    115deg, rgba(255,255,255,.34) 0 5px, transparent 5px 11px
+  );
+}
+.bar.clip-left  { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.bar.clip-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+.bar.always {
+  background: transparent;
+  border: 1.5px dashed var(--rule-strong);
+  color: var(--ink-faint);
+}
+
+/* Today marker rides above every track. */
+.gantt-today {
+  position: absolute; top: 0; bottom: 0;
+  width: 2px; background: var(--red);
+  z-index: 2; pointer-events: none;
+}
+.gantt-today.labelled::after {
+  content: "TODAY";
+  position: absolute; top: -16px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: .1em; color: var(--red);
+}
+
+.legend {
+  margin-top: 18px; padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  display: flex; gap: 20px; flex-wrap: wrap;
+  font-size: 12.5px; color: var(--ink-soft);
+}
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.swatch { width: 22px; height: 11px; border-radius: 3px; flex: none; }
+.swatch.hatch { background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.34) 0 4px, transparent 4px 9px); }
+.swatch.dash { background: transparent; border: 1.5px dashed var(--rule-strong); }
+
+/* ------------------------------------------------------------------ EMPTY */
+.empty {
+  padding: 44px 20px; text-align: center;
+  color: var(--ink-faint); font-size: 15px;
+  border: 1.5px dashed var(--rule-strong); border-radius: 14px;
+}
+
+/* ----------------------------------------------------------------- FOOTER */
+.foot {
+  margin-top: 56px; padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px; color: var(--ink-faint);
+  display: flex; gap: 22px; flex-wrap: wrap; justify-content: space-between;
+}
+.foot p { margin: 0; max-width: 46em; }
+.foot b { color: var(--ink-soft); font-weight: 600; }
