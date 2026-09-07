@@ -1,126 +1,48 @@
 <title>The Help Calendar</title>
-<meta name="description" content="What you can apply for right now, what opens soon, and what you have already missed — the seasons behind US grants and assistance, in one view.">
+<meta name="description" content="A month calendar of US grants and assistance — when each window opens, when it closes, and what is closing next.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ============================================================================
-   Lesko Help — Season Calendar
-   Visual system carried over from the Lesko Help quiz: cream ground, navy ink,
-   the red italic, the gold pill, and the four card suits as category marks.
+   Lesko Help — The Help Calendar
+   Light only, on purpose: this is the Lesko Help cream-and-navy identity, and
+   it is the same in every context. No dark variants anywhere in this file.
    ========================================================================== */
 
-/* ------------------------------------------------------------------ TOKENS */
 :root {
+  color-scheme: light;
+
   /* Ground & ink */
-  --cream:        #FDF4E7;
-  --cream-deep:   #F7E9D4;
-  --paper:        #FFFFFF;
-  --ink:          #12213F;
-  --ink-soft:     #47546E;
-  --ink-faint:    #7C879B;
-  --rule:         #E4D9C6;
-  --rule-strong:  #CFC0A6;
+  --cream:       #FDF4E7;
+  --cream-deep:  #F7E9D4;
+  --paper:       #FFFFFF;
+  --ink:         #12213F;
+  --ink-soft:    #47546E;
+  --ink-faint:   #7C879B;
+  --rule:        #E4D9C6;
+  --rule-strong: #CFC0A6;
 
-  /* Lesko brand */
-  --red:          #E5372C;
-  --gold:         #F2C230;
-  --gold-deep:    #D9A806;
-  --blue:         #2B62D9;
-  --green:        #0F8A4D;
+  /* The four Lesko colours. Also the four card suits, also the four topics. */
+  --blue:  #2B62D9;
+  --red:   #E5372C;
+  --gold:  #F2C230;
+  --green: #0F8A4D;
+  --gold-deep: #C79A05;
 
-  /* Semantic status — deliberately separate from the brand accents */
-  --st-open:      #0F8A4D;
-  --st-open-bg:   #E7F4EC;
-  --st-closing:   #C2410C;
-  --st-closing-bg:#FCEDE3;
-  --st-soon:      #2B62D9;
-  --st-soon-bg:   #E8EEFC;
-  --st-later:     #6B5E8A;
-  --st-later-bg:  #EFEBF6;
-  --st-always:    #47546E;
-  --st-always-bg: #ECEFF4;
-  --st-watch:     #8A6D0F;
-  --st-watch-bg:  #F8F1DA;
+  /* Urgency. Kept apart from the four brand colours so a red bar always means
+     "hearts / health" and never "hurry". */
+  --hot:    #C2410C;
+  --hot-bg: #FCEDE3;
 
-  /* Type */
   --display: "Newsreader", "Iowan Old Style", Georgia, serif;
   --body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --shadow-card: 0 1px 2px rgba(18, 33, 63, .05), 0 8px 24px -12px rgba(18, 33, 63, .12);
-  --shadow-lift: 0 2px 4px rgba(18, 33, 63, .07), 0 16px 32px -16px rgba(18, 33, 63, .20);
+  --card-shadow: 0 1px 2px rgba(18,33,63,.05), 0 8px 24px -14px rgba(18,33,63,.16);
+  --frame: 11px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --cream:        #141B2B;
-    --cream-deep:   #1B2334;
-    --paper:        #1E2739;
-    --ink:          #F3EADA;
-    --ink-soft:     #B3BDD0;
-    --ink-faint:    #8492AB;
-    --rule:         #2E3A52;
-    --rule-strong:  #445273;
-
-    --red:          #FF6B5E;
-    --gold:         #F6CE55;
-    --gold-deep:    #F2C230;
-    --blue:         #7A9BF0;
-    --green:        #4FC384;
-
-    --st-open:      #4FC384;
-    --st-open-bg:   #17301F;
-    --st-closing:   #FF9257;
-    --st-closing-bg:#33200F;
-    --st-soon:      #7A9BF0;
-    --st-soon-bg:   #16203A;
-    --st-later:     #B39BE0;
-    --st-later-bg:  #241C35;
-    --st-always:    #A6B2C8;
-    --st-always-bg: #222C3F;
-    --st-watch:     #E4C46A;
-    --st-watch-bg:  #2C2512;
-
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, .30), 0 8px 24px -12px rgba(0, 0, 0, .55);
-    --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -16px rgba(0, 0, 0, .65);
-  }
-}
-
-:root[data-theme="dark"] {
-  --cream:        #141B2B;
-  --cream-deep:   #1B2334;
-  --paper:        #1E2739;
-  --ink:          #F3EADA;
-  --ink-soft:     #B3BDD0;
-  --ink-faint:    #8492AB;
-  --rule:         #2E3A52;
-  --rule-strong:  #445273;
-
-  --red:          #FF6B5E;
-  --gold:         #F6CE55;
-  --gold-deep:    #F2C230;
-  --blue:         #7A9BF0;
-  --green:        #4FC384;
-
-  --st-open:      #4FC384;
-  --st-open-bg:   #17301F;
-  --st-closing:   #FF9257;
-  --st-closing-bg:#33200F;
-  --st-soon:      #7A9BF0;
-  --st-soon-bg:   #16203A;
-  --st-later:     #B39BE0;
-  --st-later-bg:  #241C35;
-  --st-always:    #A6B2C8;
-  --st-always-bg: #222C3F;
-  --st-watch:     #E4C46A;
-  --st-watch-bg:  #2C2512;
-
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, .30), 0 8px 24px -12px rgba(0, 0, 0, .55);
-  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 16px 32px -16px rgba(0, 0, 0, .65);
-}
-
-/* ------------------------------------------------------------------- BASE */
 * { box-sizing: border-box; }
 
 body {
@@ -128,448 +50,289 @@ body {
   background: var(--cream);
   color: var(--ink);
   font-family: var(--body);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; }
+:focus-visible { outline: 2.5px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
 
-:focus-visible {
-  outline: 2.5px solid var(--blue);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+/* ------------------------------------------------------------------ FRAME */
+/* Blocks of blue / red / gold / green all the way round. The vertical strips
+   need their own 180deg gradient, which is why this is four elements and not
+   one border-image — a 90deg gradient turns to mush on the left and right. */
+.frame > i { position: fixed; z-index: 60; display: block; }
 
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+.frame .fr-top, .frame .fr-bottom {
+  left: 0; right: 0; height: var(--frame);
+  background: repeating-linear-gradient(90deg,
+    var(--blue) 0 26px, var(--red) 26px 52px,
+    var(--gold) 52px 78px, var(--green) 78px 104px);
 }
+.frame .fr-top { top: 0; }
+.frame .fr-bottom { bottom: 0; }
 
-/* The four-colour checkerboard frame from the Lesko Help shell. Decorative,
-   so it is hidden from assistive tech and dropped on narrow screens. */
-.frame {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 50;
-  border: 10px solid transparent;
-  border-image: repeating-linear-gradient(
-    90deg,
-    var(--blue)  0 28px, var(--red)   28px 56px,
-    var(--gold) 56px 84px, var(--green) 84px 112px
-  ) 10 round;
+.frame .fr-left, .frame .fr-right {
+  top: 0; bottom: 0; width: var(--frame);
+  background: repeating-linear-gradient(180deg,
+    var(--blue) 0 26px, var(--red) 26px 52px,
+    var(--gold) 52px 78px, var(--green) 78px 104px);
 }
-@media (max-width: 720px) { .frame { display: none; } }
+.frame .fr-left { left: 0; }
+.frame .fr-right { right: 0; }
+
+@media (max-width: 720px) { :root { --frame: 7px; } }
 
 .shell {
-  max-width: 1120px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 28px 24px 96px;
+  padding: calc(var(--frame) + 20px) calc(var(--frame) + 20px) calc(var(--frame) + 48px);
 }
-@media (max-width: 720px) { .shell { padding: 20px 16px 64px; } }
 
-/* ------------------------------------------------------------------ TYPE */
+/* ------------------------------------------------------------------- TYPE */
 .eyebrow {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint);
 }
-
-h1, h2, h3 { font-family: var(--display); font-weight: 500; text-wrap: balance; margin: 0; }
+h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; }
 
 /* --------------------------------------------------------------- MASTHEAD */
-.masthead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.brand { display: flex; align-items: center; gap: 14px; }
-
+.masthead { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 12px; }
 .brand-mark {
-  width: 54px; height: 54px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--blue);
-  color: #fff;
-  display: grid; place-items: center;
-  font-family: var(--display);
-  font-size: 27px;
-  line-height: 1;
+  width: 46px; height: 46px; flex: none; border-radius: 50%;
+  background: var(--blue); color: #fff; display: grid; place-items: center;
+  font-family: var(--display); font-size: 23px; line-height: 1;
 }
-
-.brand-name { font-family: var(--display); font-size: 21px; line-height: 1.15; }
-.brand-name em { display: block; color: var(--red); font-style: italic; font-size: 19px; }
+.brand-name { font-family: var(--display); font-size: 19px; line-height: 1.12; }
+.brand-name em { display: block; color: var(--red); font-style: italic; font-size: 17px; }
 .brand-name b { display: block; font-weight: 500; }
 
-.suits { display: flex; gap: 10px; font-size: 19px; line-height: 1; }
+.suits { display: flex; gap: 9px; font-size: 17px; line-height: 1; }
 .suit-blue { color: var(--blue); } .suit-red { color: var(--red); }
 .suit-gold { color: var(--gold-deep); } .suit-green { color: var(--green); }
 
-/* ------------------------------------------------------------------- HERO */
-.hero { margin-top: 30px; display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
-@media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 22px; } }
-
-.hero h1 { font-size: clamp(38px, 6vw, 62px); line-height: 1.02; letter-spacing: -.015em; }
-.hero h1 em { color: var(--red); font-style: italic; }
-
-.hero p { margin: 16px 0 0; max-width: 34em; font-size: 17px; color: var(--ink-soft); }
-
-.today-card {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: var(--shadow-card);
+.page-title {
+  margin: 22px 0 0;
+  font-size: clamp(30px, 4.4vw, 46px);
+  line-height: 1.05; letter-spacing: -.015em;
 }
-.today-card .eyebrow { display: block; margin-bottom: 10px; }
-.today-date { font-family: var(--display); font-size: 24px; line-height: 1.15; }
-.today-tally { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
-.tally-row {
-  display: flex; align-items: baseline; gap: 9px;
-  font-size: 14px; color: var(--ink-soft);
-}
-.tally-num {
-  font-family: var(--mono); font-size: 15px; font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  min-width: 1.6em; text-align: right;
-}
+.page-title em { color: var(--red); font-style: italic; }
 
-/* ---------------------------------------------------------------- CONTROLS */
-.controls {
-  margin-top: 34px;
-  padding-top: 22px;
-  border-top: 1px solid var(--rule);
-  display: flex; flex-direction: column; gap: 16px;
-}
-
-.control-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.control-row > .eyebrow { flex: none; width: 92px; }
-@media (max-width: 640px) { .control-row > .eyebrow { width: auto; } }
-
-.chip {
-  font-family: var(--body);
-  font-size: 14px;
-  color: var(--ink);
-  background: transparent;
+/* ------------------------------------------------------------------- TABS */
+.tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.tab {
+  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 9px 17px; border-radius: 999px;
   border: 1.5px solid var(--rule-strong);
-  border-radius: 999px;
-  padding: 7px 15px;
-  cursor: pointer;
-  display: inline-flex; align-items: center; gap: 7px;
-  transition: background .14s ease, border-color .14s ease;
+  text-decoration: none; color: var(--ink);
+  white-space: nowrap;
+}
+.tab:hover { background: var(--cream-deep); }
+.tab.is-on { background: var(--gold); border-color: var(--gold); font-weight: 600; }
+
+/* ----------------------------------------------------------------- LAYOUT */
+.layout {
+  margin-top: 26px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 22px;
+  align-items: start;
+}
+@media (max-width: 1060px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* --------------------------------------------------------------- CAL BAR */
+.cal {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow);
+}
+
+.cal-bar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 14px; }
+.cal-month {
+  font-size: 25px; letter-spacing: -.01em; min-width: 6.6em;
+}
+.navbtn, .todaybtn {
+  font-family: var(--body); color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--rule-strong); border-radius: 999px; cursor: pointer;
+}
+.navbtn { width: 33px; height: 33px; flex: none; font-size: 15px; line-height: 1; }
+.todaybtn { height: 33px; padding: 0 15px; font-size: 13px; font-weight: 600; }
+.navbtn:hover, .todaybtn:hover { background: var(--cream-deep); }
+
+.chips { display: flex; gap: 7px; flex-wrap: wrap; margin-left: auto; }
+.chip {
+  font-family: var(--body); font-size: 12.5px; color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--rule-strong);
+  border-radius: 999px; padding: 5px 12px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
 }
 .chip:hover { background: var(--cream-deep); }
-.chip[aria-pressed="true"] {
-  background: var(--gold);
-  border-color: var(--gold-deep);
-  color: #12213F;
-  font-weight: 600;
+.chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); font-weight: 600; }
+.chip .suit { font-size: 13px; }
+
+/* ------------------------------------------------------------- THE GRID */
+.cal-scroll { overflow-x: auto; }
+.cal-grid { min-width: 660px; }
+
+.weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
+  padding-bottom: 7px;
 }
-.chip .count {
-  font-family: var(--mono); font-size: 11.5px;
-  font-variant-numeric: tabular-nums;
-  opacity: .62;
+.weekdays div { text-align: center; }
+
+.week { position: relative; border-top: 1px solid var(--rule); }
+.week:last-child { border-bottom: 1px solid var(--rule); }
+
+/* Day cells sit underneath; the event bars are an overlay on top so a bar can
+   span several columns the way it does in any real calendar. */
+.week-days { display: grid; grid-template-columns: repeat(7, 1fr); height: 100%; }
+.week-days > div {
+  border-right: 1px solid var(--rule);
+  padding: 5px 7px;
+  cursor: pointer;
 }
-.chip[aria-pressed="true"] .count { opacity: .78; }
-.chip .suit { font-size: 15px; }
+.week-days > div:first-child { border-left: 1px solid var(--rule); }
+.week-days > div:hover { background: var(--cream-deep); }
+.week-days .out { background: #FBF7F0; }
+.week-days .out .dnum { color: var(--rule-strong); }
+.week-days .sel { background: var(--cream-deep); box-shadow: inset 0 0 0 2px var(--ink); }
 
-/* ------------------------------------------------------------------ BOARD */
-.board { margin-top: 40px; display: flex; flex-direction: column; gap: 40px; }
-
-.group-head {
-  display: flex; align-items: baseline; gap: 14px;
-  padding-bottom: 11px;
-  border-bottom: 2px solid var(--ink);
-  margin-bottom: 20px;
+.dnum {
+  font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+  font-variant-numeric: tabular-nums; color: var(--ink-soft);
 }
-.group-head h2 { font-size: 27px; letter-spacing: -.01em; }
-.group-head .group-note { font-size: 14px; color: var(--ink-soft); margin-left: auto; text-align: right; }
-@media (max-width: 640px) {
-  .group-head { flex-wrap: wrap; }
-  .group-head .group-note { margin-left: 0; text-align: left; width: 100%; }
-}
-
-/* Each status group carries its own left stripe colour on its cards. */
-.group[data-status="open"]    { --grp: var(--st-open);    --grp-bg: var(--st-open-bg); }
-.group[data-status="closing"] { --grp: var(--st-closing); --grp-bg: var(--st-closing-bg); }
-.group[data-status="soon"]    { --grp: var(--st-soon);    --grp-bg: var(--st-soon-bg); }
-.group[data-status="later"]   { --grp: var(--st-later);   --grp-bg: var(--st-later-bg); }
-.group[data-status="always"]  { --grp: var(--st-always);  --grp-bg: var(--st-always-bg); }
-.group[data-status="watch"]   { --grp: var(--st-watch);   --grp-bg: var(--st-watch-bg); }
-
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; align-items: stretch; }
-/* A group holding one or two cards should not stretch them across a three-up
-   row and leave the rest of it empty. */
-.cards[data-n="1"] { grid-template-columns: minmax(0, 430px); }
-.cards[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 760px) { .cards[data-n="2"] { grid-template-columns: minmax(0, 1fr); } }
-
-/* ------------------------------------------------------------------- CARD */
-.card {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-left: 4px solid var(--grp, var(--rule-strong));
-  border-radius: 14px;
-  padding: 18px 20px 16px;
-  box-shadow: var(--shadow-card);
-  display: flex; flex-direction: column; gap: 11px;
+.week-days .today .dnum {
+  background: var(--red); color: #fff; font-weight: 600;
+  border-radius: 999px; padding: 1px 7px; margin-left: -3px;
 }
 
-.card-top { display: flex; align-items: flex-start; gap: 11px; }
-.card-suit { font-size: 17px; line-height: 1.35; flex: none; }
-.card-title { font-family: var(--display); font-size: 20px; line-height: 1.2; letter-spacing: -.005em; }
-.card-also { font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
-
-.badge {
-  font-family: var(--mono); font-size: 10.5px; font-weight: 600;
-  letter-spacing: .1em; text-transform: uppercase;
-  padding: 4px 9px; border-radius: 999px;
-  background: var(--grp-bg); color: var(--grp);
-  white-space: nowrap; flex: none; margin-left: auto;
-}
-
-.card-what { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
-
-/* The window line — the single most important row on the card. */
-/* Inline spans on a block, not flex items — so the line wraps between whole
-   phrases ("23 days left") instead of splitting one down the middle. */
-.window {
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.65;
-  font-variant-numeric: tabular-nums;
-  padding: 9px 11px;
-  border-radius: 9px;
-  background: var(--cream-deep);
-}
-.window .lead { color: var(--grp, var(--ink)); font-weight: 600; white-space: nowrap; }
-.window .dates { color: var(--ink-soft); white-space: nowrap; }
-.window .sep { color: var(--ink-faint); padding: 0 5px; }
-.window .dates.wrapok { white-space: normal; }
-
-.keydate {
-  display: flex; gap: 9px; align-items: baseline;
-  font-size: 13.5px; color: var(--ink-soft);
-  padding-left: 2px;
-}
-.keydate .kd-date {
-  font-family: var(--mono); font-size: 12px; font-weight: 600;
-  color: var(--ink); white-space: nowrap; flex: none;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Red flag — the thing Lesko would actually shout about. */
-.urgent {
-  font-size: 13.5px;
-  line-height: 1.45;
-  padding: 10px 12px 10px 13px;
-  border-radius: 9px;
-  background: var(--st-closing-bg);
-  border-left: 3px solid var(--st-closing);
-  color: var(--ink);
-}
-.urgent b { font-weight: 600; }
-
-.caveat {
-  font-size: 12.5px; line-height: 1.45;
-  color: var(--ink-faint);
-  padding-left: 13px;
-  border-left: 2px solid var(--rule);
-}
-
-details.prep { font-size: 13.5px; }
-details.prep summary {
-  cursor: pointer; list-style: none;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--ink-faint);
-  padding: 3px 0;
-}
-details.prep summary::-webkit-details-marker { display: none; }
-details.prep summary::before { content: "+ "; }
-details[open].prep summary::before { content: "– "; }
-details.prep summary:hover { color: var(--ink); }
-details.prep ul { margin: 8px 0 0; padding-left: 18px; color: var(--ink-soft); }
-details.prep li { margin-bottom: 5px; }
-details.prep p { margin: 8px 0 0; color: var(--ink-soft); }
-
-.card-foot {
-  margin-top: auto; padding-top: 11px;
-  border-top: 1px solid var(--rule);
-  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
-  font-size: 13px;
-}
-.card-foot .where { color: var(--ink-faint); }
-.card-foot a {
-  font-weight: 600; color: var(--red);
-  text-decoration-thickness: 1.5px; text-underline-offset: 2.5px;
-  margin-left: auto;
-}
-
-/* ------------------------------------------------------------- YEAR STRIP */
-.year {
-  margin-top: 56px;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: var(--shadow-card);
-}
-@media (max-width: 640px) { .year { padding: 18px 14px; } }
-
-.year-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
-.year-head h2 { font-size: 26px; }
-.year-head p { margin: 0; font-size: 14px; color: var(--ink-soft); flex: 1 1 22em; }
-
-/* overflow-x:auto forces overflow-y to auto too, so the TODAY flag above the
-   header row needs headroom or it gets clipped. */
-.year-scroll { overflow-x: auto; margin-top: 20px; padding-top: 20px; padding-bottom: 6px; }
-
-.gantt {
-  min-width: 700px;
-  display: grid;
-  grid-template-columns: 215px 1fr;
-  gap: 0 14px;
-}
-.gantt-months, .gantt-row { display: contents; }
-
-.gantt-label {
-  font-size: 13px; line-height: 1.25;
-  padding: 7px 0;
-  display: flex; align-items: center; gap: 7px;
-  border-top: 1px solid var(--rule);
-  color: var(--ink);
-}
-.gantt-label .suit { flex: none; font-size: 13px; }
-.gantt-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.gantt-track {
-  position: relative;
-  border-top: 1px solid var(--rule);
-  height: 35px;
-}
-/* Faint month gridlines behind every bar. */
-.gantt-track::before {
-  content: "";
-  position: absolute; inset: 0;
-  background: repeating-linear-gradient(
-    90deg, var(--rule) 0 1px, transparent 1px calc(100% / 12)
-  );
-  opacity: .55;
+.week-events {
+  position: absolute; left: 0; right: 0; top: 25px;
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 20px; gap: 2px 0;
   pointer-events: none;
 }
 
-.gantt-track.gantt-head {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  align-items: end;
-  height: auto;
-  font-family: var(--mono); font-size: 10.5px;
-  letter-spacing: .07em; text-transform: uppercase;
-  color: var(--ink-faint);
-  border-top: none;
-  padding-bottom: 9px;
-}
-.gantt-track.gantt-head::before { display: none; }
-.gantt-head .m { text-align: center; }
-.gantt-head .m.newyear { color: var(--ink); font-weight: 600; }
-.gantt-label.gantt-head { border-top: none; }
-
-.bar {
-  position: absolute;
-  top: 7px;
-  z-index: 1;
-  height: 21px;
-  border-radius: 5px;
-  background: var(--bar, var(--st-always));
-  display: flex; align-items: center;
-  padding: 0 8px;
-  font-family: var(--mono); font-size: 10px; font-weight: 600;
-  letter-spacing: .05em;
+/* ------------------------------------------------------------------ BARS */
+.ev {
+  pointer-events: auto;
+  height: 18px; margin: 0 2px;
+  border-radius: 4px;
+  background: var(--c);
   color: #fff;
-  white-space: nowrap; overflow: hidden;
+  font-size: 11px; font-weight: 600;
+  line-height: 18px;
+  padding: 0 7px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; border: none; text-align: left;
+  font-family: var(--body);
 }
-:root[data-theme="dark"] .bar,
-:root:not([data-theme="light"]) .bar { color: #121A28; }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .bar { color: #fff; }
+.ev.cut-l { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0; }
+.ev.cut-r { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: 0; }
+/* Dates that vary by state are striped, so the bar never over-promises. */
+.ev.approx {
+  background-image: repeating-linear-gradient(115deg,
+    rgba(255,255,255,.30) 0 5px, transparent 5px 11px);
+}
+.ev.gold { color: #3B2C00; }
+
+/* A one-day marker — a deadline inside a window, not a window of its own. */
+.ev.pin {
+  background: var(--paper);
+  color: var(--hot);
+  border: 1.5px solid var(--hot);
+  line-height: 15px;
+  font-size: 10.5px;
 }
 
-/* A window we only know approximately is drawn hatched, not solid. */
-.bar.approx {
-  background-image: repeating-linear-gradient(
-    115deg, rgba(255,255,255,.34) 0 5px, transparent 5px 11px
-  );
-}
-.bar.clip-left  { border-top-left-radius: 0; border-bottom-left-radius: 0; }
-.bar.clip-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.cal-hint { margin: 13px 0 0; font-size: 12px; color: var(--ink-faint); }
+.cal-hint b { color: var(--ink-soft); font-weight: 600; }
 
-.bar.always {
-  background: transparent;
-  border: 1.5px dashed var(--rule-strong);
-  color: var(--ink-faint);
-}
+/* ----------------------------------------------------------------- PANELS */
+.side { display: flex; flex-direction: column; gap: 16px; }
 
-/* Today marker rides above every track. */
-.gantt-today {
-  position: absolute; top: 0; bottom: 0;
-  width: 2px; background: var(--red);
-  z-index: 2; pointer-events: none;
+.panel {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 16px; padding: 15px 16px; box-shadow: var(--card-shadow);
 }
-.gantt-today.labelled::after {
-  content: "TODAY";
-  position: absolute; top: -16px; left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
-  letter-spacing: .1em; color: var(--red);
-}
+.panel > .eyebrow { display: block; margin-bottom: 10px; }
+.panel h3 { font-size: 19px; line-height: 1.15; margin-bottom: 10px; }
 
-.legend {
-  margin-top: 18px; padding-top: 14px;
+.rows { display: flex; flex-direction: column; }
+.row {
+  display: grid; grid-template-columns: 15px minmax(0, 1fr);
+  gap: 9px; align-items: start;
+  padding: 9px 0;
   border-top: 1px solid var(--rule);
-  display: flex; gap: 20px; flex-wrap: wrap;
-  font-size: 12.5px; color: var(--ink-soft);
 }
-.legend span { display: inline-flex; align-items: center; gap: 7px; }
-.swatch { width: 22px; height: 11px; border-radius: 3px; flex: none; }
-.swatch.hatch { background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.34) 0 4px, transparent 4px 9px); }
-.swatch.dash { background: transparent; border: 1.5px dashed var(--rule-strong); }
+.rows > .row:first-child { border-top: none; padding-top: 2px; }
+.row .suit { font-size: 13px; line-height: 1.35; }
+.row-name { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.row-meta {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; margin-top: 3px;
+}
+.row-meta .hot { color: var(--hot); font-weight: 600; }
+.row a { font-size: 12px; font-weight: 600; color: var(--red); text-underline-offset: 2px; }
 
-/* ------------------------------------------------------------------ EMPTY */
-.empty {
-  padding: 44px 20px; text-align: center;
-  color: var(--ink-faint); font-size: 15px;
-  border: 1.5px dashed var(--rule-strong); border-radius: 14px;
+/* The one thing on the page allowed to shout. */
+.flag {
+  margin-top: 6px; font-size: 12px; line-height: 1.4;
+  background: var(--hot-bg); border-left: 3px solid var(--hot);
+  border-radius: 0 6px 6px 0; padding: 6px 9px;
+}
+
+.tally { display: flex; flex-direction: column; gap: 6px; }
+.tally-row { display: flex; align-items: baseline; gap: 9px; font-size: 13px; color: var(--ink-soft); }
+.tally-num {
+  font-family: var(--mono); font-size: 15px; font-weight: 600;
+  font-variant-numeric: tabular-nums; min-width: 1.5em; text-align: right; color: var(--ink);
+}
+
+.empty { font-size: 13px; color: var(--ink-faint); padding: 4px 0 2px; }
+
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  font-size: 12px; padding: 4px 10px; border-radius: 999px;
+  border: 1.5px solid var(--rule-strong); background: var(--cream);
+  display: inline-flex; align-items: center; gap: 5px;
 }
 
 /* ----------------------------------------------------------------- FOOTER */
 .foot {
-  margin-top: 56px; padding-top: 22px;
-  border-top: 1px solid var(--rule);
-  font-size: 13px; color: var(--ink-faint);
-  display: flex; gap: 22px; flex-wrap: wrap; justify-content: space-between;
+  margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--rule);
+  font-size: 12px; color: var(--ink-faint); max-width: 74ch;
 }
-.foot p { margin: 0; max-width: 46em; }
 .foot b { color: var(--ink-soft); font-weight: 600; }
+.foot code { font-family: var(--mono); font-size: 11px; }
+
+/* Windows with no edge in the visible month — shown once, not redrawn on
+   every week row. */
+.running {
+  margin-bottom: 12px; padding: 10px 12px;
+  background: var(--cream); border: 1px solid var(--rule); border-radius: 11px;
+}
+.running > .eyebrow { display: block; margin-bottom: 7px; }
+.pill { cursor: pointer; font-family: var(--body); color: var(--ink); }
+.pill:hover { background: var(--cream-deep); }
 
 </style>
 
-<div class="frame" aria-hidden="true"></div>
+<!-- The Lesko Help frame. Four separate strips so the blocks run the right way
+     round on the vertical edges as well as the horizontal ones. -->
+<div class="frame" aria-hidden="true">
+  <i class="fr-top"></i><i class="fr-bottom"></i><i class="fr-left"></i><i class="fr-right"></i>
+</div>
 
 <div class="shell">
 
   <header class="masthead">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">?</div>
-      <div class="brand-name">
-        <em>Lesko</em>
-        <b>Help</b>
-      </div>
+      <div class="brand-name"><em>Lesko</em><b>Help</b></div>
     </div>
     <div class="suits" aria-hidden="true">
       <span class="suit-blue">&spades;</span>
@@ -579,68 +342,59 @@ details.prep p { margin: 8px 0 0; color: var(--ink-soft); }
     </div>
   </header>
 
-  <section class="hero">
-    <div>
-      <h1>Everything has a <em>season.</em></h1>
-      <p>
-        Most help in America is not first-come-you-qualify — it is first-come-you-applied.
-        Windows open, funding runs out, and the door shuts months before anyone tells you.
-        This is the calendar of those windows: what is open today, what opens next,
-        and what to start gathering now.
-      </p>
-    </div>
+  <h1 class="page-title">Know what to apply for, <em>and when.</em></h1>
 
-    <aside class="today-card">
-      <span class="eyebrow">As of today</span>
-      <div class="today-date" id="today-date">—</div>
-      <div class="today-tally" id="tally"></div>
+  <nav class="tabs" aria-label="Sections">
+    <a class="tab" href="#">01 &middot; The quiz</a>
+    <a class="tab" href="#">02 &middot; My list</a>
+    <a class="tab" href="#">03 &middot; Privacy</a>
+    <a class="tab is-on" href="#" aria-current="page">04 &middot; Calendar</a>
+  </nav>
+
+  <!-- ------------------------------------------------------- THE CALENDAR -->
+  <div class="layout">
+
+    <section class="cal" aria-label="Month calendar">
+
+      <div class="cal-bar">
+        <button type="button" class="navbtn" id="prev" aria-label="Previous month">&larr;</button>
+        <h2 class="cal-month" id="cal-month">&nbsp;</h2>
+        <button type="button" class="navbtn" id="next" aria-label="Next month">&rarr;</button>
+        <button type="button" class="todaybtn" id="jump-today">Today</button>
+        <div class="chips" role="group" aria-label="Filter by topic" id="filter-cat"></div>
+      </div>
+
+      <div class="running" id="running" hidden></div>
+
+      <div class="cal-scroll">
+        <div class="cal-grid">
+          <div class="weekdays" aria-hidden="true">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+            <div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+          <div id="weeks"></div>
+        </div>
+      </div>
+
+      <p class="cal-hint">
+        Rounded end = the real opening or closing day. Flat end = it carries on.
+        Striped = dates vary by state. Click a day for detail.
+      </p>
+    </section>
+
+    <!-- ------------------------------------------------------------ SIDE -->
+    <aside class="side">
+      <div class="panel" id="day-panel" aria-live="polite"></div>
+      <div class="panel" id="upcoming"></div>
+      <div class="panel" id="always"></div>
     </aside>
-  </section>
 
-  <section class="controls" aria-label="Filter the calendar">
-    <div class="control-row">
-      <span class="eyebrow" id="lbl-status">Show</span>
-      <div class="control-row" role="group" aria-labelledby="lbl-status" id="filter-status"></div>
-    </div>
-    <div class="control-row">
-      <span class="eyebrow" id="lbl-cat">Topic</span>
-      <div class="control-row" role="group" aria-labelledby="lbl-cat" id="filter-cat"></div>
-    </div>
-  </section>
-
-  <main class="board" id="board"></main>
-
-  <section class="year">
-    <div class="year-head">
-      <h2>The year ahead</h2>
-      <p>
-        The next twelve months, starting this one. A January-to-December grid would
-        cut every winter programme in half — and winter is where most of the money is.
-      </p>
-    </div>
-
-    <div class="year-scroll">
-      <div class="gantt" id="gantt"></div>
-    </div>
-
-    <div class="legend">
-      <span><i class="swatch" style="background: var(--st-open)"></i> Open now</span>
-      <span><i class="swatch" style="background: var(--st-closing)"></i> Closing soon</span>
-      <span><i class="swatch" style="background: var(--st-soon)"></i> Opens soon</span>
-      <span><i class="swatch" style="background: var(--st-later)"></i> Later in the year</span>
-      <span><i class="swatch hatch" style="background-color: var(--st-soon)"></i> Striped = usual dates, yours may differ</span>
-      <span><i class="swatch dash"></i> No fixed window</span>
-    </div>
-  </section>
+  </div>
 
   <footer class="foot">
-    <p>
-      <b>This calendar tells you when. It does not decide whether you qualify —
-      and it is not an application.</b>
-      Dates marked <i>usual</i> or <i>differs by state</i> are patterns, not promises;
-      always confirm with the office named on the card. Reviewed 7 September 2026.
-      Sources for every date are in <code>docs/research.md</code>.
-    </p>
+    <b>Tells you when — not whether you qualify. Not an application.</b>
+    Striped dates are patterns, not promises: confirm with the office on the card.
+    Reviewed 7 Sep 2026. Sources in <code>docs/research.md</code>.
   </footer>
 
 </div>
@@ -1109,469 +863,446 @@ if (typeof module !== 'undefined' && module.exports) {
 </script>
 <script>
 /* ============================================================================
-   Lesko Help — Season Calendar
-   Takes the dataset in data/programs.js and answers one question first:
-   what can somebody actually apply for today?
+   Lesko Help — The Help Calendar
 
-   Everything here is derived from today's date, so the page is correct on any
-   day it is opened without anyone editing it. Append ?date=YYYY-MM-DD to the
-   URL to preview how the board will look on a future day.
+   A real month grid. Windows run across the days they are open, the way a
+   multi-day event does in any calendar app. Everything is derived from today's
+   date, so nobody has to edit the page when the month turns over.
+
+   Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
 (function () {
   'use strict';
 
   /* ------------------------------------------------------------- DAY MATH */
-  // Dates are parsed at UTC noon so that adding days never trips over a
-  // daylight-saving boundary and lands on the wrong calendar day.
+  // Parsed at UTC noon so adding days never trips over a daylight-saving
+  // boundary and lands on the wrong calendar square.
   function day(iso) {
     var p = iso.split('-');
     return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
   }
-  function daysBetween(from, to) {
-    return Math.round((to - from) / 86400000);
+  function mk(y, m, d) { return new Date(Date.UTC(y, m, d, 12)); }
+  function addDays(d, n) { return new Date(d.getTime() + n * 86400000); }
+  function diff(a, b) { return Math.round((b - a) / 86400000); }
+  function iso(d) {
+    return d.getUTCFullYear() + '-' +
+           String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+           String(d.getUTCDate()).padStart(2, '0');
   }
-
-  var override = new URLSearchParams(location.search).get('date');
-  var TODAY = override && /^\d{4}-\d{2}-\d{2}$/.test(override)
-    ? day(override)
-    : (function () {
-        var n = new Date();
-        return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate(), 12));
-      })();
 
   var MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  function longDate(d) {
-    return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
-  }
-  function shortDate(d) {
-    return MON[d.getUTCMonth()] + ' ' + d.getUTCDate();
-  }
-  function shortDateYear(d) {
-    return MON[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
-  }
-  // "in 24 days" reads better than "24 days" in a sentence, and "tomorrow"
-  // beats "in 1 day" every time.
+  function longDate(d) { return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
+  function shortDate(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); }
+  function shortYear(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
+
   function countdown(n) {
     if (n === 0) return 'today';
     if (n === 1) return 'tomorrow';
-    if (n < 14) return 'in ' + n + ' days';
     if (n < 60) return 'in ' + n + ' days';
-    if (n < 400) {
-      var m = Math.round(n / 30.4);
-      return 'in about ' + m + ' month' + (m === 1 ? '' : 's');
-    }
-    return 'in about ' + Math.round(n / 365) + ' years';
+    var m = Math.round(n / 30.4);
+    return m < 13 ? 'in ' + m + ' months' : 'in ' + Math.round(n / 365) + ' years';
   }
   function remaining(n) {
     if (n === 0) return 'last day';
     if (n === 1) return '1 day left';
     if (n < 70) return n + ' days left';
-    var m = Math.round(n / 30.4);
-    return 'about ' + m + ' months left';
+    return Math.round(n / 30.4) + ' months left';
   }
 
-  /* --------------------------------------------------------------- STATUS */
-  // The window is closing soon inside this many days.
-  var CLOSING_SOON = 30;
-  // The window opens soon inside this many days — long enough to be useful
-  // for gathering paperwork, short enough not to swamp the board.
-  var OPENING_SOON = 75;
+  var q = new URLSearchParams(location.search).get('date');
+  var TODAY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? day(q) : (function () {
+    var n = new Date();
+    return mk(n.getFullYear(), n.getMonth(), n.getDate());
+  })();
 
-  var GROUPS = [
-    { key: 'closing', title: 'Closing soon',
-      note: 'The window shuts within a month. Do these this week.' },
-    { key: 'open', title: 'Open right now',
-      note: 'You can apply today. Nothing is standing in the way.' },
-    { key: 'soon', title: 'Opens soon — start getting ready',
-      note: 'Not open yet. Gather the paperwork now so you can file the week it opens.' },
-    { key: 'watch', title: 'No fixed season — watch for it',
-      note: 'These open without much warning and close fast. Be ready before they do.' },
-    { key: 'always', title: 'Open every day of the year',
-      note: 'No deadline at all. The only reason not to have applied is not knowing about it.' },
-    { key: 'later', title: 'Later in the year',
-      note: 'Nothing to do yet. Here so it does not arrive as a surprise.' },
-    { key: 'closed', title: 'Closed for this round',
-      note: 'The window has passed. Here is when it comes back.' },
-  ];
+  /* ---------------------------------------------------------------- STATE */
+  var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1); // month on screen
+  var selected = TODAY;
+  var catFilter = 'all';
 
-  function statusOf(p) {
-    if (p.watch) return 'watch';
-    if (!p.opens && !p.closes) return 'always';
+  // Only programmes with a real window belong on a grid. The ones with no
+  // season at all would otherwise paint a bar across every square of every
+  // month and drown the things that actually have a date.
+  var DATED = LH_PROGRAMS.filter(function (p) { return p.opens && p.closes && !p.watch; });
+  var UNDATED = LH_PROGRAMS.filter(function (p) { return !p.opens || !p.closes || p.watch; });
 
-    var o = day(p.opens), c = day(p.closes);
+  function inFilter(p) { return catFilter === 'all' || p.cat === catFilter; }
+  function colourVar(p) { return 'var(--' + LH_CATEGORIES[p.cat].color + ')'; }
 
-    if (TODAY >= o && TODAY <= c) {
-      return daysBetween(TODAY, c) <= CLOSING_SOON ? 'closing' : 'open';
-    }
-    if (TODAY < o) {
-      return daysBetween(TODAY, o) <= OPENING_SOON ? 'soon' : 'later';
-    }
-    return 'closed';
-  }
-
-  // The one-line summary that sits in the tinted box on every card. This is
-  // the line most people will read and nothing else.
-  function windowLine(p, status) {
-    var o = p.opens ? day(p.opens) : null;
-    var c = p.closes ? day(p.closes) : null;
-
-    if (status === 'always')
-      return { lead: 'Open now', parts: ['no deadline, apply any day'] };
-    if (status === 'watch')
-      return { lead: 'No fixed dates', parts: [p.cadence] };
-    if (status === 'open' || status === 'closing')
-      return { lead: 'Open now',
-               parts: ['closes ' + shortDateYear(c), remaining(daysBetween(TODAY, c))] };
-    if (status === 'soon' || status === 'later')
-      return { lead: 'Opens ' + shortDateYear(o),
-               parts: [countdown(daysBetween(TODAY, o))] };
-    return { lead: 'Closed ' + shortDateYear(c), parts: [p.cadence] };
-  }
-
-  /* ------------------------------------------------------------- ELEMENTS */
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
   }
-
-  function suitSpan(catKey) {
-    var c = LH_CATEGORIES[catKey];
-    var s = el('span', 'card-suit suit-' + c.color, c.suit);
-    s.setAttribute('title', c.name);
-    return s;
+  function suit(p) {
+    var c = LH_CATEGORIES[p.cat];
+    return el('span', 'suit suit-' + c.color, c.suit);
   }
 
-  /* ----------------------------------------------------------------- CARD */
-  function buildCard(p, status) {
-    var card = el('article', 'card');
+  /* -------------------------------------------------------------- STATUS */
+  function statusOf(p, on) {
+    if (p.watch) return 'watch';
+    if (!p.opens || !p.closes) return 'always';
+    var o = day(p.opens), c = day(p.closes);
+    if (on < o) return 'soon';
+    if (on > c) return 'closed';
+    return diff(on, c) <= 30 ? 'closing' : 'open';
+  }
 
-    var top = el('div', 'card-top');
-    top.appendChild(suitSpan(p.cat));
+  /* ================================================================= GRID */
+  // One row of the grid holds every window overlapping that week. Bars are
+  // packed into lanes so two that overlap never sit on the same line.
+  function weekItems(weekStart, eventful) {
+    var weekEnd = addDays(weekStart, 6);
+    var items = [];
 
-    var titleWrap = el('div');
-    titleWrap.appendChild(el('h3', 'card-title', p.name));
-    if (p.alsoCalled) titleWrap.appendChild(el('div', 'card-also', 'Also called: ' + p.alsoCalled));
-    top.appendChild(titleWrap);
-
-    var badgeText = {
-      closing: 'Closing soon', open: 'Open now', soon: 'Opens soon',
-      watch: 'Watch for it', always: 'Always open', later: 'Later', closed: 'Closed',
-    }[status];
-    top.appendChild(el('span', 'badge', badgeText));
-    card.appendChild(top);
-
-    card.appendChild(el('p', 'card-what', p.what));
-
-    var w = windowLine(p, status);
-    var win = el('div', 'window');
-    win.appendChild(el('span', 'lead', w.lead));
-
-    var parts = w.parts.slice();
-    if (p.precision === 'varies') parts.push('dates differ by state');
-    else if (p.precision === 'typical') parts.push('usual dates, check yours');
-
-    parts.forEach(function (text) {
-      win.appendChild(el('span', 'sep', '·'));
-      // Long phrases are allowed to wrap internally; short ones are kept
-      // whole so a countdown never splits across two lines.
-      win.appendChild(el('span', 'dates' + (text.length > 28 ? ' wrapok' : ''), text));
-    });
-    card.appendChild(win);
-
-    // Only show key dates that have not already gone by.
-    (p.keyDates || []).forEach(function (k) {
-      var d = day(k.date);
-      if (daysBetween(TODAY, d) < 0) return;
-      var row = el('div', 'keydate');
-      row.appendChild(el('span', 'kd-date', shortDate(d)));
-      row.appendChild(el('span', null, k.label));
-      card.appendChild(row);
+    eventful.forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      if (c < weekStart || o > weekEnd) return;
+      items.push({
+        p: p, kind: 'bar',
+        start: Math.max(diff(weekStart, o), 0),
+        end: Math.min(diff(weekStart, c), 6),
+        cutL: o < weekStart, cutR: c > weekEnd,
+      });
     });
 
-    if (p.urgent) {
-      var u = el('div', 'urgent');
-      u.appendChild(el('b', null, 'Worth knowing. '));
-      u.appendChild(document.createTextNode(p.urgent));
-      card.appendChild(u);
-    }
+    // Key dates are one-day markers inside a window — the ACA cutoff for
+    // January coverage, the date EITC refunds can first be paid.
+    LH_PROGRAMS.filter(inFilter).forEach(function (p) {
+      (p.keyDates || []).forEach(function (k) {
+        var d = day(k.date);
+        if (d < weekStart || d > weekEnd) return;
+        var col = diff(weekStart, d);
+        items.push({ p: p, kind: 'pin', label: k.label, start: col, end: col });
+      });
+    });
 
-    // The paperwork list is the practical payload, but it is long — so it
-    // collapses, and opens itself for anything you could act on today.
-    if (p.prep && p.prep.length) {
-      var det = el('details', 'prep');
-      var actionable = status === 'open' || status === 'closing' ||
-                       status === 'always' || status === 'watch';
-      if (actionable) det.open = true;
+    // Longest first, so the bars that span the week settle into the top lanes
+    // and the grid reads as bands rather than confetti.
+    items.sort(function (a, b) {
+      if (a.kind !== b.kind) return a.kind === 'bar' ? -1 : 1;
+      var la = a.end - a.start, lb = b.end - b.start;
+      return lb - la || a.start - b.start;
+    });
 
-      var label = 'What to have ready';
-      if (status === 'soon' && p.prepDays) {
-        var lead = daysBetween(TODAY, day(p.opens)) - p.prepDays;
-        label = lead <= 0
-          ? 'Start gathering now — ' + p.prep.length + ' things'
-          : 'Start gathering ' + countdown(Math.max(lead, 0)) + ' — ' + p.prep.length + ' things';
+    var lanes = [];
+    items.forEach(function (it) {
+      var i = 0;
+      while (lanes[i] && lanes[i].some(function (o) {
+        return it.start <= o.end && o.start <= it.end;
+      })) i++;
+      lanes[i] = lanes[i] || [];
+      lanes[i].push(it);
+      it.lane = i;
+    });
+
+    return { items: items, lanes: lanes.length };
+  }
+
+  function renderGrid() {
+    var host = document.getElementById('weeks');
+    host.textContent = '';
+
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    document.getElementById('cal-month').textContent = MONTHS[m] + ' ' + y;
+
+    var first = mk(y, m, 1);
+    var gridStart = addDays(first, -first.getUTCDay());
+    var lastOfMonth = mk(y, m + 1, 0);
+    var weeks = Math.ceil((diff(gridStart, lastOfMonth) + 1) / 7);
+
+    var gridEnd = addDays(gridStart, weeks * 7 - 1);
+
+    // A window running clean through the whole visible grid has no edge to
+    // draw. Repeating its bar on all six week rows turns the month into a wall
+    // of stripes, so those go in a band above the grid instead and only
+    // windows that actually open or close in view get a bar.
+    var eventful = [], running = [];
+    DATED.filter(inFilter).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      if (c < gridStart || o > gridEnd) return;
+      if (o >= gridStart || c <= gridEnd) eventful.push(p);
+      else running.push(p);
+    });
+    renderRunning(running);
+
+    for (var w = 0; w < weeks; w++) {
+      var weekStart = addDays(gridStart, w * 7);
+      var packed = weekItems(weekStart, eventful);
+
+      var row = el('div', 'week');
+      row.style.minHeight = (28 + packed.lanes * 22 + 8) + 'px';
+
+      // Day squares
+      var days = el('div', 'week-days');
+      for (var i = 0; i < 7; i++) {
+        var d = addDays(weekStart, i);
+        var cell = el('div');
+        if (d.getUTCMonth() !== m) cell.classList.add('out');
+        if (diff(d, TODAY) === 0) cell.classList.add('today');
+        if (diff(d, selected) === 0) cell.classList.add('sel');
+        cell.appendChild(el('span', 'dnum', String(d.getUTCDate())));
+        cell.setAttribute('role', 'button');
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('aria-label', longDate(d));
+        (function (dd) {
+          function pick() { selected = dd; render(); }
+          cell.addEventListener('click', pick);
+          cell.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
+          });
+        })(d);
+        days.appendChild(cell);
       }
-      det.appendChild(el('summary', null, label));
+      row.appendChild(days);
 
-      var ul = el('ul');
-      p.prep.forEach(function (item) { ul.appendChild(el('li', null, item)); });
-      det.appendChild(ul);
+      // Bars on top
+      var overlay = el('div', 'week-events');
+      packed.items.forEach(function (it) {
+        var b = el('button', 'ev');
+        b.type = 'button';
+        b.style.gridColumn = (it.start + 1) + ' / ' + (it.end + 2);
+        b.style.gridRow = String(it.lane + 1);
 
-      if (p.missedIt) det.appendChild(el('p', null, 'If you miss it: ' + p.missedIt));
-      if (p.renewal) det.appendChild(el('p', null, 'Renewing: ' + p.renewal));
-      card.appendChild(det);
+        if (it.kind === 'pin') {
+          b.classList.add('pin');
+          b.textContent = '◆ ' + it.p.name;
+          b.title = it.label;
+        } else {
+          b.style.setProperty('--c', colourVar(it.p));
+          if (LH_CATEGORIES[it.p.cat].color === 'gold') b.classList.add('gold');
+          if (it.p.precision !== 'exact') b.classList.add('approx');
+          if (it.cutL) b.classList.add('cut-l');
+          if (it.cutR) b.classList.add('cut-r');
+          b.textContent = it.p.name;
+          b.title = it.p.name + ' · ' + longDate(day(it.p.opens)) +
+                    ' to ' + longDate(day(it.p.closes));
+        }
+
+        (function (dd) {
+          b.addEventListener('click', function (e) { e.stopPropagation(); selected = dd; render(); });
+        })(addDays(weekStart, it.start));
+        overlay.appendChild(b);
+      });
+      row.appendChild(overlay);
+
+      host.appendChild(row);
     }
-
-    if (p.caveat) card.appendChild(el('div', 'caveat', p.caveat));
-
-    var foot = el('div', 'card-foot');
-    foot.appendChild(el('span', 'where', p.where));
-    if (p.link) {
-      var a = el('a', null, 'Go there →');
-      a.href = p.link;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.setAttribute('aria-label', 'Open the official page for ' + p.name);
-      foot.appendChild(a);
-    }
-    card.appendChild(foot);
-
-    return card;
   }
 
-  /* ---------------------------------------------------------------- STATE */
-  var filters = { status: 'all', cat: 'all' };
-
-  var decorated = LH_PROGRAMS.map(function (p) {
-    return { p: p, status: statusOf(p) };
-  });
-
-  function visible() {
-    return decorated.filter(function (d) {
-      if (filters.status !== 'all' && d.status !== filters.status) return false;
-      if (filters.cat !== 'all' && d.p.cat !== filters.cat) return false;
-      return true;
-    });
-  }
-
-  /* ---------------------------------------------------------------- TALLY */
-  function renderTally() {
-    var box = document.getElementById('tally');
+  function renderRunning(list) {
+    var box = document.getElementById('running');
     box.textContent = '';
+    if (!list.length) { box.hidden = true; return; }
+    box.hidden = false;
 
-    var openNow = decorated.filter(function (d) {
-      return d.status === 'open' || d.status === 'closing' || d.status === 'always';
-    }).length;
-    var closing = decorated.filter(function (d) { return d.status === 'closing'; }).length;
-    var soon = decorated.filter(function (d) { return d.status === 'soon'; }).length;
-
-    [
-      [openNow, 'open to apply for today'],
-      [closing, 'closing within a month'],
-      [soon, 'worth getting ready for'],
-    ].forEach(function (row) {
-      var r = el('div', 'tally-row');
-      r.appendChild(el('span', 'tally-num', String(row[0])));
-      r.appendChild(el('span', null, row[1]));
-      box.appendChild(r);
+    box.appendChild(el('span', 'eyebrow', 'Open all month'));
+    var pills = el('div', 'pills');
+    list.forEach(function (p) {
+      var b = el('button', 'pill');
+      b.type = 'button';
+      b.appendChild(suit(p));
+      b.appendChild(document.createTextNode(p.name));
+      b.title = p.name + ' \u00b7 open ' + longDate(day(p.opens)) +
+                ' to ' + longDate(day(p.closes));
+      b.addEventListener('click', function () { selected = TODAY; render(); });
+      pills.appendChild(b);
     });
+    box.appendChild(pills);
   }
 
-  /* -------------------------------------------------------------- FILTERS */
-  function renderFilters() {
-    var statusRow = document.getElementById('filter-status');
-    var catRow = document.getElementById('filter-cat');
-    statusRow.textContent = '';
-    catRow.textContent = '';
+  /* ============================================================ DAY PANEL */
+  function renderDay() {
+    var box = document.getElementById('day-panel');
+    box.textContent = '';
+    box.appendChild(el('span', 'eyebrow',
+      diff(selected, TODAY) === 0 ? 'Today' : 'Selected day'));
+    box.appendChild(el('h3', null, longDate(selected)));
 
-    function chip(row, label, key, group, count, suitHTML) {
+    var rows = el('div', 'rows');
+    var any = false;
+
+    DATED.filter(inFilter).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      if (selected < o || selected > c) return;
+      any = true;
+
+      var r = el('div', 'row');
+      r.appendChild(suit(p));
+      var body = el('div');
+      body.appendChild(el('div', 'row-name', p.name));
+
+      var meta = el('div', 'row-meta');
+      var isOpenDay = diff(selected, o) === 0;
+      var isCloseDay = diff(selected, c) === 0;
+      var left = diff(selected, c);
+
+      if (isOpenDay) meta.appendChild(el('b', null, 'OPENS TODAY'));
+      else if (isCloseDay) meta.appendChild(el('b', 'hot', 'LAST DAY'));
+      else {
+        var t = el('span', left <= 30 ? 'hot' : null, 'Open · ' + remaining(left));
+        meta.appendChild(t);
+      }
+      if (p.precision !== 'exact') {
+        meta.appendChild(document.createTextNode(
+          p.precision === 'varies' ? ' · varies by state' : ' · usual dates'));
+      }
+      body.appendChild(meta);
+
+      // The shout is reserved for rows where it changes what you do today.
+      if (p.urgent && (isOpenDay || isCloseDay || left <= 45))
+        body.appendChild(el('div', 'flag', p.urgent));
+
+      if (p.link) {
+        var a = el('a', null, p.where + ' →');
+        a.href = p.link; a.target = '_blank'; a.rel = 'noopener';
+        var wrap = el('div'); wrap.style.marginTop = '5px';
+        wrap.appendChild(a); body.appendChild(wrap);
+      }
+      r.appendChild(body);
+      rows.appendChild(r);
+    });
+
+    LH_PROGRAMS.filter(inFilter).forEach(function (p) {
+      (p.keyDates || []).forEach(function (k) {
+        if (diff(selected, day(k.date)) !== 0) return;
+        any = true;
+        var r = el('div', 'row');
+        r.appendChild(suit(p));
+        var body = el('div');
+        body.appendChild(el('div', 'row-name', p.name));
+        body.appendChild(el('div', 'flag', k.label));
+        r.appendChild(body);
+        rows.appendChild(r);
+      });
+    });
+
+    box.appendChild(any ? rows : el('div', 'empty', 'No window opens or closes on this day.'));
+  }
+
+  /* ============================================================== UPCOMING */
+  // What actually needs doing, soonest first: anything closing inside 45 days
+  // and anything opening inside 60.
+  function renderUpcoming() {
+    var box = document.getElementById('upcoming');
+    box.textContent = '';
+    box.appendChild(el('span', 'eyebrow', 'What is coming up'));
+
+    var events = [];
+    DATED.filter(inFilter).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
+      if (toOpen > 0 && toOpen <= 60) events.push({ p: p, d: toOpen, type: 'opens', on: o });
+      else if (toOpen <= 0 && toClose >= 0 && toClose <= 45) events.push({ p: p, d: toClose, type: 'closes', on: c });
+    });
+    events.sort(function (a, b) { return a.d - b.d; });
+
+    if (!events.length) {
+      box.appendChild(el('div', 'empty', 'Nothing opens or closes in the next few weeks.'));
+      return;
+    }
+
+    var rows = el('div', 'rows');
+    events.slice(0, 8).forEach(function (e) {
+      var r = el('div', 'row');
+      r.appendChild(suit(e.p));
+      var body = el('div');
+      body.appendChild(el('div', 'row-name', e.p.name));
+      var meta = el('div', 'row-meta');
+      var verb = e.type === 'closes' ? 'Closes ' : 'Opens ';
+      meta.appendChild(el('span', e.type === 'closes' ? 'hot' : null,
+        verb + shortDate(e.on) + ' · ' + countdown(e.d)));
+      body.appendChild(meta);
+      r.appendChild(body);
+      (function (on) {
+        r.style.cursor = 'pointer';
+        r.addEventListener('click', function () {
+          selected = on;
+          view = mk(on.getUTCFullYear(), on.getUTCMonth(), 1);
+          render();
+        });
+      })(e.on);
+      rows.appendChild(r);
+    });
+    box.appendChild(rows);
+  }
+
+  /* ================================================================ ALWAYS */
+  function renderAlways() {
+    var box = document.getElementById('always');
+    box.textContent = '';
+    box.appendChild(el('span', 'eyebrow', 'No season — apply any day'));
+
+    var list = UNDATED.filter(inFilter);
+    if (!list.length) { box.appendChild(el('div', 'empty', 'Nothing in this topic.')); return; }
+
+    var pills = el('div', 'pills');
+    list.forEach(function (p) {
+      var a = el('a', 'pill');
+      a.href = p.link || '#';
+      if (p.link) { a.target = '_blank'; a.rel = 'noopener'; }
+      a.style.textDecoration = 'none';
+      a.appendChild(suit(p));
+      a.appendChild(document.createTextNode(p.name));
+      a.title = p.what;
+      pills.appendChild(a);
+    });
+    box.appendChild(pills);
+  }
+
+  /* ================================================================ CHIPS */
+  function renderChips() {
+    var row = document.getElementById('filter-cat');
+    row.textContent = '';
+
+    function chip(label, key, glyph, colour) {
       var b = el('button', 'chip');
       b.type = 'button';
-      if (suitHTML) {
-        var s = el('span', 'suit ' + suitHTML.cls, suitHTML.glyph);
-        b.appendChild(s);
-      }
+      if (glyph) b.appendChild(el('span', 'suit suit-' + colour, glyph));
       b.appendChild(document.createTextNode(label));
-      if (count != null) b.appendChild(el('span', 'count', String(count)));
-      b.setAttribute('aria-pressed', String(filters[group] === key));
+      b.setAttribute('aria-pressed', String(catFilter === key));
       b.addEventListener('click', function () {
-        filters[group] = filters[group] === key ? 'all' : key;
+        catFilter = catFilter === key ? 'all' : key;
         render();
       });
       row.appendChild(b);
     }
 
-    chip(statusRow, 'Everything', 'all', 'status', decorated.length);
-    GROUPS.forEach(function (g) {
-      var n = decorated.filter(function (d) { return d.status === g.key; }).length;
-      if (!n) return;
-      var short = { closing: 'Closing soon', open: 'Open now', soon: 'Opens soon',
-                    watch: 'Watch for it', always: 'All year', later: 'Later',
-                    closed: 'Closed' }[g.key];
-      chip(statusRow, short, g.key, 'status', n);
-    });
-
-    chip(catRow, 'All four', 'all', 'cat', null);
+    chip('All', 'all');
     Object.keys(LH_CATEGORIES).forEach(function (k) {
       var c = LH_CATEGORIES[k];
-      var n = decorated.filter(function (d) { return d.p.cat === k; }).length;
-      chip(catRow, c.name, k, 'cat', n, { glyph: c.suit, cls: 'suit-' + c.color });
+      chip(c.name.split(' ')[0], k, c.suit, c.color);
     });
   }
 
-  /* ---------------------------------------------------------------- BOARD */
-  function renderBoard() {
-    var board = document.getElementById('board');
-    board.textContent = '';
-
-    var items = visible();
-    if (!items.length) {
-      board.appendChild(el('div', 'empty',
-        'Nothing matches those two filters together. Try clearing one.'));
-      return;
-    }
-
-    GROUPS.forEach(function (g) {
-      var inGroup = items.filter(function (d) { return d.status === g.key; });
-      if (!inGroup.length) return;
-
-      var section = el('section', 'group');
-      section.setAttribute('data-status', g.key);
-
-      var head = el('div', 'group-head');
-      head.appendChild(el('h2', null, g.title));
-      head.appendChild(el('span', 'group-note', g.note));
-      section.appendChild(head);
-
-      // Soonest thing first inside every group — that is the reading order
-      // people actually want.
-      inGroup.sort(function (a, b) {
-        var ka = sortKey(a), kb = sortKey(b);
-        return ka - kb;
-      });
-
-      var cards = el('div', 'cards');
-      cards.setAttribute('data-n', String(inGroup.length));
-      inGroup.forEach(function (d) { cards.appendChild(buildCard(d.p, d.status)); });
-      section.appendChild(cards);
-      board.appendChild(section);
-    });
-  }
-
-  function sortKey(d) {
-    if (d.status === 'open' || d.status === 'closing') return daysBetween(TODAY, day(d.p.closes));
-    if (d.status === 'soon' || d.status === 'later') return daysBetween(TODAY, day(d.p.opens));
-    return 0;
-  }
-
-  /* ----------------------------------------------------------- YEAR STRIP */
-  // A rolling 12 months starting this month. A January-to-December grid would
-  // cut the winter programmes — the ones that matter most — clean in half.
-  function renderYear() {
-    var wrap = document.getElementById('gantt');
-    wrap.textContent = '';
-
-    var startYear = TODAY.getUTCFullYear();
-    var startMonth = TODAY.getUTCMonth();
-    var windowStart = Date.UTC(startYear, startMonth, 1, 12);
-    var windowEnd = Date.UTC(startYear, startMonth + 12, 1, 12);
-    var span = windowEnd - windowStart;
-
-    function pct(ms) { return ((ms - windowStart) / span) * 100; }
-    var todayPct = pct(TODAY.getTime());
-
-    // Month header
-    wrap.appendChild(el('div', 'gantt-label gantt-head'));
-    var head = el('div', 'gantt-track gantt-head');
-    for (var i = 0; i < 12; i++) {
-      var mi = (startMonth + i) % 12;
-      var yr = startYear + Math.floor((startMonth + i) / 12);
-      var m = el('div', 'm' + (mi === 0 ? ' newyear' : ''),
-                 mi === 0 ? MON[mi] + ' ' + yr : MON[mi]);
-      head.appendChild(m);
-    }
-    var marker = el('div', 'gantt-today labelled');
-    marker.style.left = todayPct + '%';
-    head.appendChild(marker);
-    wrap.appendChild(head);
-
-    var items = visible().slice().sort(function (a, b) {
-      var ao = a.p.opens ? day(a.p.opens).getTime() : Infinity;
-      var bo = b.p.opens ? day(b.p.opens).getTime() : Infinity;
-      return ao - bo;
-    });
-
-    items.forEach(function (d) {
-      var p = d.p;
-      var cat = LH_CATEGORIES[p.cat];
-
-      var label = el('div', 'gantt-label');
-      label.appendChild(el('span', 'suit suit-' + cat.color, cat.suit));
-      label.appendChild(el('span', null, p.name));
-      label.setAttribute('title', p.name);
-      wrap.appendChild(label);
-
-      var track = el('div', 'gantt-track');
-
-      var bar;
-      if (!p.opens || !p.closes || d.status === 'watch') {
-        bar = el('div', 'bar always', d.status === 'watch' ? 'Could open any time' : 'Open all year');
-        bar.style.left = '0%';
-        bar.style.width = '100%';
-      } else {
-        var o = day(p.opens).getTime(), c = day(p.closes).getTime();
-        // Clip to the visible year rather than dropping the row — a window
-        // that started before this month is still open today.
-        var rawLeft = pct(o), rawRight = pct(c);
-        var left = Math.max(rawLeft, 0);
-        var right = Math.min(rawRight, 100);
-        if (right <= 0 || left >= 100) return; // genuinely outside the year
-        // A window that runs past either edge of the visible year gets a
-        // squared-off end, so a clipped bar never reads as a real boundary.
-        var clip = (rawLeft < 0 ? ' clip-left' : '') + (rawRight > 100 ? ' clip-right' : '');
-        bar = el('div', 'bar' + (p.precision === 'exact' ? '' : ' approx') + clip);
-        bar.style.left = left + '%';
-        bar.style.width = Math.max(right - left, 1.2) + '%';
-        bar.style.setProperty('--bar', barColour(d.status));
-        if (right - left > 13) {
-          bar.textContent = MON[day(p.opens).getUTCMonth()].toUpperCase() +
-                            ' – ' + MON[day(p.closes).getUTCMonth()].toUpperCase();
-        }
-        bar.setAttribute('title', p.name + ' · ' + longDate(day(p.opens)) +
-                         ' to ' + longDate(day(p.closes)));
-      }
-      track.appendChild(bar);
-
-      var m = el('div', 'gantt-today');
-      m.style.left = todayPct + '%';
-      track.appendChild(m);
-
-      wrap.appendChild(track);
-    });
-  }
-
-  function barColour(status) {
-    return ({
-      open: 'var(--st-open)', closing: 'var(--st-closing)',
-      soon: 'var(--st-soon)', later: 'var(--st-later)',
-      closed: 'var(--st-always)', always: 'var(--st-always)',
-      watch: 'var(--st-watch)',
-    })[status] || 'var(--st-always)';
-  }
-
-  /* ------------------------------------------------------------------ RUN */
+  /* ================================================================== RUN */
   function render() {
-    renderFilters();
-    renderBoard();
-    renderYear();
+    renderChips();
+    renderGrid();
+    renderDay();
+    renderUpcoming();
+    renderAlways();
   }
 
-  document.getElementById('today-date').textContent = longDate(TODAY);
-  renderTally();
+  document.getElementById('prev').addEventListener('click', function () {
+    view = mk(view.getUTCFullYear(), view.getUTCMonth() - 1, 1);
+    render();
+  });
+  document.getElementById('next').addEventListener('click', function () {
+    view = mk(view.getUTCFullYear(), view.getUTCMonth() + 1, 1);
+    render();
+  });
+  document.getElementById('jump-today').addEventListener('click', function () {
+    view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+    selected = TODAY;
+    render();
+  });
+
   render();
 })();
 

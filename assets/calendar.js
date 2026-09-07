@@ -1,466 +1,443 @@
 /* ============================================================================
-   Lesko Help — Season Calendar
-   Takes the dataset in data/programs.js and answers one question first:
-   what can somebody actually apply for today?
+   Lesko Help — The Help Calendar
 
-   Everything here is derived from today's date, so the page is correct on any
-   day it is opened without anyone editing it. Append ?date=YYYY-MM-DD to the
-   URL to preview how the board will look on a future day.
+   A real month grid. Windows run across the days they are open, the way a
+   multi-day event does in any calendar app. Everything is derived from today's
+   date, so nobody has to edit the page when the month turns over.
+
+   Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
 (function () {
   'use strict';
 
   /* ------------------------------------------------------------- DAY MATH */
-  // Dates are parsed at UTC noon so that adding days never trips over a
-  // daylight-saving boundary and lands on the wrong calendar day.
+  // Parsed at UTC noon so adding days never trips over a daylight-saving
+  // boundary and lands on the wrong calendar square.
   function day(iso) {
     var p = iso.split('-');
     return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
   }
-  function daysBetween(from, to) {
-    return Math.round((to - from) / 86400000);
+  function mk(y, m, d) { return new Date(Date.UTC(y, m, d, 12)); }
+  function addDays(d, n) { return new Date(d.getTime() + n * 86400000); }
+  function diff(a, b) { return Math.round((b - a) / 86400000); }
+  function iso(d) {
+    return d.getUTCFullYear() + '-' +
+           String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+           String(d.getUTCDate()).padStart(2, '0');
   }
-
-  var override = new URLSearchParams(location.search).get('date');
-  var TODAY = override && /^\d{4}-\d{2}-\d{2}$/.test(override)
-    ? day(override)
-    : (function () {
-        var n = new Date();
-        return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate(), 12));
-      })();
 
   var MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  function longDate(d) {
-    return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
-  }
-  function shortDate(d) {
-    return MON[d.getUTCMonth()] + ' ' + d.getUTCDate();
-  }
-  function shortDateYear(d) {
-    return MON[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
-  }
-  // "in 24 days" reads better than "24 days" in a sentence, and "tomorrow"
-  // beats "in 1 day" every time.
+  function longDate(d) { return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
+  function shortDate(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); }
+  function shortYear(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
+
   function countdown(n) {
     if (n === 0) return 'today';
     if (n === 1) return 'tomorrow';
-    if (n < 14) return 'in ' + n + ' days';
     if (n < 60) return 'in ' + n + ' days';
-    if (n < 400) {
-      var m = Math.round(n / 30.4);
-      return 'in about ' + m + ' month' + (m === 1 ? '' : 's');
-    }
-    return 'in about ' + Math.round(n / 365) + ' years';
+    var m = Math.round(n / 30.4);
+    return m < 13 ? 'in ' + m + ' months' : 'in ' + Math.round(n / 365) + ' years';
   }
   function remaining(n) {
     if (n === 0) return 'last day';
     if (n === 1) return '1 day left';
     if (n < 70) return n + ' days left';
-    var m = Math.round(n / 30.4);
-    return 'about ' + m + ' months left';
+    return Math.round(n / 30.4) + ' months left';
   }
 
-  /* --------------------------------------------------------------- STATUS */
-  // The window is closing soon inside this many days.
-  var CLOSING_SOON = 30;
-  // The window opens soon inside this many days — long enough to be useful
-  // for gathering paperwork, short enough not to swamp the board.
-  var OPENING_SOON = 75;
+  var q = new URLSearchParams(location.search).get('date');
+  var TODAY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? day(q) : (function () {
+    var n = new Date();
+    return mk(n.getFullYear(), n.getMonth(), n.getDate());
+  })();
 
-  var GROUPS = [
-    { key: 'closing', title: 'Closing soon',
-      note: 'The window shuts within a month. Do these this week.' },
-    { key: 'open', title: 'Open right now',
-      note: 'You can apply today. Nothing is standing in the way.' },
-    { key: 'soon', title: 'Opens soon — start getting ready',
-      note: 'Not open yet. Gather the paperwork now so you can file the week it opens.' },
-    { key: 'watch', title: 'No fixed season — watch for it',
-      note: 'These open without much warning and close fast. Be ready before they do.' },
-    { key: 'always', title: 'Open every day of the year',
-      note: 'No deadline at all. The only reason not to have applied is not knowing about it.' },
-    { key: 'later', title: 'Later in the year',
-      note: 'Nothing to do yet. Here so it does not arrive as a surprise.' },
-    { key: 'closed', title: 'Closed for this round',
-      note: 'The window has passed. Here is when it comes back.' },
-  ];
+  /* ---------------------------------------------------------------- STATE */
+  var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1); // month on screen
+  var selected = TODAY;
+  var catFilter = 'all';
 
-  function statusOf(p) {
-    if (p.watch) return 'watch';
-    if (!p.opens && !p.closes) return 'always';
+  // Only programmes with a real window belong on a grid. The ones with no
+  // season at all would otherwise paint a bar across every square of every
+  // month and drown the things that actually have a date.
+  var DATED = LH_PROGRAMS.filter(function (p) { return p.opens && p.closes && !p.watch; });
+  var UNDATED = LH_PROGRAMS.filter(function (p) { return !p.opens || !p.closes || p.watch; });
 
-    var o = day(p.opens), c = day(p.closes);
+  function inFilter(p) { return catFilter === 'all' || p.cat === catFilter; }
+  function colourVar(p) { return 'var(--' + LH_CATEGORIES[p.cat].color + ')'; }
 
-    if (TODAY >= o && TODAY <= c) {
-      return daysBetween(TODAY, c) <= CLOSING_SOON ? 'closing' : 'open';
-    }
-    if (TODAY < o) {
-      return daysBetween(TODAY, o) <= OPENING_SOON ? 'soon' : 'later';
-    }
-    return 'closed';
-  }
-
-  // The one-line summary that sits in the tinted box on every card. This is
-  // the line most people will read and nothing else.
-  function windowLine(p, status) {
-    var o = p.opens ? day(p.opens) : null;
-    var c = p.closes ? day(p.closes) : null;
-
-    if (status === 'always')
-      return { lead: 'Open now', parts: ['no deadline, apply any day'] };
-    if (status === 'watch')
-      return { lead: 'No fixed dates', parts: [p.cadence] };
-    if (status === 'open' || status === 'closing')
-      return { lead: 'Open now',
-               parts: ['closes ' + shortDateYear(c), remaining(daysBetween(TODAY, c))] };
-    if (status === 'soon' || status === 'later')
-      return { lead: 'Opens ' + shortDateYear(o),
-               parts: [countdown(daysBetween(TODAY, o))] };
-    return { lead: 'Closed ' + shortDateYear(c), parts: [p.cadence] };
-  }
-
-  /* ------------------------------------------------------------- ELEMENTS */
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
   }
-
-  function suitSpan(catKey) {
-    var c = LH_CATEGORIES[catKey];
-    var s = el('span', 'card-suit suit-' + c.color, c.suit);
-    s.setAttribute('title', c.name);
-    return s;
+  function suit(p) {
+    var c = LH_CATEGORIES[p.cat];
+    return el('span', 'suit suit-' + c.color, c.suit);
   }
 
-  /* ----------------------------------------------------------------- CARD */
-  function buildCard(p, status) {
-    var card = el('article', 'card');
+  /* -------------------------------------------------------------- STATUS */
+  function statusOf(p, on) {
+    if (p.watch) return 'watch';
+    if (!p.opens || !p.closes) return 'always';
+    var o = day(p.opens), c = day(p.closes);
+    if (on < o) return 'soon';
+    if (on > c) return 'closed';
+    return diff(on, c) <= 30 ? 'closing' : 'open';
+  }
 
-    var top = el('div', 'card-top');
-    top.appendChild(suitSpan(p.cat));
+  /* ================================================================= GRID */
+  // One row of the grid holds every window overlapping that week. Bars are
+  // packed into lanes so two that overlap never sit on the same line.
+  function weekItems(weekStart, eventful) {
+    var weekEnd = addDays(weekStart, 6);
+    var items = [];
 
-    var titleWrap = el('div');
-    titleWrap.appendChild(el('h3', 'card-title', p.name));
-    if (p.alsoCalled) titleWrap.appendChild(el('div', 'card-also', 'Also called: ' + p.alsoCalled));
-    top.appendChild(titleWrap);
-
-    var badgeText = {
-      closing: 'Closing soon', open: 'Open now', soon: 'Opens soon',
-      watch: 'Watch for it', always: 'Always open', later: 'Later', closed: 'Closed',
-    }[status];
-    top.appendChild(el('span', 'badge', badgeText));
-    card.appendChild(top);
-
-    card.appendChild(el('p', 'card-what', p.what));
-
-    var w = windowLine(p, status);
-    var win = el('div', 'window');
-    win.appendChild(el('span', 'lead', w.lead));
-
-    var parts = w.parts.slice();
-    if (p.precision === 'varies') parts.push('dates differ by state');
-    else if (p.precision === 'typical') parts.push('usual dates, check yours');
-
-    parts.forEach(function (text) {
-      win.appendChild(el('span', 'sep', '·'));
-      // Long phrases are allowed to wrap internally; short ones are kept
-      // whole so a countdown never splits across two lines.
-      win.appendChild(el('span', 'dates' + (text.length > 28 ? ' wrapok' : ''), text));
-    });
-    card.appendChild(win);
-
-    // Only show key dates that have not already gone by.
-    (p.keyDates || []).forEach(function (k) {
-      var d = day(k.date);
-      if (daysBetween(TODAY, d) < 0) return;
-      var row = el('div', 'keydate');
-      row.appendChild(el('span', 'kd-date', shortDate(d)));
-      row.appendChild(el('span', null, k.label));
-      card.appendChild(row);
+    eventful.forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      if (c < weekStart || o > weekEnd) return;
+      items.push({
+        p: p, kind: 'bar',
+        start: Math.max(diff(weekStart, o), 0),
+        end: Math.min(diff(weekStart, c), 6),
+        cutL: o < weekStart, cutR: c > weekEnd,
+      });
     });
 
-    if (p.urgent) {
-      var u = el('div', 'urgent');
-      u.appendChild(el('b', null, 'Worth knowing. '));
-      u.appendChild(document.createTextNode(p.urgent));
-      card.appendChild(u);
-    }
+    // Key dates are one-day markers inside a window — the ACA cutoff for
+    // January coverage, the date EITC refunds can first be paid.
+    LH_PROGRAMS.filter(inFilter).forEach(function (p) {
+      (p.keyDates || []).forEach(function (k) {
+        var d = day(k.date);
+        if (d < weekStart || d > weekEnd) return;
+        var col = diff(weekStart, d);
+        items.push({ p: p, kind: 'pin', label: k.label, start: col, end: col });
+      });
+    });
 
-    // The paperwork list is the practical payload, but it is long — so it
-    // collapses, and opens itself for anything you could act on today.
-    if (p.prep && p.prep.length) {
-      var det = el('details', 'prep');
-      var actionable = status === 'open' || status === 'closing' ||
-                       status === 'always' || status === 'watch';
-      if (actionable) det.open = true;
+    // Longest first, so the bars that span the week settle into the top lanes
+    // and the grid reads as bands rather than confetti.
+    items.sort(function (a, b) {
+      if (a.kind !== b.kind) return a.kind === 'bar' ? -1 : 1;
+      var la = a.end - a.start, lb = b.end - b.start;
+      return lb - la || a.start - b.start;
+    });
 
-      var label = 'What to have ready';
-      if (status === 'soon' && p.prepDays) {
-        var lead = daysBetween(TODAY, day(p.opens)) - p.prepDays;
-        label = lead <= 0
-          ? 'Start gathering now — ' + p.prep.length + ' things'
-          : 'Start gathering ' + countdown(Math.max(lead, 0)) + ' — ' + p.prep.length + ' things';
+    var lanes = [];
+    items.forEach(function (it) {
+      var i = 0;
+      while (lanes[i] && lanes[i].some(function (o) {
+        return it.start <= o.end && o.start <= it.end;
+      })) i++;
+      lanes[i] = lanes[i] || [];
+      lanes[i].push(it);
+      it.lane = i;
+    });
+
+    return { items: items, lanes: lanes.length };
+  }
+
+  function renderGrid() {
+    var host = document.getElementById('weeks');
+    host.textContent = '';
+
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    document.getElementById('cal-month').textContent = MONTHS[m] + ' ' + y;
+
+    var first = mk(y, m, 1);
+    var gridStart = addDays(first, -first.getUTCDay());
+    var lastOfMonth = mk(y, m + 1, 0);
+    var weeks = Math.ceil((diff(gridStart, lastOfMonth) + 1) / 7);
+
+    var gridEnd = addDays(gridStart, weeks * 7 - 1);
+
+    // A window running clean through the whole visible grid has no edge to
+    // draw. Repeating its bar on all six week rows turns the month into a wall
+    // of stripes, so those go in a band above the grid instead and only
+    // windows that actually open or close in view get a bar.
+    var eventful = [], running = [];
+    DATED.filter(inFilter).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      if (c < gridStart || o > gridEnd) return;
+      if (o >= gridStart || c <= gridEnd) eventful.push(p);
+      else running.push(p);
+    });
+    renderRunning(running);
+
+    for (var w = 0; w < weeks; w++) {
+      var weekStart = addDays(gridStart, w * 7);
+      var packed = weekItems(weekStart, eventful);
+
+      var row = el('div', 'week');
+      row.style.minHeight = (28 + packed.lanes * 22 + 8) + 'px';
+
+      // Day squares
+      var days = el('div', 'week-days');
+      for (var i = 0; i < 7; i++) {
+        var d = addDays(weekStart, i);
+        var cell = el('div');
+        if (d.getUTCMonth() !== m) cell.classList.add('out');
+        if (diff(d, TODAY) === 0) cell.classList.add('today');
+        if (diff(d, selected) === 0) cell.classList.add('sel');
+        cell.appendChild(el('span', 'dnum', String(d.getUTCDate())));
+        cell.setAttribute('role', 'button');
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('aria-label', longDate(d));
+        (function (dd) {
+          function pick() { selected = dd; render(); }
+          cell.addEventListener('click', pick);
+          cell.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
+          });
+        })(d);
+        days.appendChild(cell);
       }
-      det.appendChild(el('summary', null, label));
+      row.appendChild(days);
 
-      var ul = el('ul');
-      p.prep.forEach(function (item) { ul.appendChild(el('li', null, item)); });
-      det.appendChild(ul);
+      // Bars on top
+      var overlay = el('div', 'week-events');
+      packed.items.forEach(function (it) {
+        var b = el('button', 'ev');
+        b.type = 'button';
+        b.style.gridColumn = (it.start + 1) + ' / ' + (it.end + 2);
+        b.style.gridRow = String(it.lane + 1);
 
-      if (p.missedIt) det.appendChild(el('p', null, 'If you miss it: ' + p.missedIt));
-      if (p.renewal) det.appendChild(el('p', null, 'Renewing: ' + p.renewal));
-      card.appendChild(det);
+        if (it.kind === 'pin') {
+          b.classList.add('pin');
+          b.textContent = '◆ ' + it.p.name;
+          b.title = it.label;
+        } else {
+          b.style.setProperty('--c', colourVar(it.p));
+          if (LH_CATEGORIES[it.p.cat].color === 'gold') b.classList.add('gold');
+          if (it.p.precision !== 'exact') b.classList.add('approx');
+          if (it.cutL) b.classList.add('cut-l');
+          if (it.cutR) b.classList.add('cut-r');
+          b.textContent = it.p.name;
+          b.title = it.p.name + ' · ' + longDate(day(it.p.opens)) +
+                    ' to ' + longDate(day(it.p.closes));
+        }
+
+        (function (dd) {
+          b.addEventListener('click', function (e) { e.stopPropagation(); selected = dd; render(); });
+        })(addDays(weekStart, it.start));
+        overlay.appendChild(b);
+      });
+      row.appendChild(overlay);
+
+      host.appendChild(row);
     }
-
-    if (p.caveat) card.appendChild(el('div', 'caveat', p.caveat));
-
-    var foot = el('div', 'card-foot');
-    foot.appendChild(el('span', 'where', p.where));
-    if (p.link) {
-      var a = el('a', null, 'Go there →');
-      a.href = p.link;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.setAttribute('aria-label', 'Open the official page for ' + p.name);
-      foot.appendChild(a);
-    }
-    card.appendChild(foot);
-
-    return card;
   }
 
-  /* ---------------------------------------------------------------- STATE */
-  var filters = { status: 'all', cat: 'all' };
-
-  var decorated = LH_PROGRAMS.map(function (p) {
-    return { p: p, status: statusOf(p) };
-  });
-
-  function visible() {
-    return decorated.filter(function (d) {
-      if (filters.status !== 'all' && d.status !== filters.status) return false;
-      if (filters.cat !== 'all' && d.p.cat !== filters.cat) return false;
-      return true;
-    });
-  }
-
-  /* ---------------------------------------------------------------- TALLY */
-  function renderTally() {
-    var box = document.getElementById('tally');
+  function renderRunning(list) {
+    var box = document.getElementById('running');
     box.textContent = '';
+    if (!list.length) { box.hidden = true; return; }
+    box.hidden = false;
 
-    var openNow = decorated.filter(function (d) {
-      return d.status === 'open' || d.status === 'closing' || d.status === 'always';
-    }).length;
-    var closing = decorated.filter(function (d) { return d.status === 'closing'; }).length;
-    var soon = decorated.filter(function (d) { return d.status === 'soon'; }).length;
-
-    [
-      [openNow, 'open to apply for today'],
-      [closing, 'closing within a month'],
-      [soon, 'worth getting ready for'],
-    ].forEach(function (row) {
-      var r = el('div', 'tally-row');
-      r.appendChild(el('span', 'tally-num', String(row[0])));
-      r.appendChild(el('span', null, row[1]));
-      box.appendChild(r);
+    box.appendChild(el('span', 'eyebrow', 'Open all month'));
+    var pills = el('div', 'pills');
+    list.forEach(function (p) {
+      var b = el('button', 'pill');
+      b.type = 'button';
+      b.appendChild(suit(p));
+      b.appendChild(document.createTextNode(p.name));
+      b.title = p.name + ' \u00b7 open ' + longDate(day(p.opens)) +
+                ' to ' + longDate(day(p.closes));
+      b.addEventListener('click', function () { selected = TODAY; render(); });
+      pills.appendChild(b);
     });
+    box.appendChild(pills);
   }
 
-  /* -------------------------------------------------------------- FILTERS */
-  function renderFilters() {
-    var statusRow = document.getElementById('filter-status');
-    var catRow = document.getElementById('filter-cat');
-    statusRow.textContent = '';
-    catRow.textContent = '';
+  /* ============================================================ DAY PANEL */
+  function renderDay() {
+    var box = document.getElementById('day-panel');
+    box.textContent = '';
+    box.appendChild(el('span', 'eyebrow',
+      diff(selected, TODAY) === 0 ? 'Today' : 'Selected day'));
+    box.appendChild(el('h3', null, longDate(selected)));
 
-    function chip(row, label, key, group, count, suitHTML) {
+    var rows = el('div', 'rows');
+    var any = false;
+
+    DATED.filter(inFilter).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      if (selected < o || selected > c) return;
+      any = true;
+
+      var r = el('div', 'row');
+      r.appendChild(suit(p));
+      var body = el('div');
+      body.appendChild(el('div', 'row-name', p.name));
+
+      var meta = el('div', 'row-meta');
+      var isOpenDay = diff(selected, o) === 0;
+      var isCloseDay = diff(selected, c) === 0;
+      var left = diff(selected, c);
+
+      if (isOpenDay) meta.appendChild(el('b', null, 'OPENS TODAY'));
+      else if (isCloseDay) meta.appendChild(el('b', 'hot', 'LAST DAY'));
+      else {
+        var t = el('span', left <= 30 ? 'hot' : null, 'Open · ' + remaining(left));
+        meta.appendChild(t);
+      }
+      if (p.precision !== 'exact') {
+        meta.appendChild(document.createTextNode(
+          p.precision === 'varies' ? ' · varies by state' : ' · usual dates'));
+      }
+      body.appendChild(meta);
+
+      // The shout is reserved for rows where it changes what you do today.
+      if (p.urgent && (isOpenDay || isCloseDay || left <= 45))
+        body.appendChild(el('div', 'flag', p.urgent));
+
+      if (p.link) {
+        var a = el('a', null, p.where + ' →');
+        a.href = p.link; a.target = '_blank'; a.rel = 'noopener';
+        var wrap = el('div'); wrap.style.marginTop = '5px';
+        wrap.appendChild(a); body.appendChild(wrap);
+      }
+      r.appendChild(body);
+      rows.appendChild(r);
+    });
+
+    LH_PROGRAMS.filter(inFilter).forEach(function (p) {
+      (p.keyDates || []).forEach(function (k) {
+        if (diff(selected, day(k.date)) !== 0) return;
+        any = true;
+        var r = el('div', 'row');
+        r.appendChild(suit(p));
+        var body = el('div');
+        body.appendChild(el('div', 'row-name', p.name));
+        body.appendChild(el('div', 'flag', k.label));
+        r.appendChild(body);
+        rows.appendChild(r);
+      });
+    });
+
+    box.appendChild(any ? rows : el('div', 'empty', 'No window opens or closes on this day.'));
+  }
+
+  /* ============================================================== UPCOMING */
+  // What actually needs doing, soonest first: anything closing inside 45 days
+  // and anything opening inside 60.
+  function renderUpcoming() {
+    var box = document.getElementById('upcoming');
+    box.textContent = '';
+    box.appendChild(el('span', 'eyebrow', 'What is coming up'));
+
+    var events = [];
+    DATED.filter(inFilter).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
+      if (toOpen > 0 && toOpen <= 60) events.push({ p: p, d: toOpen, type: 'opens', on: o });
+      else if (toOpen <= 0 && toClose >= 0 && toClose <= 45) events.push({ p: p, d: toClose, type: 'closes', on: c });
+    });
+    events.sort(function (a, b) { return a.d - b.d; });
+
+    if (!events.length) {
+      box.appendChild(el('div', 'empty', 'Nothing opens or closes in the next few weeks.'));
+      return;
+    }
+
+    var rows = el('div', 'rows');
+    events.slice(0, 8).forEach(function (e) {
+      var r = el('div', 'row');
+      r.appendChild(suit(e.p));
+      var body = el('div');
+      body.appendChild(el('div', 'row-name', e.p.name));
+      var meta = el('div', 'row-meta');
+      var verb = e.type === 'closes' ? 'Closes ' : 'Opens ';
+      meta.appendChild(el('span', e.type === 'closes' ? 'hot' : null,
+        verb + shortDate(e.on) + ' · ' + countdown(e.d)));
+      body.appendChild(meta);
+      r.appendChild(body);
+      (function (on) {
+        r.style.cursor = 'pointer';
+        r.addEventListener('click', function () {
+          selected = on;
+          view = mk(on.getUTCFullYear(), on.getUTCMonth(), 1);
+          render();
+        });
+      })(e.on);
+      rows.appendChild(r);
+    });
+    box.appendChild(rows);
+  }
+
+  /* ================================================================ ALWAYS */
+  function renderAlways() {
+    var box = document.getElementById('always');
+    box.textContent = '';
+    box.appendChild(el('span', 'eyebrow', 'No season — apply any day'));
+
+    var list = UNDATED.filter(inFilter);
+    if (!list.length) { box.appendChild(el('div', 'empty', 'Nothing in this topic.')); return; }
+
+    var pills = el('div', 'pills');
+    list.forEach(function (p) {
+      var a = el('a', 'pill');
+      a.href = p.link || '#';
+      if (p.link) { a.target = '_blank'; a.rel = 'noopener'; }
+      a.style.textDecoration = 'none';
+      a.appendChild(suit(p));
+      a.appendChild(document.createTextNode(p.name));
+      a.title = p.what;
+      pills.appendChild(a);
+    });
+    box.appendChild(pills);
+  }
+
+  /* ================================================================ CHIPS */
+  function renderChips() {
+    var row = document.getElementById('filter-cat');
+    row.textContent = '';
+
+    function chip(label, key, glyph, colour) {
       var b = el('button', 'chip');
       b.type = 'button';
-      if (suitHTML) {
-        var s = el('span', 'suit ' + suitHTML.cls, suitHTML.glyph);
-        b.appendChild(s);
-      }
+      if (glyph) b.appendChild(el('span', 'suit suit-' + colour, glyph));
       b.appendChild(document.createTextNode(label));
-      if (count != null) b.appendChild(el('span', 'count', String(count)));
-      b.setAttribute('aria-pressed', String(filters[group] === key));
+      b.setAttribute('aria-pressed', String(catFilter === key));
       b.addEventListener('click', function () {
-        filters[group] = filters[group] === key ? 'all' : key;
+        catFilter = catFilter === key ? 'all' : key;
         render();
       });
       row.appendChild(b);
     }
 
-    chip(statusRow, 'Everything', 'all', 'status', decorated.length);
-    GROUPS.forEach(function (g) {
-      var n = decorated.filter(function (d) { return d.status === g.key; }).length;
-      if (!n) return;
-      var short = { closing: 'Closing soon', open: 'Open now', soon: 'Opens soon',
-                    watch: 'Watch for it', always: 'All year', later: 'Later',
-                    closed: 'Closed' }[g.key];
-      chip(statusRow, short, g.key, 'status', n);
-    });
-
-    chip(catRow, 'All four', 'all', 'cat', null);
+    chip('All', 'all');
     Object.keys(LH_CATEGORIES).forEach(function (k) {
       var c = LH_CATEGORIES[k];
-      var n = decorated.filter(function (d) { return d.p.cat === k; }).length;
-      chip(catRow, c.name, k, 'cat', n, { glyph: c.suit, cls: 'suit-' + c.color });
+      chip(c.name.split(' ')[0], k, c.suit, c.color);
     });
   }
 
-  /* ---------------------------------------------------------------- BOARD */
-  function renderBoard() {
-    var board = document.getElementById('board');
-    board.textContent = '';
-
-    var items = visible();
-    if (!items.length) {
-      board.appendChild(el('div', 'empty',
-        'Nothing matches those two filters together. Try clearing one.'));
-      return;
-    }
-
-    GROUPS.forEach(function (g) {
-      var inGroup = items.filter(function (d) { return d.status === g.key; });
-      if (!inGroup.length) return;
-
-      var section = el('section', 'group');
-      section.setAttribute('data-status', g.key);
-
-      var head = el('div', 'group-head');
-      head.appendChild(el('h2', null, g.title));
-      head.appendChild(el('span', 'group-note', g.note));
-      section.appendChild(head);
-
-      // Soonest thing first inside every group — that is the reading order
-      // people actually want.
-      inGroup.sort(function (a, b) {
-        var ka = sortKey(a), kb = sortKey(b);
-        return ka - kb;
-      });
-
-      var cards = el('div', 'cards');
-      cards.setAttribute('data-n', String(inGroup.length));
-      inGroup.forEach(function (d) { cards.appendChild(buildCard(d.p, d.status)); });
-      section.appendChild(cards);
-      board.appendChild(section);
-    });
-  }
-
-  function sortKey(d) {
-    if (d.status === 'open' || d.status === 'closing') return daysBetween(TODAY, day(d.p.closes));
-    if (d.status === 'soon' || d.status === 'later') return daysBetween(TODAY, day(d.p.opens));
-    return 0;
-  }
-
-  /* ----------------------------------------------------------- YEAR STRIP */
-  // A rolling 12 months starting this month. A January-to-December grid would
-  // cut the winter programmes — the ones that matter most — clean in half.
-  function renderYear() {
-    var wrap = document.getElementById('gantt');
-    wrap.textContent = '';
-
-    var startYear = TODAY.getUTCFullYear();
-    var startMonth = TODAY.getUTCMonth();
-    var windowStart = Date.UTC(startYear, startMonth, 1, 12);
-    var windowEnd = Date.UTC(startYear, startMonth + 12, 1, 12);
-    var span = windowEnd - windowStart;
-
-    function pct(ms) { return ((ms - windowStart) / span) * 100; }
-    var todayPct = pct(TODAY.getTime());
-
-    // Month header
-    wrap.appendChild(el('div', 'gantt-label gantt-head'));
-    var head = el('div', 'gantt-track gantt-head');
-    for (var i = 0; i < 12; i++) {
-      var mi = (startMonth + i) % 12;
-      var yr = startYear + Math.floor((startMonth + i) / 12);
-      var m = el('div', 'm' + (mi === 0 ? ' newyear' : ''),
-                 mi === 0 ? MON[mi] + ' ' + yr : MON[mi]);
-      head.appendChild(m);
-    }
-    var marker = el('div', 'gantt-today labelled');
-    marker.style.left = todayPct + '%';
-    head.appendChild(marker);
-    wrap.appendChild(head);
-
-    var items = visible().slice().sort(function (a, b) {
-      var ao = a.p.opens ? day(a.p.opens).getTime() : Infinity;
-      var bo = b.p.opens ? day(b.p.opens).getTime() : Infinity;
-      return ao - bo;
-    });
-
-    items.forEach(function (d) {
-      var p = d.p;
-      var cat = LH_CATEGORIES[p.cat];
-
-      var label = el('div', 'gantt-label');
-      label.appendChild(el('span', 'suit suit-' + cat.color, cat.suit));
-      label.appendChild(el('span', null, p.name));
-      label.setAttribute('title', p.name);
-      wrap.appendChild(label);
-
-      var track = el('div', 'gantt-track');
-
-      var bar;
-      if (!p.opens || !p.closes || d.status === 'watch') {
-        bar = el('div', 'bar always', d.status === 'watch' ? 'Could open any time' : 'Open all year');
-        bar.style.left = '0%';
-        bar.style.width = '100%';
-      } else {
-        var o = day(p.opens).getTime(), c = day(p.closes).getTime();
-        // Clip to the visible year rather than dropping the row — a window
-        // that started before this month is still open today.
-        var rawLeft = pct(o), rawRight = pct(c);
-        var left = Math.max(rawLeft, 0);
-        var right = Math.min(rawRight, 100);
-        if (right <= 0 || left >= 100) return; // genuinely outside the year
-        // A window that runs past either edge of the visible year gets a
-        // squared-off end, so a clipped bar never reads as a real boundary.
-        var clip = (rawLeft < 0 ? ' clip-left' : '') + (rawRight > 100 ? ' clip-right' : '');
-        bar = el('div', 'bar' + (p.precision === 'exact' ? '' : ' approx') + clip);
-        bar.style.left = left + '%';
-        bar.style.width = Math.max(right - left, 1.2) + '%';
-        bar.style.setProperty('--bar', barColour(d.status));
-        if (right - left > 13) {
-          bar.textContent = MON[day(p.opens).getUTCMonth()].toUpperCase() +
-                            ' – ' + MON[day(p.closes).getUTCMonth()].toUpperCase();
-        }
-        bar.setAttribute('title', p.name + ' · ' + longDate(day(p.opens)) +
-                         ' to ' + longDate(day(p.closes)));
-      }
-      track.appendChild(bar);
-
-      var m = el('div', 'gantt-today');
-      m.style.left = todayPct + '%';
-      track.appendChild(m);
-
-      wrap.appendChild(track);
-    });
-  }
-
-  function barColour(status) {
-    return ({
-      open: 'var(--st-open)', closing: 'var(--st-closing)',
-      soon: 'var(--st-soon)', later: 'var(--st-later)',
-      closed: 'var(--st-always)', always: 'var(--st-always)',
-      watch: 'var(--st-watch)',
-    })[status] || 'var(--st-always)';
-  }
-
-  /* ------------------------------------------------------------------ RUN */
+  /* ================================================================== RUN */
   function render() {
-    renderFilters();
-    renderBoard();
-    renderYear();
+    renderChips();
+    renderGrid();
+    renderDay();
+    renderUpcoming();
+    renderAlways();
   }
 
-  document.getElementById('today-date').textContent = longDate(TODAY);
-  renderTally();
+  document.getElementById('prev').addEventListener('click', function () {
+    view = mk(view.getUTCFullYear(), view.getUTCMonth() - 1, 1);
+    render();
+  });
+  document.getElementById('next').addEventListener('click', function () {
+    view = mk(view.getUTCFullYear(), view.getUTCMonth() + 1, 1);
+    render();
+  });
+  document.getElementById('jump-today').addEventListener('click', function () {
+    view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+    selected = TODAY;
+    render();
+  });
+
   render();
 })();
