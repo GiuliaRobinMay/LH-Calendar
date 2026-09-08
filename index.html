@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Help Calendar</title>
-<meta name="description" content="A month calendar of US grants and assistance — when each window opens, when it closes, and what is closing next.">
+<meta name="description" content="Timing for US grants and assistance — what is open now, what closes soon, and what has not started yet.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -12,8 +12,8 @@
 </head>
 <body>
 
-<!-- The Lesko Help frame. Four separate strips so the blocks run the right way
-     round on the vertical edges as well as the horizontal ones. -->
+<!-- Four separate strips so the colour blocks run the right way round on the
+     vertical edges as well as the horizontal ones. -->
 <div class="frame" aria-hidden="true">
   <i class="fr-top"></i><i class="fr-bottom"></i><i class="fr-left"></i><i class="fr-right"></i>
 </div>
@@ -33,61 +33,65 @@
     </div>
   </header>
 
-  <h1 class="page-title">Know what to apply for, <em>and when.</em></h1>
+  <h1 class="page-title">When can I <em>apply?</em></h1>
+  <p class="page-sub">What is open now, what closes soon, and what has not started yet.</p>
 
-  <nav class="tabs" aria-label="Sections">
-    <a class="tab" href="#">01 &middot; The quiz</a>
-    <a class="tab" href="#">02 &middot; My list</a>
-    <a class="tab" href="#">03 &middot; Privacy</a>
-    <a class="tab is-on" href="#" aria-current="page">04 &middot; Calendar</a>
-  </nav>
+  <div class="topicbar">
+    <span class="eyebrow">Topics</span>
+    <div class="chips" role="group" aria-label="Filter by topic" id="filter-cat"></div>
+  </div>
 
   <!-- ------------------------------------------------------- THE CALENDAR -->
-  <div class="layout">
+  <section class="cal" aria-label="Month calendar">
 
-    <section class="cal" aria-label="Month calendar">
-
-      <div class="cal-bar">
-        <button type="button" class="navbtn" id="prev" aria-label="Previous month">&larr;</button>
+    <div class="cal-bar">
+      <div class="nav">
+        <button type="button" class="navbtn" id="prev-year" aria-label="Previous year" title="Previous year">&laquo;</button>
+        <button type="button" class="navbtn" id="prev" aria-label="Previous month" title="Previous month">&lsaquo;</button>
         <h2 class="cal-month" id="cal-month">&nbsp;</h2>
-        <button type="button" class="navbtn" id="next" aria-label="Next month">&rarr;</button>
-        <button type="button" class="todaybtn" id="jump-today">Today</button>
-        <div class="chips" role="group" aria-label="Filter by topic" id="filter-cat"></div>
+        <button type="button" class="navbtn" id="next" aria-label="Next month" title="Next month">&rsaquo;</button>
+        <button type="button" class="navbtn" id="next-year" aria-label="Next year" title="Next year">&raquo;</button>
       </div>
+      <button type="button" class="todaybtn" id="jump-today">Today</button>
+    </div>
 
-      <div class="running" id="running" hidden></div>
-
-      <div class="cal-scroll">
-        <div class="cal-grid">
-          <div class="weekdays" aria-hidden="true">
-            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
-            <div>Thu</div><div>Fri</div><div>Sat</div>
-          </div>
-          <div id="weeks"></div>
+    <div class="cal-scroll">
+      <div class="cal-grid">
+        <div class="weekdays" aria-hidden="true">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+          <div>Thu</div><div>Fri</div><div>Sat</div>
         </div>
+        <div id="weeks"></div>
       </div>
+    </div>
 
-      <p class="cal-hint">
-        Rounded end = the real opening or closing day. Flat end = it carries on.
-        Striped = dates vary by state. Click a day for detail.
-      </p>
-    </section>
+      <p class="cal-legend" id="cal-legend"></p>
+  </section>
 
-    <!-- ------------------------------------------------------------ SIDE -->
-    <aside class="side">
-      <div class="panel" id="day-panel" aria-live="polite"></div>
-      <div class="panel" id="upcoming"></div>
-      <div class="panel" id="always"></div>
-    </aside>
+  <!-- ------------------------------------------------------------- THE LIST -->
+  <section class="listing" aria-label="Programme list">
+    <div class="scopes" role="tablist" id="scopes"></div>
+    <div id="list"></div>
+  </section>
 
-  </div>
+  <section class="always" id="always"></section>
 
   <footer class="foot">
     <b>Tells you when — not whether you qualify. Not an application.</b>
-    Striped dates are patterns, not promises: confirm with the office on the card.
-    Reviewed 7 Sep 2026. Sources in <code>docs/research.md</code>.
+    Dates marked <i>usual</i> or <i>varies by state</i> are patterns, not promises:
+    confirm with the office on the card. Reviewed 8 Sep 2026.
+    Sources in <code>docs/research.md</code>.
   </footer>
 
+</div>
+
+<!-- Detail card, opened by clicking any line or list row. -->
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title" id="sheet-card">
+    <button type="button" class="sheet-x" data-close aria-label="Close">&times;</button>
+    <div id="sheet-body"></div>
+  </div>
 </div>
 
 <script src="data/programs.js"></script>

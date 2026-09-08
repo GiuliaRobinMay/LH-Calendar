@@ -16,6 +16,9 @@
                       labelled, so we never imply we know more than we do.
      rolls            true if a late application is held for the next round
                       rather than simply rejected.
+     color            The line colour on the calendar. One per programme, and
+                      no two the same — pick a shade from its topic's family
+                      (home=blues, health=reds, money=golds, family=greens).
 
    HONESTY RULE
    ------------
@@ -38,6 +41,7 @@ const LH_PROGRAMS = [
   /* ---------------------------------------------------------------- HEALTH */
   {
     id: 'aca-open-enrollment',
+    color: '#E5372C',
     name: 'Marketplace health insurance',
     alsoCalled: 'Obamacare, ACA, HealthCare.gov',
     cat: 'health',
@@ -62,6 +66,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'medicare-open-enrollment',
+    color: '#A81E16',
     name: 'Medicare Open Enrollment',
     alsoCalled: 'Medicare Annual Election Period, AEP',
     cat: 'health',
@@ -85,6 +90,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'medicare-advantage-oep',
+    color: '#F2776B',
     name: 'Medicare Advantage second chance',
     alsoCalled: 'MA Open Enrollment Period',
     cat: 'health',
@@ -101,6 +107,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'medicaid-chip',
+    color: '#C4456E',
     name: 'Medicaid & CHIP',
     alsoCalled: 'Medical assistance, children’s health insurance',
     cat: 'health',
@@ -118,6 +125,7 @@ const LH_PROGRAMS = [
   /* ------------------------------------------------------------------ HOME */
   {
     id: 'liheap-heating',
+    color: '#1F4FBF',
     name: 'Help paying the heating bill',
     alsoCalled: 'LIHEAP, HEAP, energy assistance, fuel assistance',
     cat: 'home',
@@ -142,6 +150,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'liheap-cooling',
+    color: '#5FA8DC',
     name: 'Help paying the cooling bill',
     alsoCalled: 'LIHEAP cooling, summer crisis program',
     cat: 'home',
@@ -158,6 +167,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'weatherization',
+    color: '#12306B',
     name: 'Free home weatherization',
     alsoCalled: 'WAP, weatherisation assistance',
     cat: 'home',
@@ -173,6 +183,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'section8-waitlist',
+    color: '#7B6BD9',
     name: 'Section 8 waiting lists',
     alsoCalled: 'Housing Choice Voucher, HCV, public housing list',
     cat: 'home',
@@ -193,6 +204,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'fema-individual-assistance',
+    color: '#2E86A8',
     name: 'Disaster help after a storm, fire, or flood',
     alsoCalled: 'FEMA Individual Assistance, IA',
     cat: 'home',
@@ -211,6 +223,7 @@ const LH_PROGRAMS = [
   /* ----------------------------------------------------------------- MONEY */
   {
     id: 'tax-filing-season',
+    color: '#C79A05',
     name: 'Tax season — and the refunds that come with it',
     alsoCalled: 'EITC, Earned Income Credit, Child Tax Credit, free tax prep',
     cat: 'money',
@@ -237,6 +250,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'tax-extension-deadline',
+    color: '#E8A33C',
     name: 'Last day if you filed an extension',
     alsoCalled: 'October tax deadline',
     cat: 'money',
@@ -253,6 +267,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'property-tax-relief',
+    color: '#8A6A12',
     name: 'Property tax breaks for your home',
     alsoCalled: 'Homestead exemption, senior freeze, circuit breaker',
     cat: 'money',
@@ -270,6 +285,7 @@ const LH_PROGRAMS = [
   /* ---------------------------------------------------------------- FAMILY */
   {
     id: 'fafsa-2627',
+    color: '#0F8A4D',
     name: 'FAFSA for this school year (2026–27)',
     alsoCalled: 'Federal student aid, Pell Grant',
     cat: 'family',
@@ -286,6 +302,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'fafsa-2728',
+    color: '#12B364',
     name: 'FAFSA for next school year (2027–28)',
     alsoCalled: 'Federal student aid, Pell Grant',
     cat: 'family',
@@ -311,6 +328,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'scholarships-national',
+    color: '#0A5C33',
     name: 'National scholarship season',
     alsoCalled: 'Big-name scholarships, corporate scholarships',
     cat: 'family',
@@ -331,6 +349,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'scholarships-local',
+    color: '#5CC48A',
     name: 'Local scholarship season',
     alsoCalled: 'Community foundation, employer, and school scholarships',
     cat: 'family',
@@ -347,6 +366,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'sun-bucks',
+    color: '#7A9E1C',
     name: 'SUN Bucks (summer food money)',
     alsoCalled: 'Summer EBT, S-EBT',
     cat: 'family',
@@ -365,6 +385,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'school-meals',
+    color: '#1F8F82',
     name: 'Free & reduced-price school meals',
     alsoCalled: 'School lunch application, NSLP',
     cat: 'family',
@@ -381,6 +402,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'head-start',
+    color: '#12564C',
     name: 'Head Start & Early Head Start',
     alsoCalled: 'Free preschool, early childhood',
     cat: 'family',
@@ -397,6 +419,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'holiday-assistance',
+    color: '#37A85F',
     name: 'Holiday help — toys, coats, and a Christmas dinner',
     alsoCalled: 'Angel Tree, Toys for Tots, adopt-a-family',
     cat: 'family',
@@ -420,6 +443,7 @@ const LH_PROGRAMS = [
   /* ------------------------------------------------- ALWAYS-ON ESSENTIALS */
   {
     id: 'snap',
+    color: '#68B32E',
     name: 'SNAP food benefits',
     alsoCalled: 'Food stamps, EBT',
     cat: 'family',
@@ -435,6 +459,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'wic',
+    color: '#A3C444',
     name: 'WIC',
     alsoCalled: 'Women, Infants and Children',
     cat: 'family',

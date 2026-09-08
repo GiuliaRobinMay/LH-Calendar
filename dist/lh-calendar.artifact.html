@@ -1,37 +1,35 @@
 <title>The Help Calendar</title>
-<meta name="description" content="A month calendar of US grants and assistance — when each window opens, when it closes, and what is closing next.">
+<meta name="description" content="Timing for US grants and assistance — what is open now, what closes soon, and what has not started yet.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ============================================================================
    Lesko Help — The Help Calendar
-   Light only, on purpose: this is the Lesko Help cream-and-navy identity, and
-   it is the same in every context. No dark variants anywhere in this file.
+   A planning tool: is it open, when does it close, when can I start.
+   Light only, on purpose. No theme variants anywhere in this file.
    ========================================================================== */
 
 :root {
   color-scheme: light;
 
-  /* Ground & ink */
   --cream:       #FDF4E7;
   --cream-deep:  #F7E9D4;
   --paper:       #FFFFFF;
   --ink:         #12213F;
   --ink-soft:    #47546E;
   --ink-faint:   #7C879B;
-  --rule:        #E4D9C6;
+  --rule:        #E7DCC9;
   --rule-strong: #CFC0A6;
 
-  /* The four Lesko colours. Also the four card suits, also the four topics. */
+  /* The four Lesko colours — used for the suits and the topic chips. Each
+     programme then carries its own shade from that family (see programs.js). */
   --blue:  #2B62D9;
   --red:   #E5372C;
   --gold:  #F2C230;
   --green: #0F8A4D;
   --gold-deep: #C79A05;
 
-  /* Urgency. Kept apart from the four brand colours so a red bar always means
-     "hearts / health" and never "hurry". */
   --hot:    #C2410C;
   --hot-bg: #FCEDE3;
 
@@ -60,11 +58,9 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
 
 /* ------------------------------------------------------------------ FRAME */
-/* Blocks of blue / red / gold / green all the way round. The vertical strips
-   need their own 180deg gradient, which is why this is four elements and not
-   one border-image — a 90deg gradient turns to mush on the left and right. */
+/* The vertical strips need their own 180deg gradient, which is why this is
+   four elements and not one border-image. */
 .frame > i { position: fixed; z-index: 60; display: block; }
-
 .frame .fr-top, .frame .fr-bottom {
   left: 0; right: 0; height: var(--frame);
   background: repeating-linear-gradient(90deg,
@@ -73,7 +69,6 @@ a { color: inherit; }
 }
 .frame .fr-top { top: 0; }
 .frame .fr-bottom { bottom: 0; }
-
 .frame .fr-left, .frame .fr-right {
   top: 0; bottom: 0; width: var(--frame);
   background: repeating-linear-gradient(180deg,
@@ -82,13 +77,11 @@ a { color: inherit; }
 }
 .frame .fr-left { left: 0; }
 .frame .fr-right { right: 0; }
-
 @media (max-width: 720px) { :root { --frame: 7px; } }
 
 .shell {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: calc(var(--frame) + 20px) calc(var(--frame) + 20px) calc(var(--frame) + 48px);
+  max-width: 1080px; margin: 0 auto;
+  padding: calc(var(--frame) + 20px) calc(var(--frame) + 20px) calc(var(--frame) + 44px);
 }
 
 /* ------------------------------------------------------------------- TYPE */
@@ -115,214 +108,254 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .suit-gold { color: var(--gold-deep); } .suit-green { color: var(--green); }
 
 .page-title {
-  margin: 22px 0 0;
-  font-size: clamp(30px, 4.4vw, 46px);
-  line-height: 1.05; letter-spacing: -.015em;
+  margin: 24px 0 0; font-size: clamp(32px, 5vw, 50px);
+  line-height: 1.04; letter-spacing: -.018em;
 }
 .page-title em { color: var(--red); font-style: italic; }
+.page-sub { margin: 8px 0 0; font-size: 16px; color: var(--ink-soft); }
 
-/* ------------------------------------------------------------------- TABS */
-.tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-.tab {
-  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase;
-  padding: 9px 17px; border-radius: 999px;
-  border: 1.5px solid var(--rule-strong);
-  text-decoration: none; color: var(--ink);
-  white-space: nowrap;
+/* ---------------------------------------------------------------- TOPICS */
+.topicbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule);
 }
-.tab:hover { background: var(--cream-deep); }
-.tab.is-on { background: var(--gold); border-color: var(--gold); font-weight: 600; }
-
-/* ----------------------------------------------------------------- LAYOUT */
-.layout {
-  margin-top: 26px;
-  display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 22px;
-  align-items: start;
-}
-@media (max-width: 1060px) { .layout { grid-template-columns: minmax(0, 1fr); } }
-
-/* --------------------------------------------------------------- CAL BAR */
-.cal {
-  background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow);
-}
-
-.cal-bar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 14px; }
-.cal-month {
-  font-size: 25px; letter-spacing: -.01em; min-width: 6.6em;
-}
-.navbtn, .todaybtn {
-  font-family: var(--body); color: var(--ink); background: var(--paper);
-  border: 1.5px solid var(--rule-strong); border-radius: 999px; cursor: pointer;
-}
-.navbtn { width: 33px; height: 33px; flex: none; font-size: 15px; line-height: 1; }
-.todaybtn { height: 33px; padding: 0 15px; font-size: 13px; font-weight: 600; }
-.navbtn:hover, .todaybtn:hover { background: var(--cream-deep); }
-
-.chips { display: flex; gap: 7px; flex-wrap: wrap; margin-left: auto; }
+.chips { display: flex; gap: 7px; flex-wrap: wrap; }
 .chip {
-  font-family: var(--body); font-size: 12.5px; color: var(--ink);
+  font-family: var(--body); font-size: 13px; color: var(--ink);
   background: var(--paper); border: 1.5px solid var(--rule-strong);
-  border-radius: 999px; padding: 5px 12px; cursor: pointer;
+  border-radius: 999px; padding: 6px 13px; cursor: pointer;
   display: inline-flex; align-items: center; gap: 6px;
 }
 .chip:hover { background: var(--cream-deep); }
 .chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); font-weight: 600; }
 .chip .suit { font-size: 13px; }
 
-/* ------------------------------------------------------------- THE GRID */
+/* ------------------------------------------------------------- CALENDAR */
+.cal {
+  margin-top: 18px;
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow);
+}
+.cal-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.nav { display: flex; align-items: center; gap: 6px; }
+.cal-month {
+  font-size: 25px; letter-spacing: -.01em;
+  min-width: 6.4em; text-align: center;
+}
+.navbtn, .todaybtn {
+  font-family: var(--body); color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--rule-strong); border-radius: 999px; cursor: pointer;
+}
+.navbtn { width: 31px; height: 31px; flex: none; font-size: 15px; line-height: 1; }
+.todaybtn { height: 31px; padding: 0 15px; font-size: 13px; font-weight: 600; margin-left: auto; }
+.navbtn:hover, .todaybtn:hover { background: var(--cream-deep); }
+
 .cal-scroll { overflow-x: auto; }
-.cal-grid { min-width: 660px; }
+.cal-grid { min-width: 640px; }
 
 .weekdays {
   display: grid; grid-template-columns: repeat(7, 1fr);
   font-family: var(--mono); font-size: 10.5px; font-weight: 500;
   letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
-  padding-bottom: 7px;
+  padding-bottom: 6px;
 }
 .weekdays div { text-align: center; }
 
 .week { position: relative; border-top: 1px solid var(--rule); }
 .week:last-child { border-bottom: 1px solid var(--rule); }
 
-/* Day cells sit underneath; the event bars are an overlay on top so a bar can
-   span several columns the way it does in any real calendar. */
+/* Day squares underneath, event lines as an overlay on top, so one line can
+   span several columns the way it does in any calendar. */
 .week-days { display: grid; grid-template-columns: repeat(7, 1fr); height: 100%; }
-.week-days > div {
-  border-right: 1px solid var(--rule);
-  padding: 5px 7px;
-  cursor: pointer;
-}
+.week-days > div { border-right: 1px solid var(--rule); padding: 4px 6px; }
 .week-days > div:first-child { border-left: 1px solid var(--rule); }
-.week-days > div:hover { background: var(--cream-deep); }
-.week-days .out { background: #FBF7F0; }
+.week-days .out { background: #FCF8F1; }
 .week-days .out .dnum { color: var(--rule-strong); }
-.week-days .sel { background: var(--cream-deep); box-shadow: inset 0 0 0 2px var(--ink); }
-
 .dnum {
-  font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
   font-variant-numeric: tabular-nums; color: var(--ink-soft);
 }
 .week-days .today .dnum {
   background: var(--red); color: #fff; font-weight: 600;
-  border-radius: 999px; padding: 1px 7px; margin-left: -3px;
+  border-radius: 999px; padding: 1px 6px; margin-left: -3px;
 }
 
 .week-events {
-  position: absolute; left: 0; right: 0; top: 25px;
+  position: absolute; left: 0; right: 0; top: 23px;
   display: grid; grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 20px; gap: 2px 0;
+  grid-auto-rows: 13px; gap: 3px 0;
   pointer-events: none;
 }
 
-/* ------------------------------------------------------------------ BARS */
+/* ------------------------------------------------------------------ LINES */
+/* Thin solid rules in the programme's own colour. No hatching — the striping
+   was doing the work that the "varies by state" label does better. */
 .ev {
   pointer-events: auto;
-  height: 18px; margin: 0 2px;
-  border-radius: 4px;
+  height: 10px; margin: 0 2px;
+  border-radius: 5px;
   background: var(--c);
-  color: #fff;
-  font-size: 11px; font-weight: 600;
-  line-height: 18px;
-  padding: 0 7px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  cursor: pointer; border: none; text-align: left;
-  font-family: var(--body);
+  border: none; padding: 0; cursor: pointer;
+  position: relative;
 }
+.ev:hover { filter: brightness(1.12); }
+.ev:focus-visible { outline-offset: 3px; }
 .ev.cut-l { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0; }
 .ev.cut-r { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: 0; }
-/* Dates that vary by state are striped, so the bar never over-promises. */
-.ev.approx {
-  background-image: repeating-linear-gradient(115deg,
-    rgba(255,255,255,.30) 0 5px, transparent 5px 11px);
-}
-.ev.gold { color: #3B2C00; }
 
-/* A one-day marker — a deadline inside a window, not a window of its own. */
+/* A one-day deadline inside a window — drawn as a tick, not a run. */
 .ev.pin {
   background: var(--paper);
-  color: var(--hot);
-  border: 1.5px solid var(--hot);
-  line-height: 15px;
-  font-size: 10.5px;
+  border: 2px solid var(--hot);
+  height: 10px;
 }
 
-.cal-hint { margin: 13px 0 0; font-size: 12px; color: var(--ink-faint); }
-.cal-hint b { color: var(--ink-soft); font-weight: 600; }
+.cal-legend {
+  margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--rule);
+  font-size: 12px; color: var(--ink-faint);
+}
 
-/* ----------------------------------------------------------------- PANELS */
-.side { display: flex; flex-direction: column; gap: 16px; }
+/* ------------------------------------------------------------------- LIST */
+.listing { margin-top: 22px; }
 
-.panel {
+.scopes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.scope {
+  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--rule-strong); background: var(--paper); color: var(--ink);
+}
+.scope:hover { background: var(--cream-deep); }
+.scope[aria-selected="true"] { background: var(--gold); border-color: var(--gold); font-weight: 600; }
+
+.list {
   background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 16px; padding: 15px 16px; box-shadow: var(--card-shadow);
+  border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow);
 }
-.panel > .eyebrow { display: block; margin-bottom: 10px; }
-.panel h3 { font-size: 19px; line-height: 1.15; margin-bottom: 10px; }
 
-.rows { display: flex; flex-direction: column; }
-.row {
-  display: grid; grid-template-columns: 15px minmax(0, 1fr);
-  gap: 9px; align-items: start;
-  padding: 9px 0;
+.item {
+  width: 100%; text-align: left; background: none; border: none;
   border-top: 1px solid var(--rule);
+  font-family: var(--body); cursor: pointer;
+  display: grid; grid-template-columns: 4px 1fr auto; align-items: center;
+  gap: 0 13px; padding: 0;
 }
-.rows > .row:first-child { border-top: none; padding-top: 2px; }
-.row .suit { font-size: 13px; line-height: 1.35; }
-.row-name { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
-.row-meta {
-  font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
-  font-variant-numeric: tabular-nums; margin-top: 3px;
+.list > .item:first-child { border-top: none; }
+.item:hover { background: var(--cream-deep); }
+
+/* The colour swatch is a full-height rule, so the list reads as a key to the
+   lines on the calendar above it. */
+.item-swatch { align-self: stretch; background: var(--c); min-height: 52px; }
+.item-body { display: block; padding: 11px 0; min-width: 0; }
+.item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; }
+.item-sub {
+  display: block;
+  font-size: 12.5px; color: var(--ink-faint); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.row-meta .hot { color: var(--hot); font-weight: 600; }
-.row a { font-size: 12px; font-weight: 600; color: var(--red); text-underline-offset: 2px; }
-
-/* The one thing on the page allowed to shout. */
-.flag {
-  margin-top: 6px; font-size: 12px; line-height: 1.4;
-  background: var(--hot-bg); border-left: 3px solid var(--hot);
-  border-radius: 0 6px 6px 0; padding: 6px 9px;
+.item-when {
+  display: block;
+  padding: 11px 16px 11px 0; text-align: right;
+  font-family: var(--mono); font-size: 11.5px;
+  font-variant-numeric: tabular-nums; color: var(--ink-soft);
+  white-space: nowrap;
 }
+.item-when b { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
+.item-when .hot { color: var(--hot); }
 
-.tally { display: flex; flex-direction: column; gap: 6px; }
-.tally-row { display: flex; align-items: baseline; gap: 9px; font-size: 13px; color: var(--ink-soft); }
-.tally-num {
-  font-family: var(--mono); font-size: 15px; font-weight: 600;
-  font-variant-numeric: tabular-nums; min-width: 1.5em; text-align: right; color: var(--ink);
+.status {
+  display: inline-block; font-family: var(--mono);
+  font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 999px; margin-right: 7px;
+  border: 1.5px solid currentColor;
 }
+.status.open { color: var(--green); }
+.status.closing { color: var(--hot); }
+.status.soon { color: var(--blue); }
 
-.empty { font-size: 13px; color: var(--ink-faint); padding: 4px 0 2px; }
+.empty { padding: 26px 18px; font-size: 13.5px; color: var(--ink-faint); text-align: center; }
 
-.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+/* ---------------------------------------------------------------- ALWAYS */
+.always { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.always > .eyebrow { display: block; margin-bottom: 9px; }
+.pills { display: flex; flex-wrap: wrap; gap: 7px; }
 .pill {
-  font-size: 12px; padding: 4px 10px; border-radius: 999px;
-  border: 1.5px solid var(--rule-strong); background: var(--cream);
-  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--body); font-size: 12.5px; color: var(--ink);
+  padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--rule-strong); background: var(--paper);
+  display: inline-flex; align-items: center; gap: 7px;
 }
+.pill:hover { background: var(--cream-deep); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* --------------------------------------------------------------- THE CARD */
+.sheet { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 22px; }
+.sheet[hidden] { display: none; }
+.sheet-scrim { position: absolute; inset: 0; background: rgba(18,33,63,.42); border: none; }
+.sheet-card {
+  position: relative; z-index: 1;
+  width: min(560px, 100%); max-height: min(84vh, 760px); overflow-y: auto;
+  background: var(--paper); border-radius: 18px;
+  border-top: 7px solid var(--c, var(--ink));
+  padding: 24px 26px 26px;
+  box-shadow: 0 24px 64px -18px rgba(18,33,63,.45);
+}
+.sheet-x {
+  position: absolute; top: 13px; right: 15px;
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid var(--rule-strong); background: var(--paper);
+  font-size: 17px; line-height: 1; cursor: pointer; color: var(--ink-soft);
+}
+.sheet-x:hover { background: var(--cream-deep); }
+
+.sheet-card h3 { font-size: 27px; line-height: 1.12; padding-right: 34px; }
+.sheet-also { font-size: 12.5px; color: var(--ink-faint); margin-top: 5px; }
+.sheet-what { font-size: 14.5px; color: var(--ink-soft); margin: 13px 0 0; }
+
+.sheet-window {
+  margin-top: 15px; padding: 12px 14px; border-radius: 11px;
+  background: var(--cream); border: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums;
+  line-height: 1.7;
+}
+.sheet-window .big { font-size: 15px; font-weight: 600; display: block; }
+.sheet-window .sub { color: var(--ink-soft); }
+
+.sheet-flag {
+  margin-top: 13px; font-size: 13.5px; line-height: 1.45;
+  background: var(--hot-bg); border-left: 3px solid var(--hot);
+  border-radius: 0 8px 8px 0; padding: 10px 13px;
+}
+.sheet-h {
+  margin-top: 17px; font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint);
+}
+.sheet-card ul { margin: 7px 0 0; padding-left: 19px; font-size: 14px; color: var(--ink-soft); }
+.sheet-card li { margin-bottom: 5px; }
+.sheet-note { margin: 7px 0 0; font-size: 13.5px; color: var(--ink-soft); }
+.sheet-caveat {
+  margin-top: 15px; font-size: 12.5px; line-height: 1.45; color: var(--ink-faint);
+  padding-left: 12px; border-left: 2px solid var(--rule);
+}
+.sheet-go {
+  display: inline-block; margin-top: 18px;
+  font-size: 14px; font-weight: 600; color: var(--red);
+  text-underline-offset: 3px; text-decoration-thickness: 1.5px;
+}
+.sheet-where { margin-top: 4px; font-size: 12.5px; color: var(--ink-faint); }
 
 /* ----------------------------------------------------------------- FOOTER */
 .foot {
   margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--rule);
-  font-size: 12px; color: var(--ink-faint); max-width: 74ch;
+  font-size: 12px; color: var(--ink-faint); max-width: 76ch;
 }
 .foot b { color: var(--ink-soft); font-weight: 600; }
 .foot code { font-family: var(--mono); font-size: 11px; }
 
-/* Windows with no edge in the visible month — shown once, not redrawn on
-   every week row. */
-.running {
-  margin-bottom: 12px; padding: 10px 12px;
-  background: var(--cream); border: 1px solid var(--rule); border-radius: 11px;
-}
-.running > .eyebrow { display: block; margin-bottom: 7px; }
-.pill { cursor: pointer; font-family: var(--body); color: var(--ink); }
-.pill:hover { background: var(--cream-deep); }
-
 </style>
 
-<!-- The Lesko Help frame. Four separate strips so the blocks run the right way
-     round on the vertical edges as well as the horizontal ones. -->
+<!-- Four separate strips so the colour blocks run the right way round on the
+     vertical edges as well as the horizontal ones. -->
 <div class="frame" aria-hidden="true">
   <i class="fr-top"></i><i class="fr-bottom"></i><i class="fr-left"></i><i class="fr-right"></i>
 </div>
@@ -342,61 +375,65 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
     </div>
   </header>
 
-  <h1 class="page-title">Know what to apply for, <em>and when.</em></h1>
+  <h1 class="page-title">When can I <em>apply?</em></h1>
+  <p class="page-sub">What is open now, what closes soon, and what has not started yet.</p>
 
-  <nav class="tabs" aria-label="Sections">
-    <a class="tab" href="#">01 &middot; The quiz</a>
-    <a class="tab" href="#">02 &middot; My list</a>
-    <a class="tab" href="#">03 &middot; Privacy</a>
-    <a class="tab is-on" href="#" aria-current="page">04 &middot; Calendar</a>
-  </nav>
+  <div class="topicbar">
+    <span class="eyebrow">Topics</span>
+    <div class="chips" role="group" aria-label="Filter by topic" id="filter-cat"></div>
+  </div>
 
   <!-- ------------------------------------------------------- THE CALENDAR -->
-  <div class="layout">
+  <section class="cal" aria-label="Month calendar">
 
-    <section class="cal" aria-label="Month calendar">
-
-      <div class="cal-bar">
-        <button type="button" class="navbtn" id="prev" aria-label="Previous month">&larr;</button>
+    <div class="cal-bar">
+      <div class="nav">
+        <button type="button" class="navbtn" id="prev-year" aria-label="Previous year" title="Previous year">&laquo;</button>
+        <button type="button" class="navbtn" id="prev" aria-label="Previous month" title="Previous month">&lsaquo;</button>
         <h2 class="cal-month" id="cal-month">&nbsp;</h2>
-        <button type="button" class="navbtn" id="next" aria-label="Next month">&rarr;</button>
-        <button type="button" class="todaybtn" id="jump-today">Today</button>
-        <div class="chips" role="group" aria-label="Filter by topic" id="filter-cat"></div>
+        <button type="button" class="navbtn" id="next" aria-label="Next month" title="Next month">&rsaquo;</button>
+        <button type="button" class="navbtn" id="next-year" aria-label="Next year" title="Next year">&raquo;</button>
       </div>
+      <button type="button" class="todaybtn" id="jump-today">Today</button>
+    </div>
 
-      <div class="running" id="running" hidden></div>
-
-      <div class="cal-scroll">
-        <div class="cal-grid">
-          <div class="weekdays" aria-hidden="true">
-            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
-            <div>Thu</div><div>Fri</div><div>Sat</div>
-          </div>
-          <div id="weeks"></div>
+    <div class="cal-scroll">
+      <div class="cal-grid">
+        <div class="weekdays" aria-hidden="true">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+          <div>Thu</div><div>Fri</div><div>Sat</div>
         </div>
+        <div id="weeks"></div>
       </div>
+    </div>
 
-      <p class="cal-hint">
-        Rounded end = the real opening or closing day. Flat end = it carries on.
-        Striped = dates vary by state. Click a day for detail.
-      </p>
-    </section>
+      <p class="cal-legend" id="cal-legend"></p>
+  </section>
 
-    <!-- ------------------------------------------------------------ SIDE -->
-    <aside class="side">
-      <div class="panel" id="day-panel" aria-live="polite"></div>
-      <div class="panel" id="upcoming"></div>
-      <div class="panel" id="always"></div>
-    </aside>
+  <!-- ------------------------------------------------------------- THE LIST -->
+  <section class="listing" aria-label="Programme list">
+    <div class="scopes" role="tablist" id="scopes"></div>
+    <div id="list"></div>
+  </section>
 
-  </div>
+  <section class="always" id="always"></section>
 
   <footer class="foot">
     <b>Tells you when — not whether you qualify. Not an application.</b>
-    Striped dates are patterns, not promises: confirm with the office on the card.
-    Reviewed 7 Sep 2026. Sources in <code>docs/research.md</code>.
+    Dates marked <i>usual</i> or <i>varies by state</i> are patterns, not promises:
+    confirm with the office on the card. Reviewed 8 Sep 2026.
+    Sources in <code>docs/research.md</code>.
   </footer>
 
+</div>
+
+<!-- Detail card, opened by clicking any line or list row. -->
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title" id="sheet-card">
+    <button type="button" class="sheet-x" data-close aria-label="Close">&times;</button>
+    <div id="sheet-body"></div>
+  </div>
 </div>
 
 <script>
@@ -418,6 +455,9 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
                       labelled, so we never imply we know more than we do.
      rolls            true if a late application is held for the next round
                       rather than simply rejected.
+     color            The line colour on the calendar. One per programme, and
+                      no two the same — pick a shade from its topic's family
+                      (home=blues, health=reds, money=golds, family=greens).
 
    HONESTY RULE
    ------------
@@ -440,6 +480,7 @@ const LH_PROGRAMS = [
   /* ---------------------------------------------------------------- HEALTH */
   {
     id: 'aca-open-enrollment',
+    color: '#E5372C',
     name: 'Marketplace health insurance',
     alsoCalled: 'Obamacare, ACA, HealthCare.gov',
     cat: 'health',
@@ -464,6 +505,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'medicare-open-enrollment',
+    color: '#A81E16',
     name: 'Medicare Open Enrollment',
     alsoCalled: 'Medicare Annual Election Period, AEP',
     cat: 'health',
@@ -487,6 +529,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'medicare-advantage-oep',
+    color: '#F2776B',
     name: 'Medicare Advantage second chance',
     alsoCalled: 'MA Open Enrollment Period',
     cat: 'health',
@@ -503,6 +546,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'medicaid-chip',
+    color: '#C4456E',
     name: 'Medicaid & CHIP',
     alsoCalled: 'Medical assistance, children’s health insurance',
     cat: 'health',
@@ -520,6 +564,7 @@ const LH_PROGRAMS = [
   /* ------------------------------------------------------------------ HOME */
   {
     id: 'liheap-heating',
+    color: '#1F4FBF',
     name: 'Help paying the heating bill',
     alsoCalled: 'LIHEAP, HEAP, energy assistance, fuel assistance',
     cat: 'home',
@@ -544,6 +589,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'liheap-cooling',
+    color: '#5FA8DC',
     name: 'Help paying the cooling bill',
     alsoCalled: 'LIHEAP cooling, summer crisis program',
     cat: 'home',
@@ -560,6 +606,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'weatherization',
+    color: '#12306B',
     name: 'Free home weatherization',
     alsoCalled: 'WAP, weatherisation assistance',
     cat: 'home',
@@ -575,6 +622,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'section8-waitlist',
+    color: '#7B6BD9',
     name: 'Section 8 waiting lists',
     alsoCalled: 'Housing Choice Voucher, HCV, public housing list',
     cat: 'home',
@@ -595,6 +643,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'fema-individual-assistance',
+    color: '#2E86A8',
     name: 'Disaster help after a storm, fire, or flood',
     alsoCalled: 'FEMA Individual Assistance, IA',
     cat: 'home',
@@ -613,6 +662,7 @@ const LH_PROGRAMS = [
   /* ----------------------------------------------------------------- MONEY */
   {
     id: 'tax-filing-season',
+    color: '#C79A05',
     name: 'Tax season — and the refunds that come with it',
     alsoCalled: 'EITC, Earned Income Credit, Child Tax Credit, free tax prep',
     cat: 'money',
@@ -639,6 +689,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'tax-extension-deadline',
+    color: '#E8A33C',
     name: 'Last day if you filed an extension',
     alsoCalled: 'October tax deadline',
     cat: 'money',
@@ -655,6 +706,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'property-tax-relief',
+    color: '#8A6A12',
     name: 'Property tax breaks for your home',
     alsoCalled: 'Homestead exemption, senior freeze, circuit breaker',
     cat: 'money',
@@ -672,6 +724,7 @@ const LH_PROGRAMS = [
   /* ---------------------------------------------------------------- FAMILY */
   {
     id: 'fafsa-2627',
+    color: '#0F8A4D',
     name: 'FAFSA for this school year (2026–27)',
     alsoCalled: 'Federal student aid, Pell Grant',
     cat: 'family',
@@ -688,6 +741,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'fafsa-2728',
+    color: '#12B364',
     name: 'FAFSA for next school year (2027–28)',
     alsoCalled: 'Federal student aid, Pell Grant',
     cat: 'family',
@@ -713,6 +767,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'scholarships-national',
+    color: '#0A5C33',
     name: 'National scholarship season',
     alsoCalled: 'Big-name scholarships, corporate scholarships',
     cat: 'family',
@@ -733,6 +788,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'scholarships-local',
+    color: '#5CC48A',
     name: 'Local scholarship season',
     alsoCalled: 'Community foundation, employer, and school scholarships',
     cat: 'family',
@@ -749,6 +805,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'sun-bucks',
+    color: '#7A9E1C',
     name: 'SUN Bucks (summer food money)',
     alsoCalled: 'Summer EBT, S-EBT',
     cat: 'family',
@@ -767,6 +824,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'school-meals',
+    color: '#1F8F82',
     name: 'Free & reduced-price school meals',
     alsoCalled: 'School lunch application, NSLP',
     cat: 'family',
@@ -783,6 +841,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'head-start',
+    color: '#12564C',
     name: 'Head Start & Early Head Start',
     alsoCalled: 'Free preschool, early childhood',
     cat: 'family',
@@ -799,6 +858,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'holiday-assistance',
+    color: '#37A85F',
     name: 'Holiday help — toys, coats, and a Christmas dinner',
     alsoCalled: 'Angel Tree, Toys for Tots, adopt-a-family',
     cat: 'family',
@@ -822,6 +882,7 @@ const LH_PROGRAMS = [
   /* ------------------------------------------------- ALWAYS-ON ESSENTIALS */
   {
     id: 'snap',
+    color: '#68B32E',
     name: 'SNAP food benefits',
     alsoCalled: 'Food stamps, EBT',
     cat: 'family',
@@ -837,6 +898,7 @@ const LH_PROGRAMS = [
   },
   {
     id: 'wic',
+    color: '#A3C444',
     name: 'WIC',
     alsoCalled: 'Women, Infants and Children',
     cat: 'family',
@@ -865,9 +927,12 @@ if (typeof module !== 'undefined' && module.exports) {
 /* ============================================================================
    Lesko Help — The Help Calendar
 
-   A real month grid. Windows run across the days they are open, the way a
-   multi-day event does in any calendar app. Everything is derived from today's
-   date, so nobody has to edit the page when the month turns over.
+   A planning tool, not a directory. It answers timing questions: is this open
+   now, am I about to miss a deadline, when can I start.
+
+   The month grid and the list underneath are always the same period. Move the
+   calendar to October and the list is October. Everything else is derived from
+   today's date, so nothing needs editing as the months roll over.
 
    Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
@@ -877,18 +942,13 @@ if (typeof module !== 'undefined' && module.exports) {
   /* ------------------------------------------------------------- DAY MATH */
   // Parsed at UTC noon so adding days never trips over a daylight-saving
   // boundary and lands on the wrong calendar square.
-  function day(iso) {
-    var p = iso.split('-');
+  function day(s) {
+    var p = s.split('-');
     return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12));
   }
   function mk(y, m, d) { return new Date(Date.UTC(y, m, d, 12)); }
   function addDays(d, n) { return new Date(d.getTime() + n * 86400000); }
   function diff(a, b) { return Math.round((b - a) / 86400000); }
-  function iso(d) {
-    return d.getUTCFullYear() + '-' +
-           String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
-           String(d.getUTCDate()).padStart(2, '0');
-  }
 
   var MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
@@ -896,7 +956,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
   function longDate(d) { return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
   function shortDate(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); }
-  function shortYear(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
 
   function countdown(n) {
     if (n === 0) return 'today';
@@ -912,25 +971,23 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.round(n / 30.4) + ' months left';
   }
 
-  var q = new URLSearchParams(location.search).get('date');
-  var TODAY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? day(q) : (function () {
+  var qs = new URLSearchParams(location.search).get('date');
+  var TODAY = qs && /^\d{4}-\d{2}-\d{2}$/.test(qs) ? day(qs) : (function () {
     var n = new Date();
     return mk(n.getFullYear(), n.getMonth(), n.getDate());
   })();
 
   /* ---------------------------------------------------------------- STATE */
-  var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1); // month on screen
-  var selected = TODAY;
+  var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+  var scope = 'today';     // today | week | month
   var catFilter = 'all';
 
-  // Only programmes with a real window belong on a grid. The ones with no
-  // season at all would otherwise paint a bar across every square of every
-  // month and drown the things that actually have a date.
+  // Only programmes with a real window go on the grid. The ones with no season
+  // would paint a line across every square of every month and say nothing.
   var DATED = LH_PROGRAMS.filter(function (p) { return p.opens && p.closes && !p.watch; });
   var UNDATED = LH_PROGRAMS.filter(function (p) { return !p.opens || !p.closes || p.watch; });
 
   function inFilter(p) { return catFilter === 'all' || p.cat === catFilter; }
-  function colourVar(p) { return 'var(--' + LH_CATEGORIES[p.cat].color + ')'; }
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -938,29 +995,37 @@ if (typeof module !== 'undefined' && module.exports) {
     if (text != null) n.textContent = text;
     return n;
   }
-  function suit(p) {
-    var c = LH_CATEGORIES[p.cat];
-    return el('span', 'suit suit-' + c.color, c.suit);
+
+  /* --------------------------------------------------------------- PERIOD */
+  // The one place that decides which days the page is talking about. The grid
+  // and the list both read from it, which is what keeps them in step.
+  function period() {
+    if (scope === 'today') return { from: TODAY, to: TODAY, label: 'Today' };
+    if (scope === 'week') return { from: TODAY, to: addDays(TODAY, 6), label: 'This week' };
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    return { from: mk(y, m, 1), to: mk(y, m + 1, 0), label: MONTHS[m] + ' ' + y };
   }
 
-  /* -------------------------------------------------------------- STATUS */
-  function statusOf(p, on) {
-    if (p.watch) return 'watch';
-    if (!p.opens || !p.closes) return 'always';
+  function overlaps(p, from, to) {
+    return day(p.opens) <= to && day(p.closes) >= from;
+  }
+
+  // Ends soonest first, then things that have not started. Used by both the
+  // grid and the list so the stack of lines and the stack of rows line up.
+  function orderKey(p, from) {
     var o = day(p.opens), c = day(p.closes);
-    if (on < o) return 'soon';
-    if (on > c) return 'closed';
-    return diff(on, c) <= 30 ? 'closing' : 'open';
+    return o >= from ? 100000 + diff(TODAY, o) : diff(TODAY, c);
+  }
+  function byOrder(from) {
+    return function (a, b) { return orderKey(a, from) - orderKey(b, from); };
   }
 
   /* ================================================================= GRID */
-  // One row of the grid holds every window overlapping that week. Bars are
-  // packed into lanes so two that overlap never sit on the same line.
-  function weekItems(weekStart, eventful) {
+  function weekItems(weekStart, pool, rank) {
     var weekEnd = addDays(weekStart, 6);
     var items = [];
 
-    eventful.forEach(function (p) {
+    pool.forEach(function (p) {
       var o = day(p.opens), c = day(p.closes);
       if (c < weekStart || o > weekEnd) return;
       items.push({
@@ -971,33 +1036,25 @@ if (typeof module !== 'undefined' && module.exports) {
       });
     });
 
-    // Key dates are one-day markers inside a window — the ACA cutoff for
-    // January coverage, the date EITC refunds can first be paid.
     LH_PROGRAMS.filter(inFilter).forEach(function (p) {
       (p.keyDates || []).forEach(function (k) {
         var d = day(k.date);
         if (d < weekStart || d > weekEnd) return;
-        var col = diff(weekStart, d);
-        items.push({ p: p, kind: 'pin', label: k.label, start: col, end: col });
+        items.push({ p: p, kind: 'pin', label: k.label, start: diff(weekStart, d), end: diff(weekStart, d) });
       });
     });
 
-    // Longest first, so the bars that span the week settle into the top lanes
-    // and the grid reads as bands rather than confetti.
     items.sort(function (a, b) {
       if (a.kind !== b.kind) return a.kind === 'bar' ? -1 : 1;
-      var la = a.end - a.start, lb = b.end - b.start;
-      return lb - la || a.start - b.start;
+      if (a.kind === 'pin') return a.start - b.start;
+      return rank[a.p.id] - rank[b.p.id];
     });
 
     var lanes = [];
     items.forEach(function (it) {
       var i = 0;
-      while (lanes[i] && lanes[i].some(function (o) {
-        return it.start <= o.end && o.start <= it.end;
-      })) i++;
-      lanes[i] = lanes[i] || [];
-      lanes[i].push(it);
+      while (lanes[i] && lanes[i].some(function (o) { return it.start <= o.end && o.start <= it.end; })) i++;
+      (lanes[i] = lanes[i] || []).push(it);
       it.lane = i;
     });
 
@@ -1013,55 +1070,34 @@ if (typeof module !== 'undefined' && module.exports) {
 
     var first = mk(y, m, 1);
     var gridStart = addDays(first, -first.getUTCDay());
-    var lastOfMonth = mk(y, m + 1, 0);
-    var weeks = Math.ceil((diff(gridStart, lastOfMonth) + 1) / 7);
-
+    var weeks = Math.ceil((diff(gridStart, mk(y, m + 1, 0)) + 1) / 7);
     var gridEnd = addDays(gridStart, weeks * 7 - 1);
 
-    // A window running clean through the whole visible grid has no edge to
-    // draw. Repeating its bar on all six week rows turns the month into a wall
-    // of stripes, so those go in a band above the grid instead and only
-    // windows that actually open or close in view get a bar.
-    var eventful = [], running = [];
-    DATED.filter(inFilter).forEach(function (p) {
-      var o = day(p.opens), c = day(p.closes);
-      if (c < gridStart || o > gridEnd) return;
-      if (o >= gridStart || c <= gridEnd) eventful.push(p);
-      else running.push(p);
-    });
-    renderRunning(running);
+    var pool = DATED.filter(inFilter).filter(function (p) {
+      return overlaps(p, gridStart, gridEnd);
+    }).sort(byOrder(mk(y, m, 1)));
+
+    var rank = {};
+    pool.forEach(function (p, i) { rank[p.id] = i; });
 
     for (var w = 0; w < weeks; w++) {
       var weekStart = addDays(gridStart, w * 7);
-      var packed = weekItems(weekStart, eventful);
+      var packed = weekItems(weekStart, pool, rank);
 
       var row = el('div', 'week');
-      row.style.minHeight = (28 + packed.lanes * 22 + 8) + 'px';
+      row.style.minHeight = (26 + packed.lanes * 16 + 8) + 'px';
 
-      // Day squares
       var days = el('div', 'week-days');
       for (var i = 0; i < 7; i++) {
         var d = addDays(weekStart, i);
         var cell = el('div');
         if (d.getUTCMonth() !== m) cell.classList.add('out');
         if (diff(d, TODAY) === 0) cell.classList.add('today');
-        if (diff(d, selected) === 0) cell.classList.add('sel');
         cell.appendChild(el('span', 'dnum', String(d.getUTCDate())));
-        cell.setAttribute('role', 'button');
-        cell.setAttribute('tabindex', '0');
-        cell.setAttribute('aria-label', longDate(d));
-        (function (dd) {
-          function pick() { selected = dd; render(); }
-          cell.addEventListener('click', pick);
-          cell.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
-          });
-        })(d);
         days.appendChild(cell);
       }
       row.appendChild(days);
 
-      // Bars on top
       var overlay = el('div', 'week-events');
       packed.items.forEach(function (it) {
         var b = el('button', 'ev');
@@ -1071,194 +1107,137 @@ if (typeof module !== 'undefined' && module.exports) {
 
         if (it.kind === 'pin') {
           b.classList.add('pin');
-          b.textContent = '◆ ' + it.p.name;
+          b.setAttribute('aria-label', it.p.name + ': ' + it.label);
           b.title = it.label;
         } else {
-          b.style.setProperty('--c', colourVar(it.p));
-          if (LH_CATEGORIES[it.p.cat].color === 'gold') b.classList.add('gold');
-          if (it.p.precision !== 'exact') b.classList.add('approx');
+          b.style.setProperty('--c', it.p.color);
           if (it.cutL) b.classList.add('cut-l');
           if (it.cutR) b.classList.add('cut-r');
-          b.textContent = it.p.name;
-          b.title = it.p.name + ' · ' + longDate(day(it.p.opens)) +
-                    ' to ' + longDate(day(it.p.closes));
+          b.setAttribute('aria-label', it.p.name + ', open ' +
+            longDate(day(it.p.opens)) + ' to ' + longDate(day(it.p.closes)));
+          b.title = it.p.name + ' · ' + shortDate(day(it.p.opens)) +
+                    ' – ' + shortDate(day(it.p.closes));
         }
-
-        (function (dd) {
-          b.addEventListener('click', function (e) { e.stopPropagation(); selected = dd; render(); });
-        })(addDays(weekStart, it.start));
+        b.addEventListener('click', function () { openSheet(it.p); });
         overlay.appendChild(b);
       });
       row.appendChild(overlay);
-
       host.appendChild(row);
     }
+
+    var n = pool.length;
+    document.getElementById('cal-legend').textContent = n
+      ? n + ' window' + (n === 1 ? '' : 's') + ' cross ' + MONTHS[m] + '. ' +
+        'Each line is one programme — click it for the detail. Rounded end = the real opening or closing day.'
+      : 'Nothing is open in ' + MONTHS[m] + ' for this topic.';
   }
 
-  function renderRunning(list) {
-    var box = document.getElementById('running');
-    box.textContent = '';
-    if (!list.length) { box.hidden = true; return; }
-    box.hidden = false;
+  /* ================================================================= LIST */
+  function renderList() {
+    var host = document.getElementById('list');
+    host.textContent = '';
 
-    box.appendChild(el('span', 'eyebrow', 'Open all month'));
+    var per = period();
+    var rows = DATED.filter(inFilter)
+      .filter(function (p) { return overlaps(p, per.from, per.to); })
+      .sort(byOrder(per.from))
+      .map(function (p) { return { p: p, o: day(p.opens), c: day(p.closes) }; });
+
+    if (!rows.length) {
+      host.appendChild(el('div', 'empty', 'Nothing is open or opening in ' + per.label.toLowerCase() + '.'));
+      return;
+    }
+
+    var list = el('div', 'list');
+    rows.forEach(function (r) {
+      var p = r.p;
+      var item = el('button', 'item');
+      item.type = 'button';
+      item.style.setProperty('--c', p.color);
+
+      item.appendChild(el('span', 'item-swatch'));
+
+      var body = el('span', 'item-body');
+      var name = el('span', 'item-name');
+
+      var toClose = diff(TODAY, r.c), toOpen = diff(TODAY, r.o);
+      var state = toOpen > 0 ? 'soon' : (toClose <= 30 ? 'closing' : 'open');
+      name.appendChild(el('span', 'status ' + state,
+        state === 'soon' ? 'Not yet' : state === 'closing' ? 'Closing' : 'Open'));
+      name.appendChild(document.createTextNode(p.name));
+      body.appendChild(name);
+
+      var sub = shortDate(r.o) + ' – ' + shortDate(r.c);
+      if (p.precision === 'varies') sub += '  ·  varies by state';
+      else if (p.precision === 'typical') sub += '  ·  usual dates';
+      body.appendChild(el('span', 'item-sub', sub));
+      item.appendChild(body);
+
+      var when = el('span', 'item-when');
+      if (toOpen > 0) {
+        when.appendChild(el('b', null, 'Opens ' + shortDate(r.o)));
+        when.appendChild(document.createTextNode(countdown(toOpen)));
+      } else {
+        var b = el('b', toClose <= 30 ? 'hot' : null, 'Closes ' + shortDate(r.c));
+        when.appendChild(b);
+        when.appendChild(document.createTextNode(remaining(toClose)));
+      }
+      item.appendChild(when);
+
+      item.addEventListener('click', function () { openSheet(p); });
+      list.appendChild(item);
+    });
+    host.appendChild(list);
+  }
+
+  /* =============================================================== SCOPES */
+  function renderScopes() {
+    var host = document.getElementById('scopes');
+    host.textContent = '';
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+
+    [['today', 'Today'], ['week', 'This week'], ['month', MONTHS[m] + ' ' + y]]
+      .forEach(function (s) {
+        var b = el('button', 'scope', s[1]);
+        b.type = 'button';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', String(scope === s[0]));
+        b.addEventListener('click', function () {
+          scope = s[0];
+          // Today and This week always mean the real ones, so jump the grid
+          // back if it has been moved away.
+          if (s[0] !== 'month') view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+          render();
+        });
+        host.appendChild(b);
+      });
+  }
+
+  /* =============================================================== ALWAYS */
+  function renderAlways() {
+    var host = document.getElementById('always');
+    host.textContent = '';
+    var list = UNDATED.filter(inFilter);
+    if (!list.length) return;
+
+    host.appendChild(el('span', 'eyebrow', 'No season — these take applications any day'));
     var pills = el('div', 'pills');
     list.forEach(function (p) {
       var b = el('button', 'pill');
       b.type = 'button';
-      b.appendChild(suit(p));
+      b.style.setProperty('--c', p.color);
+      b.appendChild(el('span', 'dot'));
       b.appendChild(document.createTextNode(p.name));
-      b.title = p.name + ' \u00b7 open ' + longDate(day(p.opens)) +
-                ' to ' + longDate(day(p.closes));
-      b.addEventListener('click', function () { selected = TODAY; render(); });
+      b.addEventListener('click', function () { openSheet(p); });
       pills.appendChild(b);
     });
-    box.appendChild(pills);
-  }
-
-  /* ============================================================ DAY PANEL */
-  function renderDay() {
-    var box = document.getElementById('day-panel');
-    box.textContent = '';
-    box.appendChild(el('span', 'eyebrow',
-      diff(selected, TODAY) === 0 ? 'Today' : 'Selected day'));
-    box.appendChild(el('h3', null, longDate(selected)));
-
-    var rows = el('div', 'rows');
-    var any = false;
-
-    DATED.filter(inFilter).forEach(function (p) {
-      var o = day(p.opens), c = day(p.closes);
-      if (selected < o || selected > c) return;
-      any = true;
-
-      var r = el('div', 'row');
-      r.appendChild(suit(p));
-      var body = el('div');
-      body.appendChild(el('div', 'row-name', p.name));
-
-      var meta = el('div', 'row-meta');
-      var isOpenDay = diff(selected, o) === 0;
-      var isCloseDay = diff(selected, c) === 0;
-      var left = diff(selected, c);
-
-      if (isOpenDay) meta.appendChild(el('b', null, 'OPENS TODAY'));
-      else if (isCloseDay) meta.appendChild(el('b', 'hot', 'LAST DAY'));
-      else {
-        var t = el('span', left <= 30 ? 'hot' : null, 'Open · ' + remaining(left));
-        meta.appendChild(t);
-      }
-      if (p.precision !== 'exact') {
-        meta.appendChild(document.createTextNode(
-          p.precision === 'varies' ? ' · varies by state' : ' · usual dates'));
-      }
-      body.appendChild(meta);
-
-      // The shout is reserved for rows where it changes what you do today.
-      if (p.urgent && (isOpenDay || isCloseDay || left <= 45))
-        body.appendChild(el('div', 'flag', p.urgent));
-
-      if (p.link) {
-        var a = el('a', null, p.where + ' →');
-        a.href = p.link; a.target = '_blank'; a.rel = 'noopener';
-        var wrap = el('div'); wrap.style.marginTop = '5px';
-        wrap.appendChild(a); body.appendChild(wrap);
-      }
-      r.appendChild(body);
-      rows.appendChild(r);
-    });
-
-    LH_PROGRAMS.filter(inFilter).forEach(function (p) {
-      (p.keyDates || []).forEach(function (k) {
-        if (diff(selected, day(k.date)) !== 0) return;
-        any = true;
-        var r = el('div', 'row');
-        r.appendChild(suit(p));
-        var body = el('div');
-        body.appendChild(el('div', 'row-name', p.name));
-        body.appendChild(el('div', 'flag', k.label));
-        r.appendChild(body);
-        rows.appendChild(r);
-      });
-    });
-
-    box.appendChild(any ? rows : el('div', 'empty', 'No window opens or closes on this day.'));
-  }
-
-  /* ============================================================== UPCOMING */
-  // What actually needs doing, soonest first: anything closing inside 45 days
-  // and anything opening inside 60.
-  function renderUpcoming() {
-    var box = document.getElementById('upcoming');
-    box.textContent = '';
-    box.appendChild(el('span', 'eyebrow', 'What is coming up'));
-
-    var events = [];
-    DATED.filter(inFilter).forEach(function (p) {
-      var o = day(p.opens), c = day(p.closes);
-      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
-      if (toOpen > 0 && toOpen <= 60) events.push({ p: p, d: toOpen, type: 'opens', on: o });
-      else if (toOpen <= 0 && toClose >= 0 && toClose <= 45) events.push({ p: p, d: toClose, type: 'closes', on: c });
-    });
-    events.sort(function (a, b) { return a.d - b.d; });
-
-    if (!events.length) {
-      box.appendChild(el('div', 'empty', 'Nothing opens or closes in the next few weeks.'));
-      return;
-    }
-
-    var rows = el('div', 'rows');
-    events.slice(0, 8).forEach(function (e) {
-      var r = el('div', 'row');
-      r.appendChild(suit(e.p));
-      var body = el('div');
-      body.appendChild(el('div', 'row-name', e.p.name));
-      var meta = el('div', 'row-meta');
-      var verb = e.type === 'closes' ? 'Closes ' : 'Opens ';
-      meta.appendChild(el('span', e.type === 'closes' ? 'hot' : null,
-        verb + shortDate(e.on) + ' · ' + countdown(e.d)));
-      body.appendChild(meta);
-      r.appendChild(body);
-      (function (on) {
-        r.style.cursor = 'pointer';
-        r.addEventListener('click', function () {
-          selected = on;
-          view = mk(on.getUTCFullYear(), on.getUTCMonth(), 1);
-          render();
-        });
-      })(e.on);
-      rows.appendChild(r);
-    });
-    box.appendChild(rows);
-  }
-
-  /* ================================================================ ALWAYS */
-  function renderAlways() {
-    var box = document.getElementById('always');
-    box.textContent = '';
-    box.appendChild(el('span', 'eyebrow', 'No season — apply any day'));
-
-    var list = UNDATED.filter(inFilter);
-    if (!list.length) { box.appendChild(el('div', 'empty', 'Nothing in this topic.')); return; }
-
-    var pills = el('div', 'pills');
-    list.forEach(function (p) {
-      var a = el('a', 'pill');
-      a.href = p.link || '#';
-      if (p.link) { a.target = '_blank'; a.rel = 'noopener'; }
-      a.style.textDecoration = 'none';
-      a.appendChild(suit(p));
-      a.appendChild(document.createTextNode(p.name));
-      a.title = p.what;
-      pills.appendChild(a);
-    });
-    box.appendChild(pills);
+    host.appendChild(pills);
   }
 
   /* ================================================================ CHIPS */
   function renderChips() {
-    var row = document.getElementById('filter-cat');
-    row.textContent = '';
+    var host = document.getElementById('filter-cat');
+    host.textContent = '';
 
     function chip(label, key, glyph, colour) {
       var b = el('button', 'chip');
@@ -1270,36 +1249,131 @@ if (typeof module !== 'undefined' && module.exports) {
         catFilter = catFilter === key ? 'all' : key;
         render();
       });
-      row.appendChild(b);
+      host.appendChild(b);
     }
 
-    chip('All', 'all');
+    chip('Everything', 'all');
     Object.keys(LH_CATEGORIES).forEach(function (k) {
       var c = LH_CATEGORIES[k];
-      chip(c.name.split(' ')[0], k, c.suit, c.color);
+      chip(c.name, k, c.suit, c.color);
     });
   }
+
+  /* ============================================================= THE CARD */
+  var sheet = document.getElementById('sheet');
+  var sheetCard = document.getElementById('sheet-card');
+  var lastFocus = null;
+
+  function openSheet(p) {
+    var body = document.getElementById('sheet-body');
+    body.textContent = '';
+    sheetCard.style.setProperty('--c', p.color);
+
+    var h = el('h3', null, p.name);
+    h.id = 'sheet-title';
+    body.appendChild(h);
+    if (p.alsoCalled) body.appendChild(el('div', 'sheet-also', 'Also called: ' + p.alsoCalled));
+    body.appendChild(el('p', 'sheet-what', p.what));
+
+    // The timing box — the reason somebody opened this card.
+    var w = el('div', 'sheet-window');
+    if (!p.opens || !p.closes) {
+      w.appendChild(el('span', 'big', p.watch ? 'No fixed dates' : 'Open all year'));
+      w.appendChild(el('span', 'sub', p.cadence));
+    } else {
+      var o = day(p.opens), c = day(p.closes);
+      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
+      if (toOpen > 0) {
+        w.appendChild(el('span', 'big', 'Opens ' + longDate(o) + ' — ' + countdown(toOpen)));
+        w.appendChild(el('span', 'sub', 'Runs to ' + longDate(c) + '. ' + p.cadence + '.'));
+      } else if (toClose >= 0) {
+        w.appendChild(el('span', 'big', 'Open now — ' + remaining(toClose)));
+        w.appendChild(el('span', 'sub', 'Closes ' + longDate(c) + '. ' + p.cadence + '.'));
+      } else {
+        w.appendChild(el('span', 'big', 'Closed ' + longDate(c)));
+        w.appendChild(el('span', 'sub', p.cadence + '.'));
+      }
+      if (p.precision !== 'exact') {
+        w.appendChild(el('span', 'sub',
+          p.precision === 'varies'
+            ? ' Dates differ by state — check yours.'
+            : ' These are the usual dates; check yours.'));
+      }
+    }
+    body.appendChild(w);
+
+    (p.keyDates || []).forEach(function (k) {
+      if (diff(TODAY, day(k.date)) < 0) return;
+      body.appendChild(el('div', 'sheet-flag', shortDate(day(k.date)) + ' — ' + k.label));
+    });
+
+    if (p.urgent) body.appendChild(el('div', 'sheet-flag', p.urgent));
+
+    if (p.prep && p.prep.length) {
+      body.appendChild(el('div', 'sheet-h', 'What to have ready'));
+      var ul = el('ul');
+      p.prep.forEach(function (x) { ul.appendChild(el('li', null, x)); });
+      body.appendChild(ul);
+    }
+    if (p.missedIt) {
+      body.appendChild(el('div', 'sheet-h', 'If you miss it'));
+      body.appendChild(el('p', 'sheet-note', p.missedIt));
+    }
+    if (p.renewal) {
+      body.appendChild(el('div', 'sheet-h', 'Renewing'));
+      body.appendChild(el('p', 'sheet-note', p.renewal));
+    }
+    if (p.caveat) body.appendChild(el('div', 'sheet-caveat', p.caveat));
+
+    if (p.link) {
+      var a = el('a', 'sheet-go', 'Go to the official page →');
+      a.href = p.link; a.target = '_blank'; a.rel = 'noopener';
+      body.appendChild(a);
+    }
+    body.appendChild(el('div', 'sheet-where', p.where));
+
+    lastFocus = document.activeElement;
+    sheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    sheetCard.querySelector('.sheet-x').focus();
+  }
+
+  function closeSheet() {
+    sheet.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  Array.prototype.forEach.call(sheet.querySelectorAll('[data-close]'), function (n) {
+    n.addEventListener('click', closeSheet);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !sheet.hidden) closeSheet();
+  });
 
   /* ================================================================== RUN */
   function render() {
     renderChips();
     renderGrid();
-    renderDay();
-    renderUpcoming();
+    renderScopes();
+    renderList();
     renderAlways();
   }
 
-  document.getElementById('prev').addEventListener('click', function () {
-    view = mk(view.getUTCFullYear(), view.getUTCMonth() - 1, 1);
+  // Moving the calendar moves the list with it — that is the whole point of
+  // the third scope tab carrying the month's name.
+  function shift(months) {
+    view = mk(view.getUTCFullYear(), view.getUTCMonth() + months, 1);
+    scope = 'month';
     render();
-  });
-  document.getElementById('next').addEventListener('click', function () {
-    view = mk(view.getUTCFullYear(), view.getUTCMonth() + 1, 1);
-    render();
-  });
+  }
+  document.getElementById('prev').addEventListener('click', function () { shift(-1); });
+  document.getElementById('next').addEventListener('click', function () { shift(1); });
+  document.getElementById('prev-year').addEventListener('click', function () { shift(-12); });
+  document.getElementById('next-year').addEventListener('click', function () { shift(12); });
   document.getElementById('jump-today').addEventListener('click', function () {
     view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-    selected = TODAY;
+    scope = 'today';
     render();
   });
 
