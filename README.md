@@ -1,124 +1,136 @@
-# The Help Calendar
+# Grant Strategy Calendar
 
-A calendar of US grants and assistance, built for the Lesko Help community.
-It is a **planning tool, not a directory**: it answers *is this open now, am I
-about to miss a deadline, when can I start* — not *what should I apply for*.
+The Fund-Nation grant year as a working calendar, built for the Lesko Help
+community. It is a **planning tool for organisations seeking grants**: when
+each funder type opens, what to do this month, and the workbook that gets
+your package ready before you start searching.
 
-Most help in America is not first-come-you-qualify, it is
-first-come-you-applied. Windows open, funding runs out, and the door shuts
-months before the published deadline. This shows those windows.
+Built from two source documents:
+
+- **Grant Strategy Calendar, 2026 Edition** — Fund-Nation, 14 pages
+- **Your Grant Planning Workbook** — Fund-Nation · Nonprofit Classroom, 15 pages
 
 ---
 
 ## What it does
 
-- **A real month calendar.** Day squares, week rows, and each window drawn as a
-  labelled line across the days it is open. Clicking the month name opens the
-  whole year at once — twelve cards, each showing what falls in it.
-- **The list follows the calendar.** *Today* / *This week* / *<the month on
-  screen>*. Move to October and the list becomes October — the third tab
-  carries the month's name so the link is visible. Both are ordered by the same
-  rule, so line three in the grid is row three in the list.
-- **Three states, everywhere.** *Open*, *Closing soon* and *Opening soon* — on
-  every row, in the detail card, and as a key beside the scope tabs.
-- **Colour means topic.** Every line takes its colour from its seasonal domain,
-  and every list row leads with that colour, so the list reads as the key to the
-  calendar above it.
-- **Seasonal domains only.** Nine of them, in a dropdown, each with a note on
-  how its timing behaves. Anything you can apply for on any day of the year is
-  kept off the grid entirely.
-- **Everything is computed from today's date.** Nobody edits the page as months
-  roll over. Open the same file in December and it re-sorts itself.
-- **Honest about certainty.** Windows that vary by state say so on the row and
-  in the card. A wrong date here costs somebody a benefit.
-- **Click anything for a card** — the window, the countdown, what to have ready,
-  what happens if you miss it, and where to actually go.
+### Calendar
 
-Research behind the dates, and a scan of what everyone else in this space is
-doing, is in [`docs/research.md`](docs/research.md).
+- **A real month calendar.** Each funder season is drawn as a labelled line
+  across the months it runs. Clicking the month name opens the whole year —
+  twelve cards, each showing its theme and what falls in it.
+- **The month's own page.** Underneath the grid, that month's theme, its
+  relationship-building note and its five actions, straight from the source.
+  Plus the *Grants to apply for this month* space the PDF leaves blank, which
+  saves in your browser.
+- **Three states.** *Open*, *Closing soon*, *Opening soon* — on every row, in
+  the detail card, and as a key beside the scope tabs.
+- **Today / This week / This month**, and the list always covers whatever the
+  calendar is showing.
+- **Filter by funder type**, each with a note on how its timing behaves.
+
+### Workbook
+
+- All eight tasks, as fillable tables that save in your browser.
+- The five grant types, and the eight definitions.
+- **A live position calculator** — the one thing a PDF cannot do. Put in a
+  salary and it works through the source's own steps, rounding to the cent at
+  each one, so it reproduces the printed $60,000 example exactly.
+- The resources page, and the Beginner Grants next step.
+
+---
+
+## About the dates
+
+The source works in **whole months**, not dates — "banks open their grant
+portals this month", not "March 14" — and it ends with *"Rinse and repeat,
+every year."*
+
+So seasons are stored as recurring month bands and regenerated for whichever
+year is on screen, rather than pinned to 2026. A band that runs past New Year
+(the bank relationship season, November to January) sets `wraps: true` and is
+generated across the boundary.
+
+The single exception is **Giving Tuesday**, which is the Tuesday after
+Thanksgiving and therefore moves every year. It is computed, not stored.
+
+---
+
+## One thing the source does not agree with itself about
+
+Workbook page 11 gives a quick rule: *"salary multiplied by 1.35 is the figure
+that goes in your budget."* Page 12 then works a $60,000 salary through the
+long method and arrives at **$108,409.60** — an effective multiplier of about
+1.81.
+
+On $60,000 that is $81,000 versus $108,409.60, a gap of $27,409.60.
+
+Both are reproduced exactly as printed, and the calculator shows both side by
+side with the gap named. Budgeting the wrong one is the error the page exists
+to prevent, so it is surfaced rather than quietly resolved.
 
 ---
 
 ## Files
 
 ```
-index.html            The page
-assets/styles.css     Visual system — carried over from the Lesko Help quiz
-assets/calendar.js    Month grid, list, scopes, and the detail card
-data/programs.js      The dataset  ← this is the only file most edits touch
-docs/research.md      Sourced dates + competitive analysis
-build.js              Inlines everything into a single file
-check-contrast.js     Fails if a topic colour cannot carry a legible label
-dist/                 Build output (committed, so it can be pasted anywhere)
+index.html              The page
+assets/styles.css       Visual system — carried over from the Lesko Help quiz
+assets/calendar.js      Month grid, year view, month plan, seasons list
+assets/workbook.js      Workbook view and the position calculator
+data/calendar.js        Funder types, seasons, and the twelve month pages
+data/workbook.js        Tasks, definitions, costing constants, resources
+data/archive/           The earlier household-benefits calendar (not built)
+docs/research.md        Research behind the earlier version, kept for reference
+build.js                Inlines everything into a single file
+check-contrast.js       Fails if a funder colour cannot carry a legible label
+check-source.js         Fails if the data stops matching the source PDFs
 ```
 
-Open `index.html` directly in a browser. There is no build step, no
-dependencies, and no server needed.
+Open `index.html` directly in a browser. No build step, no dependencies, no
+server.
 
 ---
 
 ## Keeping it current
 
-Edit `data/programs.js`. It is plain text and dates, with the rules written at
-the top of the file. No code knowledge needed.
+Edit `data/calendar.js` and `data/workbook.js`. Both are plain text, with the
+rules written at the top of each file.
 
-Each entry looks like this:
-
-```js
-{
-  id: 'medicare-open-enrollment',
-  topic: 'health-coverage',            // a key of LH_TOPICS
-  name: 'Medicare Open Enrollment',
-  short: 'One clause — what it IS. Shown in the list.',
-  what: 'A sentence or two. Shown in the detail card.',
-  opens: '2026-10-15',                 // null if there is no window
-  closes: '2026-12-07',
-  precision: 'exact',                  // exact | typical | varies
-  cadence: 'Every year, Oct 15 – Dec 7',
-  prep: ['What to have ready', '...'],
-  where: 'Where to actually go',
-  link: 'https://...',
-}
-```
-
-There are exactly **four colours** on the calendar — the bright Lesko blue,
-red, gold and green, the same four as the frame stripes. No tints, no shades,
-no fifth hue. Domains share them by suit family, which is fine because every
-line carries its own name; the colour only says which family it is in. After
-changing one, run:
+Before shipping a change, run both checks:
 
 ```bash
-node check-contrast.js
+node check-source.js      # data still matches the source PDFs
+node check-contrast.js    # every colour can carry a label
+node build.js             # rebuild dist/
 ```
 
-It works out the real contrast ratio of each colour against ink and against
-white and takes the better of the two, which is what the page does at runtime.
-Brand fidelity outranks the check, so a colour short of AA warns rather than
-fails; only one genuinely unreadable (under 3:1) fails the build. Today the
-brand red sits at 4.27:1 with white — legible, deliberately kept.
+`check-source.js` is the important one. It asserts that all twelve months are
+present with five actions each, that every season points at a real funder
+type, and that the costing constants still reproduce the source's worked
+example to the cent. If someone adjusts a rate, that check tells them the
+calculator has stopped agreeing with the PDF beside it.
 
-Only **seasonal** domains belong on the calendar. If a programme takes
-applications every day of the year, give it `topic: 'no-season'` and it moves
-to the list underneath, where it cannot imply a deadline that does not exist.
+### Colours
 
-The one rule that matters: **if you are not sure of a date, say so.** Set
-`precision` to `typical` or `varies` and put the detail in `caveat`. "Check your
-state" is always a better answer than a confident guess — that honesty is the
-main thing separating this from the articles already out there.
+There are exactly **four** — the bright Lesko blue, red, gold and green, the
+same four as the frame stripes. No tints, no shades, no fifth hue. Funder
+types share them by suit family, which works because every line carries its
+own name.
 
-Suggested rhythm: a full pass each **September**, before the autumn windows
-open, since that is when most of the year's dates are set. The footer date and
-the review line in `data/programs.js` should both be updated when you do.
+Pinning to the exact brand colours puts the red at 4.27:1 with white text,
+just under WCAG AA for small text. That is a deliberate call: brand fidelity
+outranks the check here, so `check-contrast.js` warns rather than fails, and
+only a colour under 3:1 fails the build. Do not "fix" the warning by inventing
+an off-brand shade.
 
 ### Previewing another day
 
-Append a date to the URL to see how the calendar will look then:
-
 ```
-index.html?date=2026-12-01
+index.html?date=2027-02-01
 ```
 
-Useful for checking a row reads correctly in the week its window opens.
+Useful for checking how February reads when the bank portals open.
 
 ---
 
@@ -128,37 +140,28 @@ Useful for checking a row reads correctly in the week its window opens.
 node build.js
 ```
 
-This writes two files:
+Writes two files:
 
 - **`dist/lh-calendar.html`** — the whole page in one file, nothing external
   except the Google Fonts link. Host it, or paste it into a Circle custom-code
   block.
-- **`dist/lh-calendar.artifact.html`** — the same page without the outer
-  `<html>`/`<head>`/`<body>`, which is the shape the Claude Artifact publisher
-  expects.
+- **`dist/lh-calendar.artifact.html`** — the same without the outer
+  `<html>`/`<head>`/`<body>`, which is what the Claude Artifact publisher wants.
 
 Both are committed, so the current build can be grabbed without running
 anything.
 
----
-
-## Where this goes next
-
-In rough order of value, with reasoning in `docs/research.md`:
-
-1. **Per-state dates.** A dozen programmes genuinely differ by state, and right
-   now the honest answer is "check yours". `precision` is already in the data
-   model to hang this on.
-2. **Reminders.** "Your heating help window opens in three weeks" is almost
-   certainly the highest-value thing here, and needs member storage rather than
-   a static page.
-3. **A link from the quiz.** The quiz already knows which topics somebody
-   checked. Landing them on the calendar pre-filtered to those is a small change
-   and probably the strongest single follow-up.
+The build inlines with replacer **functions**, not strings. This matters:
+`String.replace` treats `$'` in a string replacement as "everything after the
+match", and the calculator formats currency with `'$' + …` — which used to
+splice the tail of the document into the middle of the script four times over.
+There is now a structural check that fails the build if more than one
+`</body>` ends up in the output.
 
 ---
 
 ## A caution
 
-This calendar tells you **when**. It does not decide whether anyone qualifies,
-and it is not an application. Every card names the office to confirm with.
+This calendar tells you **when**, in whole months, and it repeats every year.
+It is not a list of real deadlines. Confirm every actual date directly with the
+funder — which is, as the source keeps pointing out, a good reason to call them.

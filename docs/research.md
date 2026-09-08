@@ -1,3 +1,16 @@
+> **Note, 8 September 2026.** This document covers the *earlier* version of
+> this project — a household benefits calendar (LIHEAP, FAFSA, SNAP, Medicare).
+> That work was superseded when the Fund-Nation source material arrived, which
+> is a calendar for **nonprofits seeking grants**: a different audience and a
+> different product. The dataset it describes is preserved in
+> `data/archive/household-benefits.js` and is not built into the page.
+>
+> It is kept because every date in it was individually researched and sourced,
+> and that would be expensive to repeat if a household-facing calendar is ever
+> wanted alongside the current one.
+
+---
+
 # The seasons behind US assistance — research notes
 
 Compiled 7 September 2026, extended 8 September with a sweep of which grant

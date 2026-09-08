@@ -2,7 +2,7 @@
 /* ============================================================================
    Contrast check —  node check-contrast.js
 
-   Every topic colour has to carry a bold label on the calendar line. This
+   Every funder-type colour has to carry a bold label on the calendar line. This
    works out the real WCAG contrast ratio of that colour against ink and
    against white and takes the better of the two — exactly what the page does
    at runtime.
@@ -12,11 +12,11 @@
    warning rather than a failure. Only a colour under 3:1 — genuinely
    unreadable rather than merely short of AA — fails.
 
-   Run it after changing or adding a colour in data/programs.js.
+   Run it after changing or adding a colour in data/calendar.js.
    ========================================================================== */
 'use strict';
 
-const { LH_TOPICS } = require('./data/programs.js');
+const { LH_FUNDERS } = require('./data/calendar.js');
 
 const INK = '#12213F';
 const AA = 4.5;           // WCAG AA for text below 18px
@@ -35,7 +35,7 @@ let failed = 0;
 let warned = 0;
 let worst = Infinity;
 
-for (const [key, topic] of Object.entries(LH_TOPICS)) {
+for (const [key, topic] of Object.entries(LH_FUNDERS)) {
   const bg = luminance(topic.color);
   const onWhite = 1.05 / (bg + 0.05);
   const onInk = (bg + 0.05) / (inkL + 0.05);
@@ -64,7 +64,7 @@ if (warned) {
 }
 
 if (failed) {
-  console.error(`\n${failed} topic colour(s) cannot carry a legible label at all.`);
-  console.error('Pick a different one of the four brand colours for that domain.');
+  console.error(`\n${failed} funder colour(s) cannot carry a legible label at all.`);
+  console.error('Pick a different one of the four brand colours for that funder type.');
   process.exit(1);
 }

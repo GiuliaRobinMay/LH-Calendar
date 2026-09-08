@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Help Calendar</title>
-<meta name="description" content="Timing for US grants and assistance — what is open now, what closes soon, and what has not started yet.">
+<title>Grant Strategy Calendar</title>
+<meta name="description" content="The Fund-Nation grant year, month by month — when each funder type opens, what to do this month, and the planning workbook that gets the package ready first.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -33,53 +33,66 @@
     </div>
   </header>
 
-  <h1 class="page-title">When can I <em>apply?</em></h1>
-  <p class="page-sub">What is open now, what closes soon, and what has not started yet.</p>
+  <h1 class="page-title">The grant <em>year.</em></h1>
+  <p class="page-sub" id="tagline"></p>
 
-  <div class="topicbar">
-    <label class="eyebrow" for="topic">Seasonal domain</label>
-    <select id="topic" class="select"></select>
-    <span class="topic-count" id="topic-count"></span>
-  </div>
-  <p class="topic-note" id="topic-note"></p>
+  <nav class="views" role="tablist" aria-label="Views">
+    <button type="button" class="view is-on" id="v-cal" role="tab" aria-selected="true">Calendar</button>
+    <button type="button" class="view" id="v-wb" role="tab" aria-selected="false">Workbook</button>
+  </nav>
 
-  <!-- ------------------------------------------------------- THE CALENDAR -->
-  <section class="cal" id="cal" aria-label="Calendar">
+  <!-- ======================================================= CALENDAR VIEW -->
+  <div id="pane-cal">
 
-    <div class="cal-bar">
-      <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
-      <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
-      <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
-      <button type="button" class="todaybtn" id="jump-today">Today</button>
+    <div class="topicbar">
+      <label class="eyebrow" for="topic">Funder type</label>
+      <select id="topic" class="select"></select>
+      <span class="topic-count" id="topic-count"></span>
     </div>
+    <p class="topic-note" id="topic-note"></p>
 
-    <div class="cal-scroll">
-      <div class="cal-grid" id="cal-body"></div>
-    </div>
+    <section class="cal" id="cal" aria-label="Calendar">
+      <div class="cal-bar">
+        <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
+        <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
+        <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
+        <button type="button" class="todaybtn" id="jump-today">Today</button>
+      </div>
+
+      <div class="cal-scroll">
+        <div class="cal-grid" id="cal-body"></div>
+      </div>
 
       <p class="cal-legend" id="cal-legend"></p>
-  </section>
+    </section>
 
-  <!-- ------------------------------------------------------------- THE LIST -->
-  <section class="listing" aria-label="Programme list">
-    <div class="listbar">
-      <div class="scopes" role="tablist" id="scopes"></div>
-      <div class="key" aria-hidden="true">
-        <span class="status open">Open</span>
-        <span class="status closing">Closing soon</span>
-        <span class="status opening">Opening soon</span>
+    <!-- The month's own page from the PDF: theme, relationship note, actions -->
+    <section class="monthplan" id="monthplan" aria-live="polite"></section>
+
+    <section class="listing" aria-label="Season list">
+      <div class="listbar">
+        <div class="scopes" role="tablist" id="scopes"></div>
+        <div class="key" aria-hidden="true">
+          <span class="status open">Open</span>
+          <span class="status closing">Closing soon</span>
+          <span class="status opening">Opening soon</span>
+        </div>
       </div>
-    </div>
-    <div id="list"></div>
-  </section>
+      <div id="list"></div>
+    </section>
 
-  <section class="always" id="always"></section>
+    <section class="quiet" id="quiet"></section>
+  </div>
+
+  <!-- ======================================================= WORKBOOK VIEW -->
+  <div id="pane-wb" hidden></div>
 
   <footer class="foot">
-    <b>Tells you when — not whether you qualify. Not an application.</b>
-    Dates marked <i>usual</i> or <i>varies by state</i> are patterns, not promises:
-    confirm with the office on the card. Reviewed 8 Sep 2026.
-    Sources in <code>docs/research.md</code>.
+    <b>Built from the Fund-Nation Grant Strategy Calendar (2026 Edition) and
+    Your Grant Planning Workbook.</b>
+    The calendar works in whole months, as the source does, and repeats every
+    year. Confirm every real deadline directly with the funder.
+    <span id="foot-src"></span>
   </footer>
 
 </div>
@@ -93,7 +106,9 @@
   </div>
 </div>
 
-<script src="data/programs.js"></script>
+<script src="data/calendar.js"></script>
+<script src="data/workbook.js"></script>
 <script src="assets/calendar.js"></script>
+<script src="assets/workbook.js"></script>
 </body>
 </html>
