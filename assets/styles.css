@@ -32,7 +32,8 @@
   --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --card-shadow: 0 1px 2px rgba(18,33,63,.05), 0 8px 24px -14px rgba(18,33,63,.16);
-  --frame: 11px;
+  --frame: 6px;
+  --frame-block: 44px;   /* length of each colour block */
 }
 
 * { box-sizing: border-box; }
@@ -48,6 +49,15 @@ body {
 }
 
 a { color: inherit; }
+
+/* Form controls do NOT inherit colour — they use the browser's own
+   `buttontext`, which turns white inside a dark-scheme frame. Every list row
+   here is a <button>, which is exactly how its title came out white on white.
+   Pin the colour and the font on all of them, once, so it cannot recur. */
+button, input, select, textarea, optgroup {
+  color: var(--ink);
+  font-family: var(--body);
+}
 :focus-visible { outline: 2.5px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
 
@@ -58,20 +68,24 @@ a { color: inherit; }
 .frame .fr-top, .frame .fr-bottom {
   left: 0; right: 0; height: var(--frame);
   background: repeating-linear-gradient(90deg,
-    var(--blue) 0 26px, var(--red) 26px 52px,
-    var(--gold) 52px 78px, var(--green) 78px 104px);
+    var(--blue)  0                        var(--frame-block),
+    var(--red)   var(--frame-block)       calc(var(--frame-block) * 2),
+    var(--gold)  calc(var(--frame-block) * 2) calc(var(--frame-block) * 3),
+    var(--green) calc(var(--frame-block) * 3) calc(var(--frame-block) * 4));
 }
 .frame .fr-top { top: 0; }
 .frame .fr-bottom { bottom: 0; }
 .frame .fr-left, .frame .fr-right {
   top: 0; bottom: 0; width: var(--frame);
   background: repeating-linear-gradient(180deg,
-    var(--blue) 0 26px, var(--red) 26px 52px,
-    var(--gold) 52px 78px, var(--green) 78px 104px);
+    var(--blue)  0                        var(--frame-block),
+    var(--red)   var(--frame-block)       calc(var(--frame-block) * 2),
+    var(--gold)  calc(var(--frame-block) * 2) calc(var(--frame-block) * 3),
+    var(--green) calc(var(--frame-block) * 3) calc(var(--frame-block) * 4));
 }
 .frame .fr-left { left: 0; }
 .frame .fr-right { right: 0; }
-@media (max-width: 720px) { :root { --frame: 7px; } }
+@media (max-width: 720px) { :root { --frame: 5px; --frame-block: 32px; } }
 
 .shell {
   max-width: 1080px; margin: 0 auto;
@@ -308,7 +322,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 }
 
 .item {
-  width: 100%; text-align: left; background: none; border: none;
+  width: 100%; text-align: left; background: var(--paper); border: none;
+  color: var(--ink);
   border-top: 1px solid var(--rule);
   font-family: var(--body); cursor: pointer;
   display: grid; grid-template-columns: 4px 1fr auto; align-items: center;
@@ -321,7 +336,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
    lines on the calendar above it. */
 .item-swatch { align-self: stretch; background: var(--c); min-height: 66px; }
 .item-body { display: block; padding: 11px 0; min-width: 0; }
-.item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; }
+.item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; color: var(--ink); }
 .item-what {
   display: block; font-size: 13px; color: var(--ink-soft);
   margin-top: 3px; line-height: 1.35;
@@ -441,19 +456,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
 
 /* ==========================================================================
-   VIEW SWITCH
-   ========================================================================== */
-.views { display: flex; gap: 9px; margin-top: 20px; }
-.view {
-  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase;
-  padding: 10px 20px; border-radius: 999px; cursor: pointer;
-  border: 1.5px solid var(--rule-strong); background: var(--paper); color: var(--ink);
-}
-.view:hover { background: var(--cream-deep); }
-.view.is-on { background: var(--gold); border-color: var(--gold); font-weight: 600; }
-
-/* ==========================================================================
    THE MONTH'S OWN PAGE
    ========================================================================== */
 .monthplan {
@@ -504,130 +506,4 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .ycard-theme {
   font-size: 11.5px; line-height: 1.3; color: var(--ink-faint);
   margin-top: -3px;
-}
-
-/* ==========================================================================
-   WORKBOOK
-   ========================================================================== */
-.wb-sec {
-  margin-top: 20px; background: var(--paper);
-  border: 1px solid var(--rule); border-radius: 16px;
-  padding: 22px; box-shadow: var(--card-shadow);
-}
-.wb-sec > .eyebrow { display: block; margin-bottom: 6px; }
-.wb-sec > h2 { font-size: 27px; line-height: 1.1; }
-.wb-tagline { margin: 12px 0 0; font-size: 16px; color: var(--ink); max-width: 68ch; }
-.wb-intro { margin: 10px 0 0; font-size: 14.5px; color: var(--ink-soft); max-width: 74ch; }
-
-.wb-steps { margin: 15px 0 0; padding-left: 22px; }
-.wb-steps li { margin-bottom: 9px; font-size: 14.5px; color: var(--ink-soft); }
-.wb-steps li b { display: block; color: var(--ink); font-weight: 600; }
-.wb-steps-tight li { margin-bottom: 5px; font-size: 14px; }
-
-.wb-scroll { overflow-x: auto; margin-top: 13px; scrollbar-width: thin; }
-.wb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 420px; }
-.wb-table th, .wb-table td {
-  text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--rule);
-  vertical-align: top;
-}
-.wb-table thead th {
-  font-family: var(--mono); font-size: 10px; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
-  border-bottom: 1.5px solid var(--rule-strong);
-}
-.wb-table tbody th.rowhead { font-weight: 600; color: var(--ink); width: 34%; }
-.wb-table tbody td { color: var(--ink-soft); }
-.wb-table tfoot th {
-  text-align: right; font-weight: 600; font-size: 13px;
-  border-bottom: none; padding-top: 12px;
-}
-.wb-table tfoot td { border-bottom: none; padding-top: 12px; }
-.wb-fill td { padding: 5px 6px; }
-.wb-cell {
-  width: 100%; font-family: var(--body); font-size: 13.5px; color: var(--ink);
-  background: var(--cream); border: 1.5px solid var(--rule);
-  border-radius: 8px; padding: 7px 9px;
-}
-.wb-cell:focus { border-color: var(--rule-strong); outline-offset: 1px; }
-
-.wb-defs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 14px; }
-.wb-def {
-  background: var(--cream); border: 1px solid var(--rule);
-  border-radius: 11px; padding: 12px 13px;
-  display: flex; flex-direction: column; gap: 5px;
-}
-.wb-def b { font-size: 13.5px; font-weight: 600; }
-.wb-def span { font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
-.wb-res { text-decoration: none; }
-.wb-res:hover { background: var(--cream-deep); border-color: var(--rule-strong); }
-.wb-res b { color: var(--red); }
-
-.wb-task {
-  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule);
-}
-.wb-sec > .wb-task:first-of-type { border-top: none; padding-top: 6px; }
-.wb-task-head { display: flex; align-items: center; gap: 11px; }
-.wb-n {
-  width: 27px; height: 27px; flex: none; border-radius: 50%;
-  background: var(--ink); color: var(--cream);
-  display: grid; place-items: center;
-  font-family: var(--mono); font-size: 13px; font-weight: 600;
-}
-.wb-task-head h3 { font-size: 20px; line-height: 1.15; }
-.wb-blurb { margin: 9px 0 0; font-size: 14px; color: var(--ink-soft); max-width: 76ch; }
-.wb-task .sheet-h { margin-top: 13px; }
-.wb-tip {
-  margin-top: 12px; padding: 9px 13px; border-radius: 999px;
-  background: var(--gold); color: #3B2C00;
-  font-size: 13px; font-weight: 600; display: inline-block;
-}
-
-/* --------------------------------------------------------- THE CALCULATOR */
-.calc-controls { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
-.calc-field { display: flex; flex-direction: column; gap: 6px; }
-.calc-inputrow {
-  display: inline-flex; align-items: center; gap: 3px;
-  background: var(--cream); border: 1.5px solid var(--rule-strong);
-  border-radius: 10px; padding: 8px 12px;
-}
-.calc-dollar { font-family: var(--mono); font-size: 14px; color: var(--ink-faint); }
-.calc-input {
-  font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--ink);
-  background: none; border: none; width: 8ch;
-  font-variant-numeric: tabular-nums;
-}
-.calc-input:focus { outline: none; }
-.calc-inputrow:focus-within { border-color: var(--blue); }
-
-.calc-out { margin-top: 16px; }
-.calc-head {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 12px; margin-bottom: 4px;
-}
-.calc-big, .calc-gap {
-  padding: 15px 17px; border-radius: 13px;
-  display: flex; flex-direction: column; gap: 5px;
-}
-.calc-big { background: var(--ink); color: var(--cream); }
-.calc-gap { background: var(--hot-bg); border: 1.5px solid var(--hot); }
-.calc-label {
-  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-  text-transform: uppercase; opacity: .75;
-}
-.calc-gap .calc-label { color: var(--hot); opacity: 1; }
-.calc-num {
-  font-family: var(--display); font-size: 30px; line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.calc-gap .calc-num { color: var(--hot); }
-
-.calc-warn {
-  margin-top: 14px; padding: 11px 14px; border-radius: 0 9px 9px 0;
-  background: var(--hot-bg); border-left: 3px solid var(--hot);
-  font-size: 13.5px; line-height: 1.5;
-}
-.calc-ok {
-  margin-top: 11px; padding: 9px 13px; border-radius: 0 9px 9px 0;
-  background: #E8F5EC; border-left: 3px solid var(--green);
-  font-size: 13px; line-height: 1.45; color: var(--ink-soft);
 }

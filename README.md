@@ -1,42 +1,49 @@
 # Grant Strategy Calendar
 
 The Fund-Nation grant year as a working calendar, built for the Lesko Help
-community. It is a **planning tool for organisations seeking grants**: when
-each funder type opens, what to do this month, and the workbook that gets
-your package ready before you start searching.
+community. It is a **planning tool for organisations seeking grants**: which
+funder types are open when, and what to do each month.
 
-Built from two source documents:
-
-- **Grant Strategy Calendar, 2026 Edition** — Fund-Nation, 14 pages
-- **Your Grant Planning Workbook** — Fund-Nation · Nonprofit Classroom, 15 pages
+Built from **Grant Strategy Calendar, 2026 Edition** — Fund-Nation, 14 pages.
 
 ---
 
 ## What it does
 
-### Calendar
-
-- **A real month calendar.** Each funder season is drawn as a labelled line
-  across the months it runs. Clicking the month name opens the whole year —
-  twelve cards, each showing its theme and what falls in it.
-- **The month's own page.** Underneath the grid, that month's theme, its
-  relationship-building note and its five actions, straight from the source.
-  Plus the *Grants to apply for this month* space the PDF leaves blank, which
-  saves in your browser.
+- **Opens on the year.** Twelve cards, each with its theme from the source and
+  the seasons running through it. That is the view that answers *when does what
+  happen*.
+- **Click a month for the detail** — or step through with the arrows. You get
+  the month grid, that month's page from the source (theme, relationship note,
+  five actions), and the *Grants to apply for this month* space the PDF leaves
+  blank, which saves in your browser.
 - **Three states.** *Open*, *Closing soon*, *Opening soon* — on every row, in
-  the detail card, and as a key beside the scope tabs.
-- **Today / This week / This month**, and the list always covers whatever the
+  the detail card, and as a key beside the scope tabs. A season that has ended
+  says when it comes back, because they all repeat.
+- **Today / This week / This period**, and the list always covers whatever the
   calendar is showing.
 - **Filter by funder type**, each with a note on how its timing behaves.
 
-### Workbook
+## The ten seasons
 
-- All eight tasks, as fillable tables that save in your browser.
-- The five grant types, and the eight definitions.
-- **A live position calculator** — the one thing a PDF cannot do. Put in a
-  salary and it works through the source's own steps, rounding to the cent at
-  each one, so it reproduces the printed $60,000 example exactly.
-- The resources page, and the Beginner Grants next step.
+The source gives twelve *monthly themes*. Those collapse into ten recurring
+seasons, because several consecutive months belong to one funder cycle:
+
+| Season | Runs | Funder type |
+|---|---|---|
+| Planning & preparation | January | Planning & readiness |
+| Bank grant portals open | February – October | Banks & CRA |
+| Bank relationship season | November – January | Banks & CRA |
+| Foundation grant season | March | Foundations |
+| Federal grant season | April – May | Federal |
+| State grants & mid-year review | June | State |
+| Local & community grants | July | Local & community |
+| Retail & corporate grants | August | Retail & corporate |
+| Giving Tuesday campaign | September – November | Campaigns |
+| Year-end & major gifts | November – December | Campaigns |
+
+Banks get two because the source treats them as two distinct jobs: the portal
+window, and the unfunded months that decide it.
 
 ---
 
@@ -56,18 +63,15 @@ Thanksgiving and therefore moves every year. It is computed, not stored.
 
 ---
 
-## One thing the source does not agree with itself about
+## A note on the workbook
 
-Workbook page 11 gives a quick rule: *"salary multiplied by 1.35 is the figure
-that goes in your budget."* Page 12 then works a $60,000 salary through the
-long method and arrives at **$108,409.60** — an effective multiplier of about
-1.81.
-
-On $60,000 that is $81,000 versus $108,409.60, a gap of $27,409.60.
-
-Both are reproduced exactly as printed, and the calculator shows both side by
-side with the gap named. Budgeting the wrong one is the error the page exists
-to prevent, so it is surfaced rather than quietly resolved.
+The Grant Planning Workbook was built and then removed. Without the teaching
+that goes with it, it is too complicated to put in front of people cold — the
+calendar stands alone, the workbook needs a course around it. It is preserved
+under `data/archive/`, along with a note on what would need restoring if it
+comes back. It also documented a real contradiction in the source: the quick
+costing rule (salary × 1.35) and the long method disagree by $27,409.60 on a
+$60,000 salary. Worth fixing in the PDF regardless of whether the page returns.
 
 ---
 
@@ -76,11 +80,10 @@ to prevent, so it is surfaced rather than quietly resolved.
 ```
 index.html              The page
 assets/styles.css       Visual system — carried over from the Lesko Help quiz
-assets/calendar.js      Month grid, year view, month plan, seasons list
-assets/workbook.js      Workbook view and the position calculator
+assets/calendar.js      Year view, month grid, month plan, seasons list
 data/calendar.js        Funder types, seasons, and the twelve month pages
-data/workbook.js        Tasks, definitions, costing constants, resources
-data/archive/           The earlier household-benefits calendar (not built)
+data/archive/           The household-benefits calendar and the workbook,
+                        both retired but kept (see its README)
 docs/research.md        Research behind the earlier version, kept for reference
 build.js                Inlines everything into a single file
 check-contrast.js       Fails if a funder colour cannot carry a legible label
@@ -94,8 +97,7 @@ server.
 
 ## Keeping it current
 
-Edit `data/calendar.js` and `data/workbook.js`. Both are plain text, with the
-rules written at the top of each file.
+Edit `data/calendar.js`. It is plain text, with the rules written at the top.
 
 Before shipping a change, run both checks:
 
@@ -105,11 +107,9 @@ node check-contrast.js    # every colour can carry a label
 node build.js             # rebuild dist/
 ```
 
-`check-source.js` is the important one. It asserts that all twelve months are
-present with five actions each, that every season points at a real funder
-type, and that the costing constants still reproduce the source's worked
-example to the cent. If someone adjusts a rate, that check tells them the
-calculator has stopped agreeing with the PDF beside it.
+`check-source.js` asserts that all twelve months are present with five actions
+each, and that every season points at a real funder type, sits in real months,
+and carries the name and description the list needs to explain itself.
 
 ### Colours
 
@@ -151,12 +151,11 @@ Writes two files:
 Both are committed, so the current build can be grabbed without running
 anything.
 
-The build inlines with replacer **functions**, not strings. This matters:
-`String.replace` treats `$'` in a string replacement as "everything after the
-match", and the calculator formats currency with `'$' + …` — which used to
-splice the tail of the document into the middle of the script four times over.
-There is now a structural check that fails the build if more than one
-`</body>` ends up in the output.
+The build inlines with replacer **functions**, not strings. `String.replace`
+treats `$'` in a string replacement as "everything after the match", which once
+spliced the tail of the document into the middle of a script four times over.
+A structural check now fails the build if more than one `</body>` reaches the
+output.
 
 ---
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Grant Strategy Calendar</title>
-<meta name="description" content="The Fund-Nation grant year, month by month — when each funder type opens, what to do this month, and the planning workbook that gets the package ready first.">
+<meta name="description" content="The Fund-Nation grant year — which funder types are open when, and what to do each month.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -43,7 +43,8 @@
   --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --card-shadow: 0 1px 2px rgba(18,33,63,.05), 0 8px 24px -14px rgba(18,33,63,.16);
-  --frame: 11px;
+  --frame: 6px;
+  --frame-block: 44px;   /* length of each colour block */
 }
 
 * { box-sizing: border-box; }
@@ -59,6 +60,15 @@ body {
 }
 
 a { color: inherit; }
+
+/* Form controls do NOT inherit colour — they use the browser's own
+   `buttontext`, which turns white inside a dark-scheme frame. Every list row
+   here is a <button>, which is exactly how its title came out white on white.
+   Pin the colour and the font on all of them, once, so it cannot recur. */
+button, input, select, textarea, optgroup {
+  color: var(--ink);
+  font-family: var(--body);
+}
 :focus-visible { outline: 2.5px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
 
@@ -69,20 +79,24 @@ a { color: inherit; }
 .frame .fr-top, .frame .fr-bottom {
   left: 0; right: 0; height: var(--frame);
   background: repeating-linear-gradient(90deg,
-    var(--blue) 0 26px, var(--red) 26px 52px,
-    var(--gold) 52px 78px, var(--green) 78px 104px);
+    var(--blue)  0                        var(--frame-block),
+    var(--red)   var(--frame-block)       calc(var(--frame-block) * 2),
+    var(--gold)  calc(var(--frame-block) * 2) calc(var(--frame-block) * 3),
+    var(--green) calc(var(--frame-block) * 3) calc(var(--frame-block) * 4));
 }
 .frame .fr-top { top: 0; }
 .frame .fr-bottom { bottom: 0; }
 .frame .fr-left, .frame .fr-right {
   top: 0; bottom: 0; width: var(--frame);
   background: repeating-linear-gradient(180deg,
-    var(--blue) 0 26px, var(--red) 26px 52px,
-    var(--gold) 52px 78px, var(--green) 78px 104px);
+    var(--blue)  0                        var(--frame-block),
+    var(--red)   var(--frame-block)       calc(var(--frame-block) * 2),
+    var(--gold)  calc(var(--frame-block) * 2) calc(var(--frame-block) * 3),
+    var(--green) calc(var(--frame-block) * 3) calc(var(--frame-block) * 4));
 }
 .frame .fr-left { left: 0; }
 .frame .fr-right { right: 0; }
-@media (max-width: 720px) { :root { --frame: 7px; } }
+@media (max-width: 720px) { :root { --frame: 5px; --frame-block: 32px; } }
 
 .shell {
   max-width: 1080px; margin: 0 auto;
@@ -319,7 +333,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 }
 
 .item {
-  width: 100%; text-align: left; background: none; border: none;
+  width: 100%; text-align: left; background: var(--paper); border: none;
+  color: var(--ink);
   border-top: 1px solid var(--rule);
   font-family: var(--body); cursor: pointer;
   display: grid; grid-template-columns: 4px 1fr auto; align-items: center;
@@ -332,7 +347,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
    lines on the calendar above it. */
 .item-swatch { align-self: stretch; background: var(--c); min-height: 66px; }
 .item-body { display: block; padding: 11px 0; min-width: 0; }
-.item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; }
+.item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; color: var(--ink); }
 .item-what {
   display: block; font-size: 13px; color: var(--ink-soft);
   margin-top: 3px; line-height: 1.35;
@@ -452,19 +467,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
 
 /* ==========================================================================
-   VIEW SWITCH
-   ========================================================================== */
-.views { display: flex; gap: 9px; margin-top: 20px; }
-.view {
-  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase;
-  padding: 10px 20px; border-radius: 999px; cursor: pointer;
-  border: 1.5px solid var(--rule-strong); background: var(--paper); color: var(--ink);
-}
-.view:hover { background: var(--cream-deep); }
-.view.is-on { background: var(--gold); border-color: var(--gold); font-weight: 600; }
-
-/* ==========================================================================
    THE MONTH'S OWN PAGE
    ========================================================================== */
 .monthplan {
@@ -517,132 +519,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   margin-top: -3px;
 }
 
-/* ==========================================================================
-   WORKBOOK
-   ========================================================================== */
-.wb-sec {
-  margin-top: 20px; background: var(--paper);
-  border: 1px solid var(--rule); border-radius: 16px;
-  padding: 22px; box-shadow: var(--card-shadow);
-}
-.wb-sec > .eyebrow { display: block; margin-bottom: 6px; }
-.wb-sec > h2 { font-size: 27px; line-height: 1.1; }
-.wb-tagline { margin: 12px 0 0; font-size: 16px; color: var(--ink); max-width: 68ch; }
-.wb-intro { margin: 10px 0 0; font-size: 14.5px; color: var(--ink-soft); max-width: 74ch; }
-
-.wb-steps { margin: 15px 0 0; padding-left: 22px; }
-.wb-steps li { margin-bottom: 9px; font-size: 14.5px; color: var(--ink-soft); }
-.wb-steps li b { display: block; color: var(--ink); font-weight: 600; }
-.wb-steps-tight li { margin-bottom: 5px; font-size: 14px; }
-
-.wb-scroll { overflow-x: auto; margin-top: 13px; scrollbar-width: thin; }
-.wb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 420px; }
-.wb-table th, .wb-table td {
-  text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--rule);
-  vertical-align: top;
-}
-.wb-table thead th {
-  font-family: var(--mono); font-size: 10px; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
-  border-bottom: 1.5px solid var(--rule-strong);
-}
-.wb-table tbody th.rowhead { font-weight: 600; color: var(--ink); width: 34%; }
-.wb-table tbody td { color: var(--ink-soft); }
-.wb-table tfoot th {
-  text-align: right; font-weight: 600; font-size: 13px;
-  border-bottom: none; padding-top: 12px;
-}
-.wb-table tfoot td { border-bottom: none; padding-top: 12px; }
-.wb-fill td { padding: 5px 6px; }
-.wb-cell {
-  width: 100%; font-family: var(--body); font-size: 13.5px; color: var(--ink);
-  background: var(--cream); border: 1.5px solid var(--rule);
-  border-radius: 8px; padding: 7px 9px;
-}
-.wb-cell:focus { border-color: var(--rule-strong); outline-offset: 1px; }
-
-.wb-defs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 14px; }
-.wb-def {
-  background: var(--cream); border: 1px solid var(--rule);
-  border-radius: 11px; padding: 12px 13px;
-  display: flex; flex-direction: column; gap: 5px;
-}
-.wb-def b { font-size: 13.5px; font-weight: 600; }
-.wb-def span { font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
-.wb-res { text-decoration: none; }
-.wb-res:hover { background: var(--cream-deep); border-color: var(--rule-strong); }
-.wb-res b { color: var(--red); }
-
-.wb-task {
-  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule);
-}
-.wb-sec > .wb-task:first-of-type { border-top: none; padding-top: 6px; }
-.wb-task-head { display: flex; align-items: center; gap: 11px; }
-.wb-n {
-  width: 27px; height: 27px; flex: none; border-radius: 50%;
-  background: var(--ink); color: var(--cream);
-  display: grid; place-items: center;
-  font-family: var(--mono); font-size: 13px; font-weight: 600;
-}
-.wb-task-head h3 { font-size: 20px; line-height: 1.15; }
-.wb-blurb { margin: 9px 0 0; font-size: 14px; color: var(--ink-soft); max-width: 76ch; }
-.wb-task .sheet-h { margin-top: 13px; }
-.wb-tip {
-  margin-top: 12px; padding: 9px 13px; border-radius: 999px;
-  background: var(--gold); color: #3B2C00;
-  font-size: 13px; font-weight: 600; display: inline-block;
-}
-
-/* --------------------------------------------------------- THE CALCULATOR */
-.calc-controls { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
-.calc-field { display: flex; flex-direction: column; gap: 6px; }
-.calc-inputrow {
-  display: inline-flex; align-items: center; gap: 3px;
-  background: var(--cream); border: 1.5px solid var(--rule-strong);
-  border-radius: 10px; padding: 8px 12px;
-}
-.calc-dollar { font-family: var(--mono); font-size: 14px; color: var(--ink-faint); }
-.calc-input {
-  font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--ink);
-  background: none; border: none; width: 8ch;
-  font-variant-numeric: tabular-nums;
-}
-.calc-input:focus { outline: none; }
-.calc-inputrow:focus-within { border-color: var(--blue); }
-
-.calc-out { margin-top: 16px; }
-.calc-head {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 12px; margin-bottom: 4px;
-}
-.calc-big, .calc-gap {
-  padding: 15px 17px; border-radius: 13px;
-  display: flex; flex-direction: column; gap: 5px;
-}
-.calc-big { background: var(--ink); color: var(--cream); }
-.calc-gap { background: var(--hot-bg); border: 1.5px solid var(--hot); }
-.calc-label {
-  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-  text-transform: uppercase; opacity: .75;
-}
-.calc-gap .calc-label { color: var(--hot); opacity: 1; }
-.calc-num {
-  font-family: var(--display); font-size: 30px; line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.calc-gap .calc-num { color: var(--hot); }
-
-.calc-warn {
-  margin-top: 14px; padding: 11px 14px; border-radius: 0 9px 9px 0;
-  background: var(--hot-bg); border-left: 3px solid var(--hot);
-  font-size: 13.5px; line-height: 1.5;
-}
-.calc-ok {
-  margin-top: 11px; padding: 9px 13px; border-radius: 0 9px 9px 0;
-  background: #E8F5EC; border-left: 3px solid var(--green);
-  font-size: 13px; line-height: 1.45; color: var(--ink-soft);
-}
-
 </style>
 </head>
 <body>
@@ -671,60 +547,47 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   <h1 class="page-title">The grant <em>year.</em></h1>
   <p class="page-sub" id="tagline"></p>
 
-  <nav class="views" role="tablist" aria-label="Views">
-    <button type="button" class="view is-on" id="v-cal" role="tab" aria-selected="true">Calendar</button>
-    <button type="button" class="view" id="v-wb" role="tab" aria-selected="false">Workbook</button>
-  </nav>
-
-  <!-- ======================================================= CALENDAR VIEW -->
-  <div id="pane-cal">
-
-    <div class="topicbar">
-      <label class="eyebrow" for="topic">Funder type</label>
-      <select id="topic" class="select"></select>
-      <span class="topic-count" id="topic-count"></span>
-    </div>
-    <p class="topic-note" id="topic-note"></p>
-
-    <section class="cal" id="cal" aria-label="Calendar">
-      <div class="cal-bar">
-        <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
-        <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
-        <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
-        <button type="button" class="todaybtn" id="jump-today">Today</button>
-      </div>
-
-      <div class="cal-scroll">
-        <div class="cal-grid" id="cal-body"></div>
-      </div>
-
-      <p class="cal-legend" id="cal-legend"></p>
-    </section>
-
-    <!-- The month's own page from the PDF: theme, relationship note, actions -->
-    <section class="monthplan" id="monthplan" aria-live="polite"></section>
-
-    <section class="listing" aria-label="Season list">
-      <div class="listbar">
-        <div class="scopes" role="tablist" id="scopes"></div>
-        <div class="key" aria-hidden="true">
-          <span class="status open">Open</span>
-          <span class="status closing">Closing soon</span>
-          <span class="status opening">Opening soon</span>
-        </div>
-      </div>
-      <div id="list"></div>
-    </section>
-
-    <section class="quiet" id="quiet"></section>
+  <div class="topicbar">
+    <label class="eyebrow" for="topic">Funder type</label>
+    <select id="topic" class="select"></select>
+    <span class="topic-count" id="topic-count"></span>
   </div>
+  <p class="topic-note" id="topic-note"></p>
 
-  <!-- ======================================================= WORKBOOK VIEW -->
-  <div id="pane-wb" hidden></div>
+  <section class="cal" id="cal" aria-label="Calendar">
+    <div class="cal-bar">
+      <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
+      <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
+      <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
+      <button type="button" class="todaybtn" id="jump-today">Today</button>
+    </div>
+
+    <div class="cal-scroll">
+      <div class="cal-grid" id="cal-body"></div>
+    </div>
+
+    <p class="cal-legend" id="cal-legend"></p>
+  </section>
+
+  <!-- The month's own page from the PDF: theme, relationship note, actions -->
+  <section class="monthplan" id="monthplan" aria-live="polite"></section>
+
+  <section class="listing" aria-label="Season list">
+    <div class="listbar">
+      <div class="scopes" role="tablist" id="scopes"></div>
+      <div class="key" aria-hidden="true">
+        <span class="status open">Open</span>
+        <span class="status closing">Closing soon</span>
+        <span class="status opening">Opening soon</span>
+      </div>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <section class="quiet" id="quiet"></section>
 
   <footer class="foot">
-    <b>Built from the Fund-Nation Grant Strategy Calendar (2026 Edition) and
-    Your Grant Planning Workbook.</b>
+    <b>Built from the Fund-Nation Grant Strategy Calendar, 2026 Edition.</b>
     The calendar works in whole months, as the source does, and repeats every
     year. Confirm every real deadline directly with the funder.
     <span id="foot-src"></span>
@@ -1176,180 +1039,6 @@ if (typeof module !== 'undefined' && module.exports) {
 </script>
 <script>
 /* ============================================================================
-   Lesko Help — Grant Planning Workbook
-   ----------------------------------------------------------------------------
-   Source: "Your Grant Planning Workbook" — Fund-Nation · Nonprofit Classroom,
-   15 pages. Wording is the PDF's own throughout.
-
-   ONE THING THE SOURCE DOES NOT AGREE WITH ITSELF ABOUT
-   -----------------------------------------------------
-   Page 11 gives a quick rule: "salary multiplied by 1.35 is the figure that
-   goes in your budget." Page 12 then works a $60,000 salary through the long
-   method and arrives at $108,409.60 — an effective multiplier of about 1.81,
-   not 1.35. On $60,000 the two answers are $81,000 and $108,409.60, which is
-   a $27,409.60 gap.
-
-   Both are reproduced here exactly as printed, and the calculator shows both
-   side by side with the gap named, because budgeting the wrong one is the
-   error the page exists to prevent. Do not quietly pick one.
-   ========================================================================== */
-
-const LH_WORKBOOK = {
-  title: 'Your Grant Planning Workbook',
-  tagline: 'Your fast track to success: the simplified approach. Build the ' +
-           'package before you search, so that when you find the right grant ' +
-           'you are already ready to write it.',
-  intro: 'Work through the seven tasks in order. By the end you will have a ' +
-         'defined program, a problem your city has already named in writing, ' +
-         'a costed budget, and a reason for every line of it.',
-  fastTip: '1 mission  |  3 programs  |  5 partnerships',
-
-  /* ------------------------------------------------------- WHAT YOU BUILD */
-  build: [
-    ['Mission and program design', 'Define the mission, then list everything you do to fulfill it.'],
-    ['Community research', 'Read your city’s Comprehensive Plan and pull its goals and objectives.'],
-    ['Budget planning', 'Every item and its cost, staff with benefits, and overhead.'],
-    ['Program justification', 'A rationale for each budget line, tied to mission and goals.'],
-    ['Grant readiness', 'Details and budgets outlined in full, including needs and impacts.'],
-  ],
-
-  /* ---------------------------------------------------------- GRANT TYPES */
-  grantTypes: [
-    ['Planning', 'Creating a plan, and exploring ideas that solve a problem'],
-    ['Program', 'Restricted. Specific program expenses only'],
-    ['Capital', 'Real estate, major renovations, major equipment'],
-    ['General operating', 'Anything the program needs'],
-    ['Capacity building', 'Learning and strengthening your organization itself'],
-  ],
-
-  /* ----------------------------------------------------------- DEFINITIONS */
-  definitions: [
-    ['Community Reinvestment Act', 'The federal law requiring banks to give back to the community. This is why bank giving exists and why it is local.'],
-    ['Corporate Social Responsibility', 'A business model where a company intentionally accepts responsibility to support the community around it.'],
-    ['Grant', 'Funds provided to advance a community-based mission or purpose.'],
-    ['Sponsorship', 'Funds provided by an entity to be advertised alongside an event, showing their support of the cause.'],
-    ['In-kind', 'Non-monetary donations of objects, time, and expertise supporting a community-based mission.'],
-    ['Fringe', 'Everything on top of a wage that you must pay to employ someone. Taxes, retirement, healthcare, PTO, supervision.'],
-    ['Federal de minimis', 'The federal standard of 10 percent of program expenses applied to overhead and indirect costs.'],
-    ['Letter of intent', 'A short pitch some funders require before a full application, so they can screen your concept for fit.'],
-  ],
-
-  /* ---------------------------------------------------------------- TASKS */
-  tasks: [
-    {
-      n: 1, title: 'Write your mission and what you do',
-      blurb: 'Your mission statement describes what your organization does and who it helps.',
-      fields: ['Mission statement', 'Everything your organization does to fulfill that mission'],
-    },
-    {
-      n: 2, title: 'Name your top three programs',
-      blurb: 'From what you listed above, which have the most support and get the best response? Take the top three.',
-      columns: ['Program name', 'What it does for the community, or what need it meets'],
-      rows: 3,
-    },
-    {
-      n: 3, title: 'Find the problem your city already named',
-      blurb: 'Find your city’s Comprehensive Plan online, or email the Community Development office and ask for it. Locate the Goals and Objectives, usually a table. Also contact your city council or county official and ask for the community strategic plan.',
-      columns: ['City goal', 'Objective'],
-      rows: 4,
-    },
-    {
-      n: 4, title: 'Which of those can you solve?',
-      blurb: 'Looking at the city’s goals and objectives, which ones can your organization help solve? Those are the ones to build toward.',
-      columns: ['City goal', 'Objective'],
-      rows: 3,
-    },
-    {
-      n: 5, title: 'Calculate what you need',
-      blurb: 'What do you have to pay for in order to solve that problem? List every item, what one costs, and how many you need for the year. Yearly cost is unit price multiplied by how many.',
-      columns: ['Item', 'Unit price', 'How many', 'Yearly cost'],
-      rows: 5, totalLabel: 'Total program expenses',
-    },
-    {
-      n: 6, title: 'Write the budget narrative as you go',
-      blurb: 'For each item you listed, write one sentence about why the program needs it. Not what it is, why it is necessary. These sentences become your budget narrative.',
-      columns: ['Item', 'Why the program needs it'],
-      rows: 5,
-    },
-    {
-      n: 7, title: 'Name the positions you need to hire',
-      blurb: 'Fill the first two columns now. Leave salary blank until you have worked through the fringe page.',
-      columns: ['Position title', 'What they do', 'Total salary for this position'],
-      rows: 3,
-    },
-    {
-      n: 8, title: 'Cost each position',
-      blurb: 'A salary is not what a position costs. For most budgets, salary multiplied by 1.35 is the figure that goes in your budget. Use the long version below when a funder wants it shown line by line.',
-      steps: [
-        'Base hourly rate',
-        'Paid time off per hour: hourly rate times 80, divided by 2,080',
-        'Healthcare per hour: annual cost for one employee, divided by 2,080',
-        'Supervision per hour: 20 percent of base hourly',
-        'Employer taxes: Social Security, Medicare, unemployment, on the running total',
-        'Total hourly cost',
-        'Multiply by 2,080. This is the figure for Task 7.',
-      ],
-    },
-  ],
-
-  /* --------------------------------------------------- COSTING CONSTANTS */
-  /* Every one of these is stated on the worked-example page. */
-  costing: {
-    hoursPerYear: 2080,          // from the Fair Labor Standards Act
-    fringeRate: 0.35,
-    quickMultiplier: 1.35,
-    supervisionRate: 0.20,       // 20 percent of base hourly
-    ptoHours: 80,                // two weeks
-    defaultSalary: 60000,
-    defaultHealthcare: 6000,
-    taxes: [
-      ['FICA', 7.65], ['FUTA', 6], ['SUTA', 3.4], ['Payroll', 6.2],
-    ],                            // 23.25% combined, as printed
-    example: {
-      salary: 60000, healthcare: 6000,
-      baseHourly: 28.85, fringe: 21000, taxRate: 23.25, pto: 2308,
-      healthcarePerHour: 2.88, supervisionPerHour: 5.77, ptoPerHour: 1.11,
-      addedPerHour: 9.76, totalHourly: 38.61, fringePerHour: 13.51,
-      loadedAnnual: 108409.60, shortfall: 48409.60,
-    },
-    verdict: 'A $60,000 salary costs the organization $108,409.60. Budget the ' +
-             'salary alone and you are short by $48,409.60.',
-  },
-
-  /* ------------------------------------------------------------ RESOURCES */
-  resources: [
-    ['Bureau of Labor Statistics', 'Wage data by area and occupation, so your salary figures match your region.', 'https://www.bls.gov'],
-    ['Fair Labor Standards Act, Dept of Labor', 'Guidelines on hours worked, which is where the 2,080 comes from.', 'https://www.dol.gov/agencies/whd/flsa'],
-    ['Office of Personnel Management', 'Information on benefits.', 'https://www.opm.gov'],
-    ['IRS, and your State Department of Labor', 'FICA and FUTA rates from the IRS. Your SUTA rate from your state.', 'https://www.irs.gov'],
-    ['Dept of Labor, vacation leave', 'Guidelines on paid time off.', 'https://www.dol.gov/general/topic/workhours/vacation_leave'],
-    ['Healthcare.gov', 'For estimating the annual healthcare cost per employee.', 'https://www.healthcare.gov'],
-  ],
-
-  /* ------------------------------------------------------------------ CTA */
-  cta: {
-    heading: 'Want to write your first grant with help?',
-    body: 'Beginner Grants is a six week program for people who have never submitted one.',
-    steps: [
-      ['Map out your proposal', 'From the package you just built in this workbook.'],
-      ['Draft a statement of need', 'Grounded in the city goals you researched in Task 3.'],
-      ['Build a program design', 'That matches what a funder is actually looking for.'],
-      ['Find grants yourself', 'No more buying grant lists. You learn to search, which saves the money and the time.'],
-      ['Submit it', 'You finish the program having written and sent your first grant.'],
-    ],
-    signup: 'Sign up at fund-nation.org with coupon code LESKO',
-    link: 'https://fund-nation.org',
-    contact: 'megan@fund-nation.org',
-  },
-};
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { LH_WORKBOOK };
-}
-
-</script>
-<script>
-/* ============================================================================
    Lesko Help — Grant Strategy Calendar
 
    The Fund-Nation grant year as a working calendar. Seasons are stored as
@@ -1357,9 +1046,9 @@ if (typeof module !== 'undefined' && module.exports) {
    repeat, every year"), so they are generated for whichever year is on screen
    rather than pinned to 2026.
 
-   Two views: a month grid with each season drawn as a labelled line, and a
-   whole-year overview. Underneath, the month's own page from the PDF — its
-   theme, its relationship-building note, and its five actions.
+   It opens on the whole year, which is the view that answers "when does what
+   happen". Click a month — or step through with the arrows — for the month
+   grid, that month's page from the PDF, and the seasons in detail.
 
    Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
@@ -1419,8 +1108,8 @@ if (typeof module !== 'undefined' && module.exports) {
 
   /* ---------------------------------------------------------------- STATE */
   var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-  var mode = 'month';      // month | year
-  var scope = 'today';     // today | week | month
+  var mode = 'year';       // year | month — the year is the way in
+  var scope = 'month';     // today | week | month ("month" = whatever is shown)
   var funderFilter = 'all';
 
   function inFilter(s) { return funderFilter === 'all' || s.funder === funderFilter; }
@@ -1493,14 +1182,31 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   var STATUS_LABEL = {
     open: 'Open', closing: 'Closing soon', opening: 'Opening soon',
-    later: 'Not yet', closed: 'Closed',
+    later: 'Not yet', closed: 'Finished',
   };
 
-  function orderKey(inst, from) {
-    return inst.from >= from ? 100000 + diff(TODAY, inst.from) : diff(TODAY, inst.to);
+  // Seasons repeat, so one that has ended is not gone — it comes back. Find
+  // the next run, which is what a closed row should actually be telling you.
+  function nextRun(season, after) {
+    var year = after.getUTCFullYear();
+    var runs = instancesFor(season, year).concat(instancesFor(season, year + 1));
+    runs.sort(function (a, b) { return a.from - b.from; });
+    for (var i = 0; i < runs.length; i++) if (runs[i].from > after) return runs[i];
+    return null;
   }
+
+  // What needs attention sorts above what does not: closing, then open, then
+  // opening soon, then later, then already finished.
+  var STATUS_RANK = { closing: 0, open: 1, opening: 2, later: 3, closed: 4 };
   function byOrder(from) {
-    return function (a, b) { return orderKey(a, from) - orderKey(b, from); };
+    return function (a, b) {
+      var ra = STATUS_RANK[statusOf(a, TODAY)], rb = STATUS_RANK[statusOf(b, TODAY)];
+      if (ra !== rb) return ra - rb;
+      // Within a rank, soonest first — by end date if running, else by start.
+      var ka = ra <= 1 ? diff(TODAY, a.to) : diff(TODAY, a.from);
+      var kb = rb <= 1 ? diff(TODAY, b.to) : diff(TODAY, b.from);
+      return ka - kb;
+    };
   }
 
   /* -------------------------------------------------------------- PERIOD */
@@ -1669,7 +1375,10 @@ if (typeof module !== 'undefined' && module.exports) {
     }
 
     host.appendChild(grid);
-    setLegend('The whole year at a glance. Click a month to open it.');
+    var total = LH_SEASONS.filter(inFilter).length;
+    setLegend('The whole year at a glance — ' + total + ' recurring season' +
+              (total === 1 ? '' : 's') + ', each running for the months shown. ' +
+              'Click a month for its plan and the detail.');
   }
 
   function setLegend(text) { document.getElementById('cal-legend').textContent = text; }
@@ -1733,16 +1442,27 @@ if (typeof module !== 'undefined' && module.exports) {
     host.textContent = '';
 
     var per = period();
-    var rows = instancesIn(per.from, per.to);
+
+    // A band that wraps New Year has two runs touching the same year — last
+    // winter's and this one's. Listing both is just noise, so keep the most
+    // relevant run per season (the sort has already put it first).
+    var seenSeason = {};
+    var rows = instancesIn(per.from, per.to).filter(function (inst) {
+      if (seenSeason[inst.s.id]) return false;
+      seenSeason[inst.s.id] = 1;
+      return true;
+    });
 
     // Anything opening just beyond the period is worth surfacing — being told
     // to get ready is the whole reason to look ahead.
     var ahead = [];
     LH_SEASONS.filter(inFilter).forEach(function (s) {
+      if (seenSeason[s.id]) return;
       instancesFor(s, per.to.getUTCFullYear()).forEach(function (inst) {
+        if (seenSeason[s.id]) return;
         if (inst.from <= per.to && inst.to >= per.from) return;
         var d = diff(per.to, inst.from);
-        if (d > 0 && d <= OPENING_SOON) ahead.push(inst);
+        if (d > 0 && d <= OPENING_SOON) { ahead.push(inst); seenSeason[s.id] = 1; }
       });
     });
     ahead.sort(byOrder(per.to));
@@ -1773,13 +1493,17 @@ if (typeof module !== 'undefined' && module.exports) {
       item.appendChild(body);
 
       var when = el('span', 'item-when');
-      var toOpen = diff(TODAY, inst.from), toClose = diff(TODAY, inst.to);
-      if (toOpen > 0) {
+      if (st === 'closed') {
+        var next = nextRun(s, TODAY);
+        when.appendChild(el('b', null, 'Ended ' + shortDate(inst.to)));
+        when.appendChild(document.createTextNode(
+          next ? 'back ' + countdown(diff(TODAY, next.from)) : 'not scheduled again'));
+      } else if (st === 'opening' || st === 'later') {
         when.appendChild(el('b', st === 'opening' ? 'soon' : null, 'Starts ' + shortDate(inst.from)));
-        when.appendChild(document.createTextNode(countdown(toOpen)));
+        when.appendChild(document.createTextNode(countdown(diff(TODAY, inst.from))));
       } else {
         when.appendChild(el('b', st === 'closing' ? 'hot' : null, 'Ends ' + shortDate(inst.to)));
-        when.appendChild(document.createTextNode(remaining(toClose)));
+        when.appendChild(document.createTextNode(remaining(diff(TODAY, inst.to))));
       }
       item.appendChild(when);
 
@@ -1837,11 +1561,13 @@ if (typeof module !== 'undefined' && module.exports) {
 
     var n = LH_SEASONS.filter(inFilter).length;
     document.getElementById('topic-count').textContent =
-      n + ' season' + (n === 1 ? '' : 's');
+      n + ' recurring season' + (n === 1 ? '' : 's') + ' — the list below names each one';
 
     var note = document.getElementById('topic-note');
     if (funderFilter === 'all') {
-      note.textContent = LH_META.quietMonth.body;
+      note.textContent = 'A season is one funder cycle — the stretch of the year ' +
+        'when that kind of money is actually in play. They repeat every year. ' +
+        'Pick a funder type to see only its own.';
       note.style.setProperty('--c', 'var(--rule-strong)');
     } else {
       note.textContent = LH_FUNDERS[funderFilter].note;
@@ -1879,8 +1605,12 @@ if (typeof module !== 'undefined' && module.exports) {
       w.appendChild(el('span', 'big', remaining(diff(TODAY, inst.to))));
       w.appendChild(el('span', 'sub', 'Runs to ' + longDate(inst.to) + '. Peak: ' + s.peak + '.'));
     } else if (st === 'closed') {
+      var back = nextRun(s, TODAY);
       w.appendChild(el('span', 'big', 'Ended ' + longDate(inst.to)));
-      w.appendChild(el('span', 'sub', 'Peak: ' + s.peak + '.'));
+      w.appendChild(el('span', 'sub', back
+        ? 'Back on ' + longDate(back.from) + ', ' + countdown(diff(TODAY, back.from)) +
+          '. Peak: ' + s.peak + '.'
+        : 'Peak: ' + s.peak + '.'));
     } else {
       w.appendChild(el('span', 'big', 'Starts ' + longDate(inst.from) + ' — ' + countdown(diff(TODAY, inst.from))));
       w.appendChild(el('span', 'sub', 'Runs to ' + longDate(inst.to) + '. Peak: ' + s.peak + '.'));
@@ -1966,6 +1696,10 @@ if (typeof module !== 'undefined' && module.exports) {
     render();
   });
 
+  // Stepping with the arrows from the year view drops into the month, which
+  // is what "scroll month by month for the detail" means.
+  document.getElementById('cal-title').title = 'Switch between the year and the month';
+
   /* ------------------------------------------------------------- STATIC */
   document.getElementById('tagline').textContent = LH_META.tagline;
   document.getElementById('foot-src').textContent = ' ' + LH_META.source + '.';
@@ -1976,355 +1710,6 @@ if (typeof module !== 'undefined' && module.exports) {
   quiet.appendChild(el('p', 'quiet-repeat', LH_META.repeat));
 
   render();
-})();
-
-</script>
-<script>
-/* ============================================================================
-   Lesko Help — Grant Planning Workbook view
-
-   Renders the workbook from data/workbook.js and wires up the one thing a
-   page can do that a PDF cannot: cost a position live.
-
-   The calculator follows the source's own arithmetic exactly, including its
-   rounding to the cent at every step — that is what makes it reproduce the
-   printed $60,000 example to the penny rather than landing $5.78 away.
-   ========================================================================== */
-(function () {
-  'use strict';
-
-  var W = LH_WORKBOOK;
-  var C = W.costing;
-
-  function el(tag, cls, text) {
-    var n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text != null) n.textContent = text;
-    return n;
-  }
-  function money(n) {
-    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-  function money0(n) {
-    return '$' + Math.round(n).toLocaleString('en-US');
-  }
-  var r2 = function (n) { return Math.round(n * 100) / 100; };
-
-  /* -------------------------------------------------------------- COSTING */
-  // Rounds at each step, exactly as the worked example on page 12 does.
-  function cost(salary, healthcare) {
-    var base = r2(salary / C.hoursPerYear);
-    var pto = r2(r2(base * C.ptoHours) / C.hoursPerYear);
-    var hc = r2(healthcare / C.hoursPerYear);
-    var sup = r2(base * C.supervisionRate);
-    var added = r2(pto + hc + sup);
-    var totalHourly = r2(base + added);
-    var fringePerHour = r2(totalHourly * C.fringeRate);
-    var loaded = r2((totalHourly + fringePerHour) * C.hoursPerYear);
-    return {
-      base: base, pto: pto, hc: hc, sup: sup, added: added,
-      totalHourly: totalHourly, fringePerHour: fringePerHour,
-      loaded: loaded, shortfall: r2(loaded - salary),
-      quick: r2(salary * C.quickMultiplier),
-    };
-  }
-
-  /* ---------------------------------------------------------------- BUILD */
-  function section(title, eyebrow) {
-    var s = el('section', 'wb-sec');
-    if (eyebrow) s.appendChild(el('span', 'eyebrow', eyebrow));
-    if (title) s.appendChild(el('h2', null, title));
-    return s;
-  }
-
-  function twoColTable(head, rows) {
-    var t = el('table', 'wb-table');
-    var thead = el('thead'), tr = el('tr');
-    head.forEach(function (h) { tr.appendChild(el('th', null, h)); });
-    thead.appendChild(tr);
-    t.appendChild(thead);
-    var tb = el('tbody');
-    rows.forEach(function (r) {
-      var row = el('tr');
-      r.forEach(function (c, i) {
-        row.appendChild(el(i === 0 ? 'th' : 'td', i === 0 ? 'rowhead' : null, c));
-      });
-      tb.appendChild(row);
-    });
-    t.appendChild(tb);
-    var wrap = el('div', 'wb-scroll');
-    wrap.appendChild(t);
-    return wrap;
-  }
-
-  function build() {
-    var host = document.getElementById('pane-wb');
-    host.textContent = '';
-
-    /* --- intro --- */
-    var intro = section(W.title);
-    intro.appendChild(el('p', 'wb-tagline', W.tagline));
-    intro.appendChild(el('p', 'wb-intro', W.intro));
-    host.appendChild(intro);
-
-    /* --- what you will build --- */
-    var b = section('What you will build', 'Reference');
-    var ol = el('ol', 'wb-steps');
-    W.build.forEach(function (x) {
-      var li = el('li');
-      li.appendChild(el('b', null, x[0]));
-      li.appendChild(el('span', null, x[1]));
-      ol.appendChild(li);
-    });
-    b.appendChild(ol);
-    b.appendChild(el('div', 'sheet-h', 'Type of grant, and what the money can be used for'));
-    b.appendChild(twoColTable(['Type of grant', 'What the money can be used for'], W.grantTypes));
-    host.appendChild(b);
-
-    /* --- definitions --- */
-    var d = section('Definitions you will need', 'Reference');
-    d.appendChild(el('p', 'wb-intro',
-      'Keep this open while you work. These eight terms cover most of what a ' +
-      'funder will expect you to already understand.'));
-    var dl = el('div', 'wb-defs');
-    W.definitions.forEach(function (x) {
-      var card = el('div', 'wb-def');
-      card.appendChild(el('b', null, x[0]));
-      card.appendChild(el('span', null, x[1]));
-      dl.appendChild(card);
-    });
-    d.appendChild(dl);
-    host.appendChild(d);
-
-    /* --- the tasks --- */
-    var t = section('The tasks', 'Work through these in order');
-    W.tasks.forEach(function (task) {
-      var card = el('div', 'wb-task');
-      var head = el('div', 'wb-task-head');
-      head.appendChild(el('span', 'wb-n', String(task.n)));
-      head.appendChild(el('h3', null, task.title));
-      card.appendChild(head);
-      card.appendChild(el('p', 'wb-blurb', task.blurb));
-
-      if (task.fields) {
-        task.fields.forEach(function (f) {
-          card.appendChild(el('div', 'sheet-h', f));
-          card.appendChild(field('wb-t' + task.n + '-' + f.slice(0, 12), 3));
-        });
-      }
-      if (task.columns) card.appendChild(grid(task));
-      if (task.steps) {
-        var ol2 = el('ol', 'wb-steps wb-steps-tight');
-        task.steps.forEach(function (s) { ol2.appendChild(el('li', null, s)); });
-        card.appendChild(ol2);
-      }
-      if (task.n === 4) card.appendChild(el('div', 'wb-tip', 'Fast funding tip · ' + W.fastTip));
-      t.appendChild(card);
-    });
-    host.appendChild(t);
-
-    /* --- the calculator --- */
-    host.appendChild(calculator());
-
-    /* --- resources --- */
-    var r = section('Resources for the budget worksheet', 'Reference');
-    r.appendChild(el('p', 'wb-intro',
-      'Everything you need to fill in those figures is public and free. These are the sources.'));
-    var rl = el('div', 'wb-defs');
-    W.resources.forEach(function (x) {
-      var a = el('a', 'wb-def wb-res');
-      a.href = x[2]; a.target = '_blank'; a.rel = 'noopener';
-      a.appendChild(el('b', null, x[0]));
-      a.appendChild(el('span', null, x[1]));
-      rl.appendChild(a);
-    });
-    r.appendChild(rl);
-    host.appendChild(r);
-
-    /* --- cta --- */
-    var c = section(W.cta.heading, 'Next step');
-    c.appendChild(el('p', 'wb-intro', W.cta.body));
-    var col = el('ol', 'wb-steps');
-    W.cta.steps.forEach(function (x) {
-      var li = el('li');
-      li.appendChild(el('b', null, x[0]));
-      li.appendChild(el('span', null, x[1]));
-      col.appendChild(li);
-    });
-    c.appendChild(col);
-    var go = el('a', 'sheet-go', W.cta.signup + ' →');
-    go.href = W.cta.link; go.target = '_blank'; go.rel = 'noopener';
-    c.appendChild(go);
-    c.appendChild(el('div', 'sheet-where', 'Questions on any of this: ' + W.cta.contact));
-    host.appendChild(c);
-  }
-
-  /* Free-text answer, kept in the browser so the workbook survives a reload. */
-  function field(key, rows) {
-    var ta = el('textarea', 'wb-field');
-    ta.rows = rows || 2;
-    var k = 'lh-wb-' + key;
-    try { ta.value = localStorage.getItem(k) || ''; } catch (e) { /* private mode */ }
-    ta.addEventListener('input', function () {
-      try { localStorage.setItem(k, ta.value); } catch (e) { /* nothing to do */ }
-    });
-    return ta;
-  }
-
-  function grid(task) {
-    var wrap = el('div', 'wb-scroll');
-    var t = el('table', 'wb-table wb-fill');
-    var thead = el('thead'), tr = el('tr');
-    task.columns.forEach(function (c) { tr.appendChild(el('th', null, c)); });
-    thead.appendChild(tr);
-    t.appendChild(thead);
-    var tb = el('tbody');
-    for (var i = 0; i < task.rows; i++) {
-      var row = el('tr');
-      for (var j = 0; j < task.columns.length; j++) {
-        var td = el('td');
-        var inp = el('input', 'wb-cell');
-        inp.type = 'text';
-        var k = 'lh-wb-t' + task.n + '-' + i + '-' + j;
-        try { inp.value = localStorage.getItem(k) || ''; } catch (e) { /* private mode */ }
-        (function (k, inp) {
-          inp.addEventListener('input', function () {
-            try { localStorage.setItem(k, inp.value); } catch (e) { /* nothing to do */ }
-          });
-        })(k, inp);
-        td.appendChild(inp);
-        row.appendChild(td);
-      }
-      tb.appendChild(row);
-    }
-    t.appendChild(tb);
-    if (task.totalLabel) {
-      var tf = el('tfoot'), trf = el('tr');
-      var th = el('th', null, task.totalLabel);
-      th.colSpan = task.columns.length - 1;
-      trf.appendChild(th);
-      var td2 = el('td');
-      td2.appendChild(field('t' + task.n + '-total', 1));
-      trf.appendChild(td2);
-      tf.appendChild(trf);
-      t.appendChild(tf);
-    }
-    wrap.appendChild(t);
-    return wrap;
-  }
-
-  /* ----------------------------------------------------------- CALCULATOR */
-  function calculator() {
-    var s = section('Cost a position', 'The part a PDF cannot do');
-    s.appendChild(el('p', 'wb-intro',
-      'A salary is not what a position costs. Put a salary in and this works ' +
-      'it through the same steps as the worked example in the source, rounding ' +
-      'to the cent at each one — so it reproduces that example exactly.'));
-
-    var controls = el('div', 'calc-controls');
-    var salary = numField('Annual salary', C.defaultSalary);
-    var health = numField('Healthcare, per employee per year', C.defaultHealthcare);
-    controls.appendChild(salary.wrap);
-    controls.appendChild(health.wrap);
-    s.appendChild(controls);
-
-    var out = el('div', 'calc-out');
-    s.appendChild(out);
-
-    function draw() {
-      var sal = Math.max(0, +salary.input.value || 0);
-      var hc = Math.max(0, +health.input.value || 0);
-      var c = cost(sal, hc);
-      out.textContent = '';
-
-      // The headline: what the position really costs.
-      var head = el('div', 'calc-head');
-      var big = el('div', 'calc-big');
-      big.appendChild(el('span', 'calc-label', 'Fully loaded annual cost'));
-      big.appendChild(el('span', 'calc-num', money(c.loaded)));
-      head.appendChild(big);
-      var gap = el('div', 'calc-gap');
-      gap.appendChild(el('span', 'calc-label', 'Short by, if you budget the salary alone'));
-      gap.appendChild(el('span', 'calc-num', money(c.shortfall)));
-      head.appendChild(gap);
-      out.appendChild(head);
-
-      out.appendChild(twoColTable(['Step', 'Result'], [
-        ['Base hourly rate', money(c.base) + ' / hr'],
-        ['Paid time off per hour', money(c.pto) + ' / hr'],
-        ['Healthcare per hour', money(c.hc) + ' / hr'],
-        ['Supervision per hour (20%)', money(c.sup) + ' / hr'],
-        ['Added cost per hour', money(c.added) + ' / hr'],
-        ['Total hourly', money(c.totalHourly) + ' / hr'],
-        ['Fringe per hour (35%)', money(c.fringePerHour) + ' / hr'],
-        ['Fully loaded annual', money(c.loaded)],
-      ]));
-
-      // The source gives two methods that do not agree. Say so.
-      var warn = el('div', 'calc-warn');
-      warn.appendChild(el('b', null, 'The two methods in the source disagree. '));
-      warn.appendChild(document.createTextNode(
-        'The quick rule (salary × 1.35) gives ' + money0(c.quick) +
-        '. The long method above gives ' + money0(c.loaded) + ' — a gap of ' +
-        money0(c.loaded - c.quick) + '. The long version is the one to use ' +
-        'when a funder wants it shown line by line, and it is the one that ' +
-        'matches the worked example.'));
-      out.appendChild(warn);
-
-      if (sal === C.example.salary && hc === C.example.healthcare) {
-        out.appendChild(el('div', 'calc-ok',
-          'These are the source’s own figures — and every line matches its ' +
-          'printed example, including ' + money(C.example.loadedAnnual) + '.'));
-      }
-
-      var tx = C.taxes.map(function (t) { return t[0] + ' ' + t[1] + '%'; }).join(' + ');
-      out.appendChild(el('div', 'sheet-caveat',
-        'Employer taxes quoted in the source: ' + tx + ', a combined 23.25%. ' +
-        'The 2,080 hours comes from the Fair Labor Standards Act. Fringe is ' +
-        'taken at 35% and supervision at 20% of base, as printed.'));
-    }
-
-    salary.input.addEventListener('input', draw);
-    health.input.addEventListener('input', draw);
-    draw();
-    return s;
-  }
-
-  function numField(label, value) {
-    var wrap = el('label', 'calc-field');
-    wrap.appendChild(el('span', 'eyebrow', label));
-    var row = el('span', 'calc-inputrow');
-    row.appendChild(el('span', 'calc-dollar', '$'));
-    var input = el('input', 'calc-input');
-    input.type = 'number';
-    input.min = '0';
-    input.step = '1000';
-    input.value = String(value);
-    row.appendChild(input);
-    wrap.appendChild(row);
-    return { wrap: wrap, input: input };
-  }
-
-  /* ----------------------------------------------------------- VIEW SWITCH */
-  var built = false;
-  var vCal = document.getElementById('v-cal');
-  var vWb = document.getElementById('v-wb');
-  var pCal = document.getElementById('pane-cal');
-  var pWb = document.getElementById('pane-wb');
-
-  function show(which) {
-    var wb = which === 'wb';
-    if (wb && !built) { build(); built = true; }
-    pCal.hidden = wb;
-    pWb.hidden = !wb;
-    vCal.classList.toggle('is-on', !wb);
-    vWb.classList.toggle('is-on', wb);
-    vCal.setAttribute('aria-selected', String(!wb));
-    vWb.setAttribute('aria-selected', String(wb));
-    window.scrollTo(0, 0);
-  }
-  vCal.addEventListener('click', function () { show('cal'); });
-  vWb.addEventListener('click', function () { show('wb'); });
 })();
 
 </script>

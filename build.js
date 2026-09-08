@@ -29,9 +29,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const html = read('index.html');
 const css = read('assets/styles.css');
 const dataCal = read('data/calendar.js');
-const dataWb = read('data/workbook.js');
 const calendar = read('assets/calendar.js');
-const workbook = read('assets/workbook.js');
 
 // A closing </script> inside a string literal would end the inline block
 // early. Nothing in the sources does this today, but the guard is cheap.
@@ -56,10 +54,8 @@ let out = put(html,
 
 out = put(out,
   '<script src="data/calendar.js"></script>\n' +
-  '<script src="data/workbook.js"></script>\n' +
-  '<script src="assets/calendar.js"></script>\n' +
-  '<script src="assets/workbook.js"></script>',
-  [dataCal, dataWb, calendar, workbook]
+  '<script src="assets/calendar.js"></script>',
+  [dataCal, calendar]
     .map((js) => '<script>\n' + safe(js) + '\n</script>').join('\n'));
 
 // Look for real src/href attributes, not bare substrings — the inlined

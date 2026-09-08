@@ -6,9 +6,9 @@
    repeat, every year"), so they are generated for whichever year is on screen
    rather than pinned to 2026.
 
-   Two views: a month grid with each season drawn as a labelled line, and a
-   whole-year overview. Underneath, the month's own page from the PDF — its
-   theme, its relationship-building note, and its five actions.
+   It opens on the whole year, which is the view that answers "when does what
+   happen". Click a month — or step through with the arrows — for the month
+   grid, that month's page from the PDF, and the seasons in detail.
 
    Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
@@ -68,8 +68,8 @@
 
   /* ---------------------------------------------------------------- STATE */
   var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-  var mode = 'month';      // month | year
-  var scope = 'today';     // today | week | month
+  var mode = 'year';       // year | month — the year is the way in
+  var scope = 'month';     // today | week | month ("month" = whatever is shown)
   var funderFilter = 'all';
 
   function inFilter(s) { return funderFilter === 'all' || s.funder === funderFilter; }
@@ -142,14 +142,31 @@
   }
   var STATUS_LABEL = {
     open: 'Open', closing: 'Closing soon', opening: 'Opening soon',
-    later: 'Not yet', closed: 'Closed',
+    later: 'Not yet', closed: 'Finished',
   };
 
-  function orderKey(inst, from) {
-    return inst.from >= from ? 100000 + diff(TODAY, inst.from) : diff(TODAY, inst.to);
+  // Seasons repeat, so one that has ended is not gone — it comes back. Find
+  // the next run, which is what a closed row should actually be telling you.
+  function nextRun(season, after) {
+    var year = after.getUTCFullYear();
+    var runs = instancesFor(season, year).concat(instancesFor(season, year + 1));
+    runs.sort(function (a, b) { return a.from - b.from; });
+    for (var i = 0; i < runs.length; i++) if (runs[i].from > after) return runs[i];
+    return null;
   }
+
+  // What needs attention sorts above what does not: closing, then open, then
+  // opening soon, then later, then already finished.
+  var STATUS_RANK = { closing: 0, open: 1, opening: 2, later: 3, closed: 4 };
   function byOrder(from) {
-    return function (a, b) { return orderKey(a, from) - orderKey(b, from); };
+    return function (a, b) {
+      var ra = STATUS_RANK[statusOf(a, TODAY)], rb = STATUS_RANK[statusOf(b, TODAY)];
+      if (ra !== rb) return ra - rb;
+      // Within a rank, soonest first — by end date if running, else by start.
+      var ka = ra <= 1 ? diff(TODAY, a.to) : diff(TODAY, a.from);
+      var kb = rb <= 1 ? diff(TODAY, b.to) : diff(TODAY, b.from);
+      return ka - kb;
+    };
   }
 
   /* -------------------------------------------------------------- PERIOD */
@@ -318,7 +335,10 @@
     }
 
     host.appendChild(grid);
-    setLegend('The whole year at a glance. Click a month to open it.');
+    var total = LH_SEASONS.filter(inFilter).length;
+    setLegend('The whole year at a glance — ' + total + ' recurring season' +
+              (total === 1 ? '' : 's') + ', each running for the months shown. ' +
+              'Click a month for its plan and the detail.');
   }
 
   function setLegend(text) { document.getElementById('cal-legend').textContent = text; }
@@ -382,16 +402,27 @@
     host.textContent = '';
 
     var per = period();
-    var rows = instancesIn(per.from, per.to);
+
+    // A band that wraps New Year has two runs touching the same year — last
+    // winter's and this one's. Listing both is just noise, so keep the most
+    // relevant run per season (the sort has already put it first).
+    var seenSeason = {};
+    var rows = instancesIn(per.from, per.to).filter(function (inst) {
+      if (seenSeason[inst.s.id]) return false;
+      seenSeason[inst.s.id] = 1;
+      return true;
+    });
 
     // Anything opening just beyond the period is worth surfacing — being told
     // to get ready is the whole reason to look ahead.
     var ahead = [];
     LH_SEASONS.filter(inFilter).forEach(function (s) {
+      if (seenSeason[s.id]) return;
       instancesFor(s, per.to.getUTCFullYear()).forEach(function (inst) {
+        if (seenSeason[s.id]) return;
         if (inst.from <= per.to && inst.to >= per.from) return;
         var d = diff(per.to, inst.from);
-        if (d > 0 && d <= OPENING_SOON) ahead.push(inst);
+        if (d > 0 && d <= OPENING_SOON) { ahead.push(inst); seenSeason[s.id] = 1; }
       });
     });
     ahead.sort(byOrder(per.to));
@@ -422,13 +453,17 @@
       item.appendChild(body);
 
       var when = el('span', 'item-when');
-      var toOpen = diff(TODAY, inst.from), toClose = diff(TODAY, inst.to);
-      if (toOpen > 0) {
+      if (st === 'closed') {
+        var next = nextRun(s, TODAY);
+        when.appendChild(el('b', null, 'Ended ' + shortDate(inst.to)));
+        when.appendChild(document.createTextNode(
+          next ? 'back ' + countdown(diff(TODAY, next.from)) : 'not scheduled again'));
+      } else if (st === 'opening' || st === 'later') {
         when.appendChild(el('b', st === 'opening' ? 'soon' : null, 'Starts ' + shortDate(inst.from)));
-        when.appendChild(document.createTextNode(countdown(toOpen)));
+        when.appendChild(document.createTextNode(countdown(diff(TODAY, inst.from))));
       } else {
         when.appendChild(el('b', st === 'closing' ? 'hot' : null, 'Ends ' + shortDate(inst.to)));
-        when.appendChild(document.createTextNode(remaining(toClose)));
+        when.appendChild(document.createTextNode(remaining(diff(TODAY, inst.to))));
       }
       item.appendChild(when);
 
@@ -486,11 +521,13 @@
 
     var n = LH_SEASONS.filter(inFilter).length;
     document.getElementById('topic-count').textContent =
-      n + ' season' + (n === 1 ? '' : 's');
+      n + ' recurring season' + (n === 1 ? '' : 's') + ' — the list below names each one';
 
     var note = document.getElementById('topic-note');
     if (funderFilter === 'all') {
-      note.textContent = LH_META.quietMonth.body;
+      note.textContent = 'A season is one funder cycle — the stretch of the year ' +
+        'when that kind of money is actually in play. They repeat every year. ' +
+        'Pick a funder type to see only its own.';
       note.style.setProperty('--c', 'var(--rule-strong)');
     } else {
       note.textContent = LH_FUNDERS[funderFilter].note;
@@ -528,8 +565,12 @@
       w.appendChild(el('span', 'big', remaining(diff(TODAY, inst.to))));
       w.appendChild(el('span', 'sub', 'Runs to ' + longDate(inst.to) + '. Peak: ' + s.peak + '.'));
     } else if (st === 'closed') {
+      var back = nextRun(s, TODAY);
       w.appendChild(el('span', 'big', 'Ended ' + longDate(inst.to)));
-      w.appendChild(el('span', 'sub', 'Peak: ' + s.peak + '.'));
+      w.appendChild(el('span', 'sub', back
+        ? 'Back on ' + longDate(back.from) + ', ' + countdown(diff(TODAY, back.from)) +
+          '. Peak: ' + s.peak + '.'
+        : 'Peak: ' + s.peak + '.'));
     } else {
       w.appendChild(el('span', 'big', 'Starts ' + longDate(inst.from) + ' — ' + countdown(diff(TODAY, inst.from))));
       w.appendChild(el('span', 'sub', 'Runs to ' + longDate(inst.to) + '. Peak: ' + s.peak + '.'));
@@ -614,6 +655,10 @@
     scope = 'today';
     render();
   });
+
+  // Stepping with the arrows from the year view drops into the month, which
+  // is what "scroll month by month for the detail" means.
+  document.getElementById('cal-title').title = 'Switch between the year and the month';
 
   /* ------------------------------------------------------------- STATIC */
   document.getElementById('tagline').textContent = LH_META.tagline;
