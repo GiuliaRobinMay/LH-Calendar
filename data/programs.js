@@ -33,18 +33,21 @@
    ========================================================================== */
 
 /* ---------------------------------------------------------------- TOPICS */
-/* Every colour is the Lesko blue, red, gold or green — or a straight tint or
-   shade of one. No other hues, so the calendar always reads as Lesko.
-   The suit follows the hue family: blue ♠, red ♥, gold ♦, green ♣.
+/* There are exactly FOUR colours on this calendar — the bright Lesko blue,
+   red, gold and green, the same four as the frame stripes. No tints, no
+   shades, no fifth hue. Domains share them by suit family:
 
-   Every colour here is checked to carry a bold label at 4.5:1 or better, in
-   ink or in white — see the contrast check in the README. If you add a topic,
-   run that check before you ship it. */
+     ♠ blue  #2B62D9     ♥ red   #E5372C
+     ♦ gold  #F2C230     ♣ green #0F9D58
+
+   Two domains to a colour is fine because every line on the calendar carries
+   its own name — the colour only has to say which family it is in.
+   Adding a topic means picking one of the four, never inventing a new one. */
 
 const LH_TOPICS = {
   'health-coverage': {
     name: 'Health coverage enrolment',
-    suit: '♥', color: '#DA342A',
+    suit: '♥', color: '#E5372C',
     note: 'The strictest deadlines on this calendar. These windows are fixed by law and the same everywhere — miss one and you generally wait a full year for the next.',
   },
   'energy-bills': {
@@ -54,43 +57,43 @@ const LH_TOPICS = {
   },
   'student-aid': {
     name: 'Student aid & scholarships',
-    suit: '♣', color: '#0F864B',
+    suit: '♣', color: '#0F9D58',
     note: 'The federal deadline is nearly two years out and it is a trap. The state and college money is first-come and runs out between December and March.',
   },
   'tax-money': {
     name: 'Tax credits & money back',
-    suit: '♦', color: '#C79A05',
+    suit: '♦', color: '#F2C230',
     note: 'One filing window a year, and the only way to claim the Earned Income and Child Tax Credits. For many households this is the largest single payment of the year.',
   },
   'school-food': {
     name: 'Food & the school year',
-    suit: '♣', color: '#4FB37E',
+    suit: '♣', color: '#0F9D58',
     note: 'Tied to the school calendar rather than the tax year — summer grocery money, and the school meal application that unlocks several other things.',
   },
   'charity-season': {
     name: 'Seasonal charity',
-    suit: '♥', color: '#A32219',
+    suit: '♥', color: '#E5372C',
     note: 'Run by local charities on short, strict sign-ups, and far earlier in the year than people expect. Asking when you need it is usually too late.',
   },
   'early-years': {
     name: 'Childcare & early years',
-    suit: '♠', color: '#6D93E6',
+    suit: '♠', color: '#2B62D9',
     note: 'Main enrolment runs in the spring for a place the following autumn, though seats reopen all year as families move away.',
   },
   'farm-land': {
     name: 'Farm & land',
-    suit: '♣', color: '#0A5C33',
+    suit: '♣', color: '#0F9D58',
     note: 'Federal farm funding is batched: applications are accepted all year but only ranked at a cut-off date, so applying the day after one means waiting for the next.',
   },
   'arts-culture': {
     name: 'Arts & culture',
-    suit: '♦', color: '#7A5C02',
+    suit: '♦', color: '#F2C230',
     note: 'Two fixed cycles a year, and the applications are multi-part — missing the first part locks you out of the second.',
   },
 
   /* Not offered in the filter. These have no season at all and live in their
      own list beneath the calendar. */
-  'no-season': { name: 'No season', suit: '♠', color: '#6C7587', note: '', hidden: true },
+  'no-season': { name: 'No season', suit: '♠', color: '#7C879B', note: '', hidden: true },
 };
 
 const LH_PROGRAMS = [

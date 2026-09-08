@@ -142,12 +142,20 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   background: var(--paper); border: 1px solid var(--rule);
   border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow);
 }
-.cal-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-.nav { display: flex; align-items: center; gap: 6px; }
-.cal-month {
-  font-size: 25px; letter-spacing: -.01em;
-  min-width: 6.4em; text-align: center;
+.cal-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.cal-title {
+  font-family: var(--display); font-weight: 500; font-size: 25px;
+  letter-spacing: -.01em; color: var(--ink);
+  background: none; border: none; cursor: pointer;
+  padding: 2px 10px; border-radius: 10px;
+  min-width: 6.2em; text-align: center;
 }
+.cal-title::after {
+  content: "▾"; font-size: 12px; margin-left: 8px;
+  color: var(--ink-faint); vertical-align: middle;
+}
+.cal-title:hover { background: var(--cream-deep); }
+.cal.is-year .cal-title::after { content: "▴"; }
 .navbtn, .todaybtn {
   font-family: var(--body); color: var(--ink); background: var(--paper);
   border: 1.5px solid var(--rule-strong); border-radius: 999px; cursor: pointer;
@@ -156,8 +164,21 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .todaybtn { height: 31px; padding: 0 15px; font-size: 13px; font-weight: 600; margin-left: auto; }
 .navbtn:hover, .todaybtn:hover { background: var(--cream-deep); }
 
-.cal-scroll { overflow-x: auto; }
-.cal-grid { min-width: 640px; }
+/* The default bar is a thick dark slab across the calendar. Make it thin and
+   in-palette, and lower the min-width so it only appears when truly needed. */
+.cal-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+.cal-scroll::-webkit-scrollbar { height: 7px; }
+.cal-scroll::-webkit-scrollbar-track { background: transparent; }
+.cal-scroll::-webkit-scrollbar-thumb {
+  background: var(--rule-strong); border-radius: 999px;
+}
+.cal-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+.cal-grid { min-width: 560px; }
+.cal.is-year .cal-grid { min-width: 0; }
 
 .weekdays {
   display: grid; grid-template-columns: repeat(7, 1fr);
@@ -227,10 +248,51 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   font-size: 12px; color: var(--ink-faint);
 }
 
+/* -------------------------------------------------------------- YEAR VIEW */
+.yeargrid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+}
+@media (max-width: 900px) { .yeargrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .yeargrid { grid-template-columns: minmax(0, 1fr); } }
+
+.ycard {
+  font-family: var(--body); text-align: left; cursor: pointer;
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 11px 12px 12px;
+  display: flex; flex-direction: column; gap: 9px;
+  min-height: 122px;
+}
+.ycard:hover { background: var(--cream-deep); border-color: var(--rule-strong); }
+.ycard.is-now { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
+
+.ycard-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.ycard-name { font-family: var(--display); font-size: 17px; color: var(--ink); }
+.ycard-n {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.ycard.is-now .ycard-n { color: var(--red); font-weight: 600; }
+
+.ybars { display: flex; flex-direction: column; gap: 3px; }
+.ybar {
+  height: 15px; border-radius: 4px; padding: 0 6px;
+  background: var(--c); color: var(--ct, #fff);
+  font-size: 9.5px; font-weight: 600; line-height: 15px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ybar.cut-l { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.ybar.cut-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.ymore { font-family: var(--mono); font-size: 9.5px; color: var(--ink-faint); padding-top: 2px; }
+
 /* ------------------------------------------------------------------- LIST */
 .listing { margin-top: 22px; }
 
-.scopes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.listbar {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.scopes { display: flex; gap: 8px; flex-wrap: wrap; }
+.key { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .scope {
   font-family: var(--mono); font-size: 11.5px; font-weight: 500;
   letter-spacing: .1em; text-transform: uppercase;
@@ -278,6 +340,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 }
 .item-when b { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
 .item-when .hot { color: var(--hot); }
+.item-when .soon { color: var(--blue); }
 
 .status {
   display: inline-block; font-family: var(--mono);
@@ -285,9 +348,11 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   padding: 2px 7px; border-radius: 999px; margin-right: 7px;
   border: 1.5px solid currentColor;
 }
-.status.open { color: var(--green); }
+.status.open    { color: var(--green); }
 .status.closing { color: var(--hot); }
-.status.soon { color: var(--blue); }
+.status.opening { color: var(--blue); }
+.status.later   { color: var(--ink-faint); }
+.status.closed  { color: var(--ink-faint); }
 
 .empty { padding: 26px 18px; font-size: 13.5px; color: var(--ink-faint); text-align: center; }
 
@@ -339,6 +404,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums;
   line-height: 1.7;
 }
+.sheet-window .status { margin: 0 0 7px; display: inline-block; }
 .sheet-window .big { font-size: 15px; font-weight: 600; display: block; }
 .sheet-window .sub { color: var(--ink-soft); }
 

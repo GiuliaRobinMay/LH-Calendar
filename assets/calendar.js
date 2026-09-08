@@ -4,11 +4,13 @@
    A planning tool, not a directory. It answers timing questions: is this open
    now, am I about to miss a deadline, when can I start.
 
-   The month grid and the list underneath are always the same period. Move the
-   calendar to October and the list is October. Everything else is derived from
-   today's date, so nothing needs editing as the months roll over.
+   Two views. The month grid draws each window as a labelled line across the
+   days it is open. Clicking the month name opens the whole year at once.
+   Either way the list underneath covers the same period, so moving the
+   calendar to October makes the list October.
 
-   Append ?date=YYYY-MM-DD to preview another day.
+   Everything is derived from today's date — nothing needs editing as the
+   months roll over. Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
 (function () {
   'use strict';
@@ -53,6 +55,7 @@
 
   /* ---------------------------------------------------------------- STATE */
   var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+  var mode = 'month';      // month | year
   var scope = 'today';     // today | week | month
   var catFilter = 'all';   // a key of LH_TOPICS, or 'all'
 
@@ -65,10 +68,9 @@
   function topicOf(p) { return LH_TOPICS[p.topic] || LH_TOPICS['no-season']; }
   function colourOf(p) { return topicOf(p).color; }
 
-  // Text on a coloured line has to stay readable on every tint in the palette.
-  // Rather than guess a lightness threshold, work out the real contrast ratio
-  // against ink and against white and take whichever is higher — that is what
-  // stops a label going white-on-pale on the lighter greens and golds.
+  // Only four line colours exist, but gold needs ink and blue needs white, so
+  // the label colour is worked out from the real contrast ratio against each
+  // rather than guessed from a lightness threshold.
   function luminance(hex) {
     var c = [1, 3, 5].map(function (i) {
       var v = parseInt(hex.substr(i, 2), 16) / 255;
@@ -79,9 +81,7 @@
   var INK = '#12213F', INK_L = luminance(INK);
   function readableOn(hex) {
     var bg = luminance(hex);
-    var onWhite = 1.05 / (bg + 0.05);
-    var onInk = (bg + 0.05) / (INK_L + 0.05);
-    return onInk >= onWhite ? INK : '#FFFFFF';
+    return (bg + 0.05) / (INK_L + 0.05) >= 1.05 / (bg + 0.05) ? INK : '#FFFFFF';
   }
 
   function el(tag, cls, text) {
@@ -91,13 +91,28 @@
     return n;
   }
 
-  /* --------------------------------------------------------------- PERIOD */
-  // The one place that decides which days the page is talking about. The grid
-  // and the list both read from it, which is what keeps them in step.
+  /* -------------------------------------------------------------- STATUS */
+  // Three states, and they are the whole point of the page: you can act now,
+  // you are about to lose your chance, or you have time to get ready.
+  var OPENING_SOON = 60, CLOSING_SOON = 30;
+
+  function statusOf(p, on) {
+    var o = day(p.opens), c = day(p.closes);
+    if (on < o) return diff(on, o) <= OPENING_SOON ? 'opening' : 'later';
+    if (on > c) return 'closed';
+    return diff(on, c) <= CLOSING_SOON ? 'closing' : 'open';
+  }
+  var STATUS_LABEL = {
+    open: 'Open', closing: 'Closing soon', opening: 'Opening soon',
+    later: 'Not yet', closed: 'Closed',
+  };
+
+  /* -------------------------------------------------------------- PERIOD */
   function period() {
-    if (scope === 'today') return { from: TODAY, to: TODAY, label: 'Today' };
-    if (scope === 'week') return { from: TODAY, to: addDays(TODAY, 6), label: 'This week' };
+    if (scope === 'today') return { from: TODAY, to: TODAY, label: 'today' };
+    if (scope === 'week') return { from: TODAY, to: addDays(TODAY, 6), label: 'the next 7 days' };
     var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    if (mode === 'year') return { from: mk(y, 0, 1), to: mk(y, 11, 31), label: String(y) };
     return { from: mk(y, m, 1), to: mk(y, m + 1, 0), label: MONTHS[m] + ' ' + y };
   }
 
@@ -105,8 +120,8 @@
     return day(p.opens) <= to && day(p.closes) >= from;
   }
 
-  // Ends soonest first, then things that have not started. Used by both the
-  // grid and the list so the stack of lines and the stack of rows line up.
+  // Ends soonest first, then things that have not started. Used by the grid and
+  // the list alike so the stack of lines and the stack of rows line up.
   function orderKey(p, from) {
     var o = day(p.opens), c = day(p.closes);
     return o >= from ? 100000 + diff(TODAY, o) : diff(TODAY, c);
@@ -115,7 +130,13 @@
     return function (a, b) { return orderKey(a, from) - orderKey(b, from); };
   }
 
-  /* ================================================================= GRID */
+  function activeIn(from, to) {
+    return DATED.filter(inFilter)
+      .filter(function (p) { return overlaps(p, from, to); })
+      .sort(byOrder(from));
+  }
+
+  /* ============================================================ MONTH GRID */
   function weekItems(weekStart, pool, rank) {
     var weekEnd = addDays(weekStart, 6);
     var items = [];
@@ -135,7 +156,8 @@
       (p.keyDates || []).forEach(function (k) {
         var d = day(k.date);
         if (d < weekStart || d > weekEnd) return;
-        items.push({ p: p, kind: 'pin', label: k.label, start: diff(weekStart, d), end: diff(weekStart, d) });
+        items.push({ p: p, kind: 'pin', label: k.label,
+                     start: diff(weekStart, d), end: diff(weekStart, d) });
       });
     });
 
@@ -156,22 +178,21 @@
     return { items: items, lanes: lanes.length };
   }
 
-  function renderGrid() {
-    var host = document.getElementById('weeks');
-    host.textContent = '';
-
+  function renderMonth(host) {
     var y = view.getUTCFullYear(), m = view.getUTCMonth();
-    document.getElementById('cal-month').textContent = MONTHS[m] + ' ' + y;
-
     var first = mk(y, m, 1);
     var gridStart = addDays(first, -first.getUTCDay());
     var weeks = Math.ceil((diff(gridStart, mk(y, m + 1, 0)) + 1) / 7);
     var gridEnd = addDays(gridStart, weeks * 7 - 1);
 
-    var pool = DATED.filter(inFilter).filter(function (p) {
-      return overlaps(p, gridStart, gridEnd);
-    }).sort(byOrder(mk(y, m, 1)));
+    var head = el('div', 'weekdays');
+    head.setAttribute('aria-hidden', 'true');
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function (d) {
+      head.appendChild(el('div', null, d));
+    });
+    host.appendChild(head);
 
+    var pool = activeIn(gridStart, gridEnd);
     var rank = {};
     pool.forEach(function (p, i) { rank[p.id] = i; });
 
@@ -205,12 +226,14 @@
           b.setAttribute('aria-label', it.p.name + ': ' + it.label);
           b.title = it.label;
         } else {
-          b.style.setProperty('--c', colourOf(it.p));
-          b.style.setProperty('--ct', readableOn(colourOf(it.p)));
+          var col = colourOf(it.p);
+          b.style.setProperty('--c', col);
+          b.style.setProperty('--ct', readableOn(col));
           b.textContent = it.p.name;
           if (it.cutL) b.classList.add('cut-l');
           if (it.cutR) b.classList.add('cut-r');
-          b.setAttribute('aria-label', it.p.name + ', open ' +
+          b.setAttribute('aria-label', it.p.name + ', ' +
+            STATUS_LABEL[statusOf(it.p, TODAY)].toLowerCase() + ', ' +
             longDate(day(it.p.opens)) + ' to ' + longDate(day(it.p.closes)));
           b.title = it.p.name + ' · ' + shortDate(day(it.p.opens)) +
                     ' – ' + shortDate(day(it.p.closes));
@@ -223,10 +246,67 @@
     }
 
     var n = pool.length;
-    document.getElementById('cal-legend').textContent = n
-      ? n + ' window' + (n === 1 ? '' : 's') + ' cross ' + MONTHS[m] + '. ' +
-        'Each line is one programme — click it for the detail. Rounded end = the real opening or closing day.'
-      : 'Nothing is open in ' + MONTHS[m] + ' for this topic.';
+    setLegend(n
+      ? n + ' window' + (n === 1 ? '' : 's') + ' cross ' + MONTHS[m] +
+        '. Click any line for the detail. A rounded end is the real opening or closing day.'
+      : 'Nothing is open in ' + MONTHS[m] + ' for this domain.');
+  }
+
+  /* ============================================================= YEAR VIEW */
+  // Twelve months at once, each showing the windows that touch it as a stack
+  // of short bars. This is the "when in the year does this happen" view.
+  function renderYear(host) {
+    var y = view.getUTCFullYear();
+    var grid = el('div', 'yeargrid');
+
+    for (var m = 0; m < 12; m++) {
+      (function (m) {
+        var from = mk(y, m, 1), to = mk(y, m + 1, 0);
+        var active = activeIn(from, to);
+
+        var card = el('button', 'ycard');
+        card.type = 'button';
+        if (y === TODAY.getUTCFullYear() && m === TODAY.getUTCMonth()) card.classList.add('is-now');
+
+        var top = el('div', 'ycard-top');
+        top.appendChild(el('span', 'ycard-name', MONTHS[m]));
+        top.appendChild(el('span', 'ycard-n', active.length ? String(active.length) : '—'));
+        card.appendChild(top);
+
+        var bars = el('div', 'ybars');
+        active.slice(0, 7).forEach(function (p) {
+          var o = day(p.opens), c = day(p.closes);
+          var bar = el('div', 'ybar');
+          bar.style.setProperty('--c', colourOf(p));
+          bar.style.setProperty('--ct', readableOn(colourOf(p)));
+          bar.textContent = p.name;
+          // Square off the end that runs past this month, so a bar that
+          // starts or finishes here reads differently from one passing through.
+          if (o < from) bar.classList.add('cut-l');
+          if (c > to) bar.classList.add('cut-r');
+          bars.appendChild(bar);
+        });
+        if (active.length > 7) bars.appendChild(el('div', 'ymore', '+' + (active.length - 7) + ' more'));
+        card.appendChild(bars);
+
+        card.addEventListener('click', function () {
+          view = mk(y, m, 1);
+          mode = 'month';
+          scope = 'month';
+          render();
+        });
+        grid.appendChild(card);
+      })(m);
+    }
+
+    host.appendChild(grid);
+    var total = activeIn(mk(y, 0, 1), mk(y, 11, 31)).length;
+    setLegend(total + ' window' + (total === 1 ? '' : 's') + ' fall in ' + y +
+              '. Click a month to open it.');
+  }
+
+  function setLegend(text) {
+    document.getElementById('cal-legend').textContent = text;
   }
 
   /* ================================================================= LIST */
@@ -235,19 +315,26 @@
     host.textContent = '';
 
     var per = period();
-    var rows = DATED.filter(inFilter)
-      .filter(function (p) { return overlaps(p, per.from, per.to); })
-      .sort(byOrder(per.from))
-      .map(function (p) { return { p: p, o: day(p.opens), c: day(p.closes) }; });
+    var rows = activeIn(per.from, per.to);
 
-    if (!rows.length) {
-      host.appendChild(el('div', 'empty', 'Nothing is open or opening in ' + per.label.toLowerCase() + '.'));
+    // Anything opening just beyond the period is worth surfacing too — being
+    // told to get ready is the whole reason to look at this in advance.
+    var ahead = DATED.filter(inFilter).filter(function (p) {
+      if (overlaps(p, per.from, per.to)) return false;
+      var d = diff(per.to, day(p.opens));
+      return d > 0 && d <= OPENING_SOON;
+    }).sort(byOrder(per.to));
+
+    if (!rows.length && !ahead.length) {
+      host.appendChild(el('div', 'empty', 'Nothing is open or opening in ' + per.label + '.'));
       return;
     }
 
     var list = el('div', 'list');
-    rows.forEach(function (r) {
-      var p = r.p;
+    rows.concat(ahead).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      var st = statusOf(p, TODAY);
+
       var item = el('button', 'item');
       item.type = 'button';
       item.style.setProperty('--c', colourOf(p));
@@ -256,11 +343,7 @@
 
       var body = el('span', 'item-body');
       var name = el('span', 'item-name');
-
-      var toClose = diff(TODAY, r.c), toOpen = diff(TODAY, r.o);
-      var state = toOpen > 0 ? 'soon' : (toClose <= 30 ? 'closing' : 'open');
-      name.appendChild(el('span', 'status ' + state,
-        state === 'soon' ? 'Not yet' : state === 'closing' ? 'Closing' : 'Open'));
+      name.appendChild(el('span', 'status ' + st, STATUS_LABEL[st]));
       name.appendChild(document.createTextNode(p.name));
       body.appendChild(name);
 
@@ -268,19 +351,19 @@
       // not know what you are looking at.
       body.appendChild(el('span', 'item-what', p.short || p.what));
 
-      var sub = topicOf(p).name + '  ·  ' + shortDate(r.o) + ' – ' + shortDate(r.c);
+      var sub = topicOf(p).name + '  ·  ' + shortDate(o) + ' – ' + shortDate(c);
       if (p.precision === 'varies') sub += '  ·  varies by state';
       else if (p.precision === 'typical') sub += '  ·  usual dates';
       body.appendChild(el('span', 'item-sub', sub));
       item.appendChild(body);
 
       var when = el('span', 'item-when');
+      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
       if (toOpen > 0) {
-        when.appendChild(el('b', null, 'Opens ' + shortDate(r.o)));
+        when.appendChild(el('b', st === 'opening' ? 'soon' : null, 'Opens ' + shortDate(o)));
         when.appendChild(document.createTextNode(countdown(toOpen)));
       } else {
-        var b = el('b', toClose <= 30 ? 'hot' : null, 'Closes ' + shortDate(r.c));
-        when.appendChild(b);
+        when.appendChild(el('b', st === 'closing' ? 'hot' : null, 'Closes ' + shortDate(c)));
         when.appendChild(document.createTextNode(remaining(toClose)));
       }
       item.appendChild(when);
@@ -295,23 +378,32 @@
   function renderScopes() {
     var host = document.getElementById('scopes');
     host.textContent = '';
-    var y = view.getUTCFullYear(), m = view.getUTCMonth();
 
-    [['today', 'Today'], ['week', 'This week'], ['month', MONTHS[m] + ' ' + y]]
-      .forEach(function (s) {
-        var b = el('button', 'scope', s[1]);
-        b.type = 'button';
-        b.setAttribute('role', 'tab');
-        b.setAttribute('aria-selected', String(scope === s[0]));
-        b.addEventListener('click', function () {
-          scope = s[0];
-          // Today and This week always mean the real ones, so jump the grid
-          // back if it has been moved away.
-          if (s[0] !== 'month') view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-          render();
-        });
-        host.appendChild(b);
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    var thisMonth = y === TODAY.getUTCFullYear() && m === TODAY.getUTCMonth();
+    // Reads "This month" while you are on it, and names the month once you
+    // have navigated away, so the link to the calendar stays obvious.
+    var third = mode === 'year' ? String(y)
+              : thisMonth ? 'This month'
+              : MONTHS[m] + ' ' + y;
+
+    [['today', 'Today'], ['week', 'This week'], ['month', third]].forEach(function (s) {
+      var b = el('button', 'scope', s[1]);
+      b.type = 'button';
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(scope === s[0]));
+      b.addEventListener('click', function () {
+        scope = s[0];
+        // Today and This week always mean the real ones, so bring the
+        // calendar back if it has been moved away.
+        if (s[0] !== 'month') {
+          view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+          mode = 'month';
+        }
+        render();
       });
+      host.appendChild(b);
+    });
   }
 
   /* =============================================================== ALWAYS */
@@ -361,7 +453,7 @@
 
     var note = document.getElementById('topic-note');
     if (catFilter === 'all') {
-      note.textContent = 'Only domains where the timing actually matters are listed. ' +
+      note.textContent = 'Only domains where the timing can cost you the money are listed. ' +
         'Anything you can apply for on any day of the year is below the calendar instead.';
       note.style.setProperty('--c', 'var(--rule-strong)');
     } else {
@@ -383,6 +475,7 @@
     var h = el('h3', null, p.name);
     h.id = 'sheet-title';
     body.appendChild(h);
+
     var tp = topicOf(p);
     if (!tp.hidden) {
       var tag = el('div', 'sheet-topic');
@@ -394,23 +487,26 @@
     if (p.alsoCalled) body.appendChild(el('div', 'sheet-also', 'Also called: ' + p.alsoCalled));
     body.appendChild(el('p', 'sheet-what', p.what));
 
-    // The timing box — the reason somebody opened this card.
+    // The timing box — the reason somebody opened this card at all.
     var w = el('div', 'sheet-window');
     if (!p.opens || !p.closes) {
       w.appendChild(el('span', 'big', p.watch ? 'No fixed dates' : 'Open all year'));
       w.appendChild(el('span', 'sub', p.cadence));
     } else {
       var o = day(p.opens), c = day(p.closes);
-      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
-      if (toOpen > 0) {
-        w.appendChild(el('span', 'big', 'Opens ' + longDate(o) + ' — ' + countdown(toOpen)));
-        w.appendChild(el('span', 'sub', 'Runs to ' + longDate(c) + '. ' + p.cadence + '.'));
-      } else if (toClose >= 0) {
-        w.appendChild(el('span', 'big', 'Open now — ' + remaining(toClose)));
+      var st = statusOf(p, TODAY);
+      var chip = el('span', 'status ' + st, STATUS_LABEL[st]);
+      w.appendChild(chip);
+
+      if (st === 'open' || st === 'closing') {
+        w.appendChild(el('span', 'big', remaining(diff(TODAY, c))));
         w.appendChild(el('span', 'sub', 'Closes ' + longDate(c) + '. ' + p.cadence + '.'));
-      } else {
+      } else if (st === 'closed') {
         w.appendChild(el('span', 'big', 'Closed ' + longDate(c)));
         w.appendChild(el('span', 'sub', p.cadence + '.'));
+      } else {
+        w.appendChild(el('span', 'big', 'Opens ' + longDate(o) + ' — ' + countdown(diff(TODAY, o))));
+        w.appendChild(el('span', 'sub', 'Runs to ' + longDate(c) + '. ' + p.cadence + '.'));
       }
       if (p.precision !== 'exact') {
         w.appendChild(el('span', 'sub',
@@ -425,7 +521,6 @@
       if (diff(TODAY, day(k.date)) < 0) return;
       body.appendChild(el('div', 'sheet-flag', shortDate(day(k.date)) + ' — ' + k.label));
     });
-
     if (p.urgent) body.appendChild(el('div', 'sheet-flag', p.urgent));
 
     if (p.prep && p.prep.length) {
@@ -473,25 +568,45 @@
   /* ================================================================== RUN */
   function render() {
     renderTopics();
-    renderGrid();
+
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    var title = document.getElementById('cal-title');
+    title.textContent = mode === 'year' ? String(y) : MONTHS[m] + ' ' + y;
+    title.setAttribute('aria-label',
+      mode === 'year' ? 'Showing ' + y + '. Back to the month view.'
+                      : 'Showing ' + MONTHS[m] + ' ' + y + '. See the whole year.');
+    document.getElementById('cal').classList.toggle('is-year', mode === 'year');
+
+    var host = document.getElementById('cal-body');
+    host.textContent = '';
+    if (mode === 'year') renderYear(host); else renderMonth(host);
+
     renderScopes();
     renderList();
     renderAlways();
   }
 
-  // Moving the calendar moves the list with it — that is the whole point of
-  // the third scope tab carrying the month's name.
-  function shift(months) {
-    view = mk(view.getUTCFullYear(), view.getUTCMonth() + months, 1);
+  // One month at a time in the month view, one year at a time in the year
+  // view — the arrows always step by whatever is on screen.
+  function step(n) {
+    view = mode === 'year'
+      ? mk(view.getUTCFullYear() + n, 0, 1)
+      : mk(view.getUTCFullYear(), view.getUTCMonth() + n, 1);
     scope = 'month';
     render();
   }
-  document.getElementById('prev').addEventListener('click', function () { shift(-1); });
-  document.getElementById('next').addEventListener('click', function () { shift(1); });
-  document.getElementById('prev-year').addEventListener('click', function () { shift(-12); });
-  document.getElementById('next-year').addEventListener('click', function () { shift(12); });
+  document.getElementById('prev').addEventListener('click', function () { step(-1); });
+  document.getElementById('next').addEventListener('click', function () { step(1); });
+
+  document.getElementById('cal-title').addEventListener('click', function () {
+    mode = mode === 'year' ? 'month' : 'year';
+    scope = 'month';
+    render();
+  });
+
   document.getElementById('jump-today').addEventListener('click', function () {
     view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+    mode = 'month';
     scope = 'today';
     render();
   });

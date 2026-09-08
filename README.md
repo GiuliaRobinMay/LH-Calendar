@@ -13,11 +13,14 @@ months before the published deadline. This shows those windows.
 ## What it does
 
 - **A real month calendar.** Day squares, week rows, and each window drawn as a
-  labelled line across the days it is open. Month and year navigation.
+  labelled line across the days it is open. Clicking the month name opens the
+  whole year at once — twelve cards, each showing what falls in it.
 - **The list follows the calendar.** *Today* / *This week* / *<the month on
   screen>*. Move to October and the list becomes October — the third tab
   carries the month's name so the link is visible. Both are ordered by the same
   rule, so line three in the grid is row three in the list.
+- **Three states, everywhere.** *Open*, *Closing soon* and *Opening soon* — on
+  every row, in the detail card, and as a key beside the scope tabs.
 - **Colour means topic.** Every line takes its colour from its seasonal domain,
   and every list row leads with that colour, so the list reads as the key to the
   calendar above it.
@@ -78,18 +81,21 @@ Each entry looks like this:
 }
 ```
 
-Colour comes from the **topic**, never from the programme, and every topic
-colour is a tint or shade of the Lesko blue, red, gold or green — no other
-hues. After changing one, run:
+There are exactly **four colours** on the calendar — the bright Lesko blue,
+red, gold and green, the same four as the frame stripes. No tints, no shades,
+no fifth hue. Domains share them by suit family, which is fine because every
+line carries its own name; the colour only says which family it is in. After
+changing one, run:
 
 ```bash
 node check-contrast.js
 ```
 
 It works out the real contrast ratio of each colour against ink and against
-white, takes the better of the two (which is what the page does at runtime),
-and fails if any topic drops below 4.5:1. That is what stops a label rendering
-white on a pale green.
+white and takes the better of the two, which is what the page does at runtime.
+Brand fidelity outranks the check, so a colour short of AA warns rather than
+fails; only one genuinely unreadable (under 3:1) fails the build. Today the
+brand red sits at 4.27:1 with white — legible, deliberately kept.
 
 Only **seasonal** domains belong on the calendar. If a programme takes
 applications every day of the year, give it `topic: 'no-season'` and it moves

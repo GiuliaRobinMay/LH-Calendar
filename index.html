@@ -44,27 +44,17 @@
   <p class="topic-note" id="topic-note"></p>
 
   <!-- ------------------------------------------------------- THE CALENDAR -->
-  <section class="cal" aria-label="Month calendar">
+  <section class="cal" id="cal" aria-label="Calendar">
 
     <div class="cal-bar">
-      <div class="nav">
-        <button type="button" class="navbtn" id="prev-year" aria-label="Previous year" title="Previous year">&laquo;</button>
-        <button type="button" class="navbtn" id="prev" aria-label="Previous month" title="Previous month">&lsaquo;</button>
-        <h2 class="cal-month" id="cal-month">&nbsp;</h2>
-        <button type="button" class="navbtn" id="next" aria-label="Next month" title="Next month">&rsaquo;</button>
-        <button type="button" class="navbtn" id="next-year" aria-label="Next year" title="Next year">&raquo;</button>
-      </div>
+      <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
+      <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
+      <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
       <button type="button" class="todaybtn" id="jump-today">Today</button>
     </div>
 
     <div class="cal-scroll">
-      <div class="cal-grid">
-        <div class="weekdays" aria-hidden="true">
-          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
-          <div>Thu</div><div>Fri</div><div>Sat</div>
-        </div>
-        <div id="weeks"></div>
-      </div>
+      <div class="cal-grid" id="cal-body"></div>
     </div>
 
       <p class="cal-legend" id="cal-legend"></p>
@@ -72,7 +62,14 @@
 
   <!-- ------------------------------------------------------------- THE LIST -->
   <section class="listing" aria-label="Programme list">
-    <div class="scopes" role="tablist" id="scopes"></div>
+    <div class="listbar">
+      <div class="scopes" role="tablist" id="scopes"></div>
+      <div class="key" aria-hidden="true">
+        <span class="status open">Open</span>
+        <span class="status closing">Closing soon</span>
+        <span class="status opening">Opening soon</span>
+      </div>
+    </div>
     <div id="list"></div>
   </section>
 

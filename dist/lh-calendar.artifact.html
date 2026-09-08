@@ -148,12 +148,20 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   background: var(--paper); border: 1px solid var(--rule);
   border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow);
 }
-.cal-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-.nav { display: flex; align-items: center; gap: 6px; }
-.cal-month {
-  font-size: 25px; letter-spacing: -.01em;
-  min-width: 6.4em; text-align: center;
+.cal-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.cal-title {
+  font-family: var(--display); font-weight: 500; font-size: 25px;
+  letter-spacing: -.01em; color: var(--ink);
+  background: none; border: none; cursor: pointer;
+  padding: 2px 10px; border-radius: 10px;
+  min-width: 6.2em; text-align: center;
 }
+.cal-title::after {
+  content: "▾"; font-size: 12px; margin-left: 8px;
+  color: var(--ink-faint); vertical-align: middle;
+}
+.cal-title:hover { background: var(--cream-deep); }
+.cal.is-year .cal-title::after { content: "▴"; }
 .navbtn, .todaybtn {
   font-family: var(--body); color: var(--ink); background: var(--paper);
   border: 1.5px solid var(--rule-strong); border-radius: 999px; cursor: pointer;
@@ -162,8 +170,21 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .todaybtn { height: 31px; padding: 0 15px; font-size: 13px; font-weight: 600; margin-left: auto; }
 .navbtn:hover, .todaybtn:hover { background: var(--cream-deep); }
 
-.cal-scroll { overflow-x: auto; }
-.cal-grid { min-width: 640px; }
+/* The default bar is a thick dark slab across the calendar. Make it thin and
+   in-palette, and lower the min-width so it only appears when truly needed. */
+.cal-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+.cal-scroll::-webkit-scrollbar { height: 7px; }
+.cal-scroll::-webkit-scrollbar-track { background: transparent; }
+.cal-scroll::-webkit-scrollbar-thumb {
+  background: var(--rule-strong); border-radius: 999px;
+}
+.cal-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+.cal-grid { min-width: 560px; }
+.cal.is-year .cal-grid { min-width: 0; }
 
 .weekdays {
   display: grid; grid-template-columns: repeat(7, 1fr);
@@ -233,10 +254,51 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   font-size: 12px; color: var(--ink-faint);
 }
 
+/* -------------------------------------------------------------- YEAR VIEW */
+.yeargrid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+}
+@media (max-width: 900px) { .yeargrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .yeargrid { grid-template-columns: minmax(0, 1fr); } }
+
+.ycard {
+  font-family: var(--body); text-align: left; cursor: pointer;
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 11px 12px 12px;
+  display: flex; flex-direction: column; gap: 9px;
+  min-height: 122px;
+}
+.ycard:hover { background: var(--cream-deep); border-color: var(--rule-strong); }
+.ycard.is-now { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
+
+.ycard-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.ycard-name { font-family: var(--display); font-size: 17px; color: var(--ink); }
+.ycard-n {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.ycard.is-now .ycard-n { color: var(--red); font-weight: 600; }
+
+.ybars { display: flex; flex-direction: column; gap: 3px; }
+.ybar {
+  height: 15px; border-radius: 4px; padding: 0 6px;
+  background: var(--c); color: var(--ct, #fff);
+  font-size: 9.5px; font-weight: 600; line-height: 15px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ybar.cut-l { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.ybar.cut-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.ymore { font-family: var(--mono); font-size: 9.5px; color: var(--ink-faint); padding-top: 2px; }
+
 /* ------------------------------------------------------------------- LIST */
 .listing { margin-top: 22px; }
 
-.scopes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.listbar {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.scopes { display: flex; gap: 8px; flex-wrap: wrap; }
+.key { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .scope {
   font-family: var(--mono); font-size: 11.5px; font-weight: 500;
   letter-spacing: .1em; text-transform: uppercase;
@@ -284,6 +346,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 }
 .item-when b { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
 .item-when .hot { color: var(--hot); }
+.item-when .soon { color: var(--blue); }
 
 .status {
   display: inline-block; font-family: var(--mono);
@@ -291,9 +354,11 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   padding: 2px 7px; border-radius: 999px; margin-right: 7px;
   border: 1.5px solid currentColor;
 }
-.status.open { color: var(--green); }
+.status.open    { color: var(--green); }
 .status.closing { color: var(--hot); }
-.status.soon { color: var(--blue); }
+.status.opening { color: var(--blue); }
+.status.later   { color: var(--ink-faint); }
+.status.closed  { color: var(--ink-faint); }
 
 .empty { padding: 26px 18px; font-size: 13.5px; color: var(--ink-faint); text-align: center; }
 
@@ -345,6 +410,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums;
   line-height: 1.7;
 }
+.sheet-window .status { margin: 0 0 7px; display: inline-block; }
 .sheet-window .big { font-size: 15px; font-weight: 600; display: block; }
 .sheet-window .sub { color: var(--ink-soft); }
 
@@ -413,27 +479,17 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   <p class="topic-note" id="topic-note"></p>
 
   <!-- ------------------------------------------------------- THE CALENDAR -->
-  <section class="cal" aria-label="Month calendar">
+  <section class="cal" id="cal" aria-label="Calendar">
 
     <div class="cal-bar">
-      <div class="nav">
-        <button type="button" class="navbtn" id="prev-year" aria-label="Previous year" title="Previous year">&laquo;</button>
-        <button type="button" class="navbtn" id="prev" aria-label="Previous month" title="Previous month">&lsaquo;</button>
-        <h2 class="cal-month" id="cal-month">&nbsp;</h2>
-        <button type="button" class="navbtn" id="next" aria-label="Next month" title="Next month">&rsaquo;</button>
-        <button type="button" class="navbtn" id="next-year" aria-label="Next year" title="Next year">&raquo;</button>
-      </div>
+      <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
+      <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
+      <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
       <button type="button" class="todaybtn" id="jump-today">Today</button>
     </div>
 
     <div class="cal-scroll">
-      <div class="cal-grid">
-        <div class="weekdays" aria-hidden="true">
-          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
-          <div>Thu</div><div>Fri</div><div>Sat</div>
-        </div>
-        <div id="weeks"></div>
-      </div>
+      <div class="cal-grid" id="cal-body"></div>
     </div>
 
       <p class="cal-legend" id="cal-legend"></p>
@@ -441,7 +497,14 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
   <!-- ------------------------------------------------------------- THE LIST -->
   <section class="listing" aria-label="Programme list">
-    <div class="scopes" role="tablist" id="scopes"></div>
+    <div class="listbar">
+      <div class="scopes" role="tablist" id="scopes"></div>
+      <div class="key" aria-hidden="true">
+        <span class="status open">Open</span>
+        <span class="status closing">Closing soon</span>
+        <span class="status opening">Opening soon</span>
+      </div>
+    </div>
     <div id="list"></div>
   </section>
 
@@ -501,18 +564,21 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
    ========================================================================== */
 
 /* ---------------------------------------------------------------- TOPICS */
-/* Every colour is the Lesko blue, red, gold or green — or a straight tint or
-   shade of one. No other hues, so the calendar always reads as Lesko.
-   The suit follows the hue family: blue ♠, red ♥, gold ♦, green ♣.
+/* There are exactly FOUR colours on this calendar — the bright Lesko blue,
+   red, gold and green, the same four as the frame stripes. No tints, no
+   shades, no fifth hue. Domains share them by suit family:
 
-   Every colour here is checked to carry a bold label at 4.5:1 or better, in
-   ink or in white — see the contrast check in the README. If you add a topic,
-   run that check before you ship it. */
+     ♠ blue  #2B62D9     ♥ red   #E5372C
+     ♦ gold  #F2C230     ♣ green #0F9D58
+
+   Two domains to a colour is fine because every line on the calendar carries
+   its own name — the colour only has to say which family it is in.
+   Adding a topic means picking one of the four, never inventing a new one. */
 
 const LH_TOPICS = {
   'health-coverage': {
     name: 'Health coverage enrolment',
-    suit: '♥', color: '#DA342A',
+    suit: '♥', color: '#E5372C',
     note: 'The strictest deadlines on this calendar. These windows are fixed by law and the same everywhere — miss one and you generally wait a full year for the next.',
   },
   'energy-bills': {
@@ -522,43 +588,43 @@ const LH_TOPICS = {
   },
   'student-aid': {
     name: 'Student aid & scholarships',
-    suit: '♣', color: '#0F864B',
+    suit: '♣', color: '#0F9D58',
     note: 'The federal deadline is nearly two years out and it is a trap. The state and college money is first-come and runs out between December and March.',
   },
   'tax-money': {
     name: 'Tax credits & money back',
-    suit: '♦', color: '#C79A05',
+    suit: '♦', color: '#F2C230',
     note: 'One filing window a year, and the only way to claim the Earned Income and Child Tax Credits. For many households this is the largest single payment of the year.',
   },
   'school-food': {
     name: 'Food & the school year',
-    suit: '♣', color: '#4FB37E',
+    suit: '♣', color: '#0F9D58',
     note: 'Tied to the school calendar rather than the tax year — summer grocery money, and the school meal application that unlocks several other things.',
   },
   'charity-season': {
     name: 'Seasonal charity',
-    suit: '♥', color: '#A32219',
+    suit: '♥', color: '#E5372C',
     note: 'Run by local charities on short, strict sign-ups, and far earlier in the year than people expect. Asking when you need it is usually too late.',
   },
   'early-years': {
     name: 'Childcare & early years',
-    suit: '♠', color: '#6D93E6',
+    suit: '♠', color: '#2B62D9',
     note: 'Main enrolment runs in the spring for a place the following autumn, though seats reopen all year as families move away.',
   },
   'farm-land': {
     name: 'Farm & land',
-    suit: '♣', color: '#0A5C33',
+    suit: '♣', color: '#0F9D58',
     note: 'Federal farm funding is batched: applications are accepted all year but only ranked at a cut-off date, so applying the day after one means waiting for the next.',
   },
   'arts-culture': {
     name: 'Arts & culture',
-    suit: '♦', color: '#7A5C02',
+    suit: '♦', color: '#F2C230',
     note: 'Two fixed cycles a year, and the applications are multi-part — missing the first part locks you out of the second.',
   },
 
   /* Not offered in the filter. These have no season at all and live in their
      own list beneath the calendar. */
-  'no-season': { name: 'No season', suit: '♠', color: '#6C7587', note: '', hidden: true },
+  'no-season': { name: 'No season', suit: '♠', color: '#7C879B', note: '', hidden: true },
 };
 
 const LH_PROGRAMS = [
@@ -1140,11 +1206,13 @@ if (typeof module !== 'undefined' && module.exports) {
    A planning tool, not a directory. It answers timing questions: is this open
    now, am I about to miss a deadline, when can I start.
 
-   The month grid and the list underneath are always the same period. Move the
-   calendar to October and the list is October. Everything else is derived from
-   today's date, so nothing needs editing as the months roll over.
+   Two views. The month grid draws each window as a labelled line across the
+   days it is open. Clicking the month name opens the whole year at once.
+   Either way the list underneath covers the same period, so moving the
+   calendar to October makes the list October.
 
-   Append ?date=YYYY-MM-DD to preview another day.
+   Everything is derived from today's date — nothing needs editing as the
+   months roll over. Append ?date=YYYY-MM-DD to preview another day.
    ========================================================================== */
 (function () {
   'use strict';
@@ -1189,6 +1257,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
   /* ---------------------------------------------------------------- STATE */
   var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+  var mode = 'month';      // month | year
   var scope = 'today';     // today | week | month
   var catFilter = 'all';   // a key of LH_TOPICS, or 'all'
 
@@ -1201,10 +1270,9 @@ if (typeof module !== 'undefined' && module.exports) {
   function topicOf(p) { return LH_TOPICS[p.topic] || LH_TOPICS['no-season']; }
   function colourOf(p) { return topicOf(p).color; }
 
-  // Text on a coloured line has to stay readable on every tint in the palette.
-  // Rather than guess a lightness threshold, work out the real contrast ratio
-  // against ink and against white and take whichever is higher — that is what
-  // stops a label going white-on-pale on the lighter greens and golds.
+  // Only four line colours exist, but gold needs ink and blue needs white, so
+  // the label colour is worked out from the real contrast ratio against each
+  // rather than guessed from a lightness threshold.
   function luminance(hex) {
     var c = [1, 3, 5].map(function (i) {
       var v = parseInt(hex.substr(i, 2), 16) / 255;
@@ -1215,9 +1283,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var INK = '#12213F', INK_L = luminance(INK);
   function readableOn(hex) {
     var bg = luminance(hex);
-    var onWhite = 1.05 / (bg + 0.05);
-    var onInk = (bg + 0.05) / (INK_L + 0.05);
-    return onInk >= onWhite ? INK : '#FFFFFF';
+    return (bg + 0.05) / (INK_L + 0.05) >= 1.05 / (bg + 0.05) ? INK : '#FFFFFF';
   }
 
   function el(tag, cls, text) {
@@ -1227,13 +1293,28 @@ if (typeof module !== 'undefined' && module.exports) {
     return n;
   }
 
-  /* --------------------------------------------------------------- PERIOD */
-  // The one place that decides which days the page is talking about. The grid
-  // and the list both read from it, which is what keeps them in step.
+  /* -------------------------------------------------------------- STATUS */
+  // Three states, and they are the whole point of the page: you can act now,
+  // you are about to lose your chance, or you have time to get ready.
+  var OPENING_SOON = 60, CLOSING_SOON = 30;
+
+  function statusOf(p, on) {
+    var o = day(p.opens), c = day(p.closes);
+    if (on < o) return diff(on, o) <= OPENING_SOON ? 'opening' : 'later';
+    if (on > c) return 'closed';
+    return diff(on, c) <= CLOSING_SOON ? 'closing' : 'open';
+  }
+  var STATUS_LABEL = {
+    open: 'Open', closing: 'Closing soon', opening: 'Opening soon',
+    later: 'Not yet', closed: 'Closed',
+  };
+
+  /* -------------------------------------------------------------- PERIOD */
   function period() {
-    if (scope === 'today') return { from: TODAY, to: TODAY, label: 'Today' };
-    if (scope === 'week') return { from: TODAY, to: addDays(TODAY, 6), label: 'This week' };
+    if (scope === 'today') return { from: TODAY, to: TODAY, label: 'today' };
+    if (scope === 'week') return { from: TODAY, to: addDays(TODAY, 6), label: 'the next 7 days' };
     var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    if (mode === 'year') return { from: mk(y, 0, 1), to: mk(y, 11, 31), label: String(y) };
     return { from: mk(y, m, 1), to: mk(y, m + 1, 0), label: MONTHS[m] + ' ' + y };
   }
 
@@ -1241,8 +1322,8 @@ if (typeof module !== 'undefined' && module.exports) {
     return day(p.opens) <= to && day(p.closes) >= from;
   }
 
-  // Ends soonest first, then things that have not started. Used by both the
-  // grid and the list so the stack of lines and the stack of rows line up.
+  // Ends soonest first, then things that have not started. Used by the grid and
+  // the list alike so the stack of lines and the stack of rows line up.
   function orderKey(p, from) {
     var o = day(p.opens), c = day(p.closes);
     return o >= from ? 100000 + diff(TODAY, o) : diff(TODAY, c);
@@ -1251,7 +1332,13 @@ if (typeof module !== 'undefined' && module.exports) {
     return function (a, b) { return orderKey(a, from) - orderKey(b, from); };
   }
 
-  /* ================================================================= GRID */
+  function activeIn(from, to) {
+    return DATED.filter(inFilter)
+      .filter(function (p) { return overlaps(p, from, to); })
+      .sort(byOrder(from));
+  }
+
+  /* ============================================================ MONTH GRID */
   function weekItems(weekStart, pool, rank) {
     var weekEnd = addDays(weekStart, 6);
     var items = [];
@@ -1271,7 +1358,8 @@ if (typeof module !== 'undefined' && module.exports) {
       (p.keyDates || []).forEach(function (k) {
         var d = day(k.date);
         if (d < weekStart || d > weekEnd) return;
-        items.push({ p: p, kind: 'pin', label: k.label, start: diff(weekStart, d), end: diff(weekStart, d) });
+        items.push({ p: p, kind: 'pin', label: k.label,
+                     start: diff(weekStart, d), end: diff(weekStart, d) });
       });
     });
 
@@ -1292,22 +1380,21 @@ if (typeof module !== 'undefined' && module.exports) {
     return { items: items, lanes: lanes.length };
   }
 
-  function renderGrid() {
-    var host = document.getElementById('weeks');
-    host.textContent = '';
-
+  function renderMonth(host) {
     var y = view.getUTCFullYear(), m = view.getUTCMonth();
-    document.getElementById('cal-month').textContent = MONTHS[m] + ' ' + y;
-
     var first = mk(y, m, 1);
     var gridStart = addDays(first, -first.getUTCDay());
     var weeks = Math.ceil((diff(gridStart, mk(y, m + 1, 0)) + 1) / 7);
     var gridEnd = addDays(gridStart, weeks * 7 - 1);
 
-    var pool = DATED.filter(inFilter).filter(function (p) {
-      return overlaps(p, gridStart, gridEnd);
-    }).sort(byOrder(mk(y, m, 1)));
+    var head = el('div', 'weekdays');
+    head.setAttribute('aria-hidden', 'true');
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function (d) {
+      head.appendChild(el('div', null, d));
+    });
+    host.appendChild(head);
 
+    var pool = activeIn(gridStart, gridEnd);
     var rank = {};
     pool.forEach(function (p, i) { rank[p.id] = i; });
 
@@ -1341,12 +1428,14 @@ if (typeof module !== 'undefined' && module.exports) {
           b.setAttribute('aria-label', it.p.name + ': ' + it.label);
           b.title = it.label;
         } else {
-          b.style.setProperty('--c', colourOf(it.p));
-          b.style.setProperty('--ct', readableOn(colourOf(it.p)));
+          var col = colourOf(it.p);
+          b.style.setProperty('--c', col);
+          b.style.setProperty('--ct', readableOn(col));
           b.textContent = it.p.name;
           if (it.cutL) b.classList.add('cut-l');
           if (it.cutR) b.classList.add('cut-r');
-          b.setAttribute('aria-label', it.p.name + ', open ' +
+          b.setAttribute('aria-label', it.p.name + ', ' +
+            STATUS_LABEL[statusOf(it.p, TODAY)].toLowerCase() + ', ' +
             longDate(day(it.p.opens)) + ' to ' + longDate(day(it.p.closes)));
           b.title = it.p.name + ' · ' + shortDate(day(it.p.opens)) +
                     ' – ' + shortDate(day(it.p.closes));
@@ -1359,10 +1448,67 @@ if (typeof module !== 'undefined' && module.exports) {
     }
 
     var n = pool.length;
-    document.getElementById('cal-legend').textContent = n
-      ? n + ' window' + (n === 1 ? '' : 's') + ' cross ' + MONTHS[m] + '. ' +
-        'Each line is one programme — click it for the detail. Rounded end = the real opening or closing day.'
-      : 'Nothing is open in ' + MONTHS[m] + ' for this topic.';
+    setLegend(n
+      ? n + ' window' + (n === 1 ? '' : 's') + ' cross ' + MONTHS[m] +
+        '. Click any line for the detail. A rounded end is the real opening or closing day.'
+      : 'Nothing is open in ' + MONTHS[m] + ' for this domain.');
+  }
+
+  /* ============================================================= YEAR VIEW */
+  // Twelve months at once, each showing the windows that touch it as a stack
+  // of short bars. This is the "when in the year does this happen" view.
+  function renderYear(host) {
+    var y = view.getUTCFullYear();
+    var grid = el('div', 'yeargrid');
+
+    for (var m = 0; m < 12; m++) {
+      (function (m) {
+        var from = mk(y, m, 1), to = mk(y, m + 1, 0);
+        var active = activeIn(from, to);
+
+        var card = el('button', 'ycard');
+        card.type = 'button';
+        if (y === TODAY.getUTCFullYear() && m === TODAY.getUTCMonth()) card.classList.add('is-now');
+
+        var top = el('div', 'ycard-top');
+        top.appendChild(el('span', 'ycard-name', MONTHS[m]));
+        top.appendChild(el('span', 'ycard-n', active.length ? String(active.length) : '—'));
+        card.appendChild(top);
+
+        var bars = el('div', 'ybars');
+        active.slice(0, 7).forEach(function (p) {
+          var o = day(p.opens), c = day(p.closes);
+          var bar = el('div', 'ybar');
+          bar.style.setProperty('--c', colourOf(p));
+          bar.style.setProperty('--ct', readableOn(colourOf(p)));
+          bar.textContent = p.name;
+          // Square off the end that runs past this month, so a bar that
+          // starts or finishes here reads differently from one passing through.
+          if (o < from) bar.classList.add('cut-l');
+          if (c > to) bar.classList.add('cut-r');
+          bars.appendChild(bar);
+        });
+        if (active.length > 7) bars.appendChild(el('div', 'ymore', '+' + (active.length - 7) + ' more'));
+        card.appendChild(bars);
+
+        card.addEventListener('click', function () {
+          view = mk(y, m, 1);
+          mode = 'month';
+          scope = 'month';
+          render();
+        });
+        grid.appendChild(card);
+      })(m);
+    }
+
+    host.appendChild(grid);
+    var total = activeIn(mk(y, 0, 1), mk(y, 11, 31)).length;
+    setLegend(total + ' window' + (total === 1 ? '' : 's') + ' fall in ' + y +
+              '. Click a month to open it.');
+  }
+
+  function setLegend(text) {
+    document.getElementById('cal-legend').textContent = text;
   }
 
   /* ================================================================= LIST */
@@ -1371,19 +1517,26 @@ if (typeof module !== 'undefined' && module.exports) {
     host.textContent = '';
 
     var per = period();
-    var rows = DATED.filter(inFilter)
-      .filter(function (p) { return overlaps(p, per.from, per.to); })
-      .sort(byOrder(per.from))
-      .map(function (p) { return { p: p, o: day(p.opens), c: day(p.closes) }; });
+    var rows = activeIn(per.from, per.to);
 
-    if (!rows.length) {
-      host.appendChild(el('div', 'empty', 'Nothing is open or opening in ' + per.label.toLowerCase() + '.'));
+    // Anything opening just beyond the period is worth surfacing too — being
+    // told to get ready is the whole reason to look at this in advance.
+    var ahead = DATED.filter(inFilter).filter(function (p) {
+      if (overlaps(p, per.from, per.to)) return false;
+      var d = diff(per.to, day(p.opens));
+      return d > 0 && d <= OPENING_SOON;
+    }).sort(byOrder(per.to));
+
+    if (!rows.length && !ahead.length) {
+      host.appendChild(el('div', 'empty', 'Nothing is open or opening in ' + per.label + '.'));
       return;
     }
 
     var list = el('div', 'list');
-    rows.forEach(function (r) {
-      var p = r.p;
+    rows.concat(ahead).forEach(function (p) {
+      var o = day(p.opens), c = day(p.closes);
+      var st = statusOf(p, TODAY);
+
       var item = el('button', 'item');
       item.type = 'button';
       item.style.setProperty('--c', colourOf(p));
@@ -1392,11 +1545,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
       var body = el('span', 'item-body');
       var name = el('span', 'item-name');
-
-      var toClose = diff(TODAY, r.c), toOpen = diff(TODAY, r.o);
-      var state = toOpen > 0 ? 'soon' : (toClose <= 30 ? 'closing' : 'open');
-      name.appendChild(el('span', 'status ' + state,
-        state === 'soon' ? 'Not yet' : state === 'closing' ? 'Closing' : 'Open'));
+      name.appendChild(el('span', 'status ' + st, STATUS_LABEL[st]));
       name.appendChild(document.createTextNode(p.name));
       body.appendChild(name);
 
@@ -1404,19 +1553,19 @@ if (typeof module !== 'undefined' && module.exports) {
       // not know what you are looking at.
       body.appendChild(el('span', 'item-what', p.short || p.what));
 
-      var sub = topicOf(p).name + '  ·  ' + shortDate(r.o) + ' – ' + shortDate(r.c);
+      var sub = topicOf(p).name + '  ·  ' + shortDate(o) + ' – ' + shortDate(c);
       if (p.precision === 'varies') sub += '  ·  varies by state';
       else if (p.precision === 'typical') sub += '  ·  usual dates';
       body.appendChild(el('span', 'item-sub', sub));
       item.appendChild(body);
 
       var when = el('span', 'item-when');
+      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
       if (toOpen > 0) {
-        when.appendChild(el('b', null, 'Opens ' + shortDate(r.o)));
+        when.appendChild(el('b', st === 'opening' ? 'soon' : null, 'Opens ' + shortDate(o)));
         when.appendChild(document.createTextNode(countdown(toOpen)));
       } else {
-        var b = el('b', toClose <= 30 ? 'hot' : null, 'Closes ' + shortDate(r.c));
-        when.appendChild(b);
+        when.appendChild(el('b', st === 'closing' ? 'hot' : null, 'Closes ' + shortDate(c)));
         when.appendChild(document.createTextNode(remaining(toClose)));
       }
       item.appendChild(when);
@@ -1431,23 +1580,32 @@ if (typeof module !== 'undefined' && module.exports) {
   function renderScopes() {
     var host = document.getElementById('scopes');
     host.textContent = '';
-    var y = view.getUTCFullYear(), m = view.getUTCMonth();
 
-    [['today', 'Today'], ['week', 'This week'], ['month', MONTHS[m] + ' ' + y]]
-      .forEach(function (s) {
-        var b = el('button', 'scope', s[1]);
-        b.type = 'button';
-        b.setAttribute('role', 'tab');
-        b.setAttribute('aria-selected', String(scope === s[0]));
-        b.addEventListener('click', function () {
-          scope = s[0];
-          // Today and This week always mean the real ones, so jump the grid
-          // back if it has been moved away.
-          if (s[0] !== 'month') view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-          render();
-        });
-        host.appendChild(b);
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    var thisMonth = y === TODAY.getUTCFullYear() && m === TODAY.getUTCMonth();
+    // Reads "This month" while you are on it, and names the month once you
+    // have navigated away, so the link to the calendar stays obvious.
+    var third = mode === 'year' ? String(y)
+              : thisMonth ? 'This month'
+              : MONTHS[m] + ' ' + y;
+
+    [['today', 'Today'], ['week', 'This week'], ['month', third]].forEach(function (s) {
+      var b = el('button', 'scope', s[1]);
+      b.type = 'button';
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(scope === s[0]));
+      b.addEventListener('click', function () {
+        scope = s[0];
+        // Today and This week always mean the real ones, so bring the
+        // calendar back if it has been moved away.
+        if (s[0] !== 'month') {
+          view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+          mode = 'month';
+        }
+        render();
       });
+      host.appendChild(b);
+    });
   }
 
   /* =============================================================== ALWAYS */
@@ -1497,7 +1655,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     var note = document.getElementById('topic-note');
     if (catFilter === 'all') {
-      note.textContent = 'Only domains where the timing actually matters are listed. ' +
+      note.textContent = 'Only domains where the timing can cost you the money are listed. ' +
         'Anything you can apply for on any day of the year is below the calendar instead.';
       note.style.setProperty('--c', 'var(--rule-strong)');
     } else {
@@ -1519,6 +1677,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var h = el('h3', null, p.name);
     h.id = 'sheet-title';
     body.appendChild(h);
+
     var tp = topicOf(p);
     if (!tp.hidden) {
       var tag = el('div', 'sheet-topic');
@@ -1530,23 +1689,26 @@ if (typeof module !== 'undefined' && module.exports) {
     if (p.alsoCalled) body.appendChild(el('div', 'sheet-also', 'Also called: ' + p.alsoCalled));
     body.appendChild(el('p', 'sheet-what', p.what));
 
-    // The timing box — the reason somebody opened this card.
+    // The timing box — the reason somebody opened this card at all.
     var w = el('div', 'sheet-window');
     if (!p.opens || !p.closes) {
       w.appendChild(el('span', 'big', p.watch ? 'No fixed dates' : 'Open all year'));
       w.appendChild(el('span', 'sub', p.cadence));
     } else {
       var o = day(p.opens), c = day(p.closes);
-      var toOpen = diff(TODAY, o), toClose = diff(TODAY, c);
-      if (toOpen > 0) {
-        w.appendChild(el('span', 'big', 'Opens ' + longDate(o) + ' — ' + countdown(toOpen)));
-        w.appendChild(el('span', 'sub', 'Runs to ' + longDate(c) + '. ' + p.cadence + '.'));
-      } else if (toClose >= 0) {
-        w.appendChild(el('span', 'big', 'Open now — ' + remaining(toClose)));
+      var st = statusOf(p, TODAY);
+      var chip = el('span', 'status ' + st, STATUS_LABEL[st]);
+      w.appendChild(chip);
+
+      if (st === 'open' || st === 'closing') {
+        w.appendChild(el('span', 'big', remaining(diff(TODAY, c))));
         w.appendChild(el('span', 'sub', 'Closes ' + longDate(c) + '. ' + p.cadence + '.'));
-      } else {
+      } else if (st === 'closed') {
         w.appendChild(el('span', 'big', 'Closed ' + longDate(c)));
         w.appendChild(el('span', 'sub', p.cadence + '.'));
+      } else {
+        w.appendChild(el('span', 'big', 'Opens ' + longDate(o) + ' — ' + countdown(diff(TODAY, o))));
+        w.appendChild(el('span', 'sub', 'Runs to ' + longDate(c) + '. ' + p.cadence + '.'));
       }
       if (p.precision !== 'exact') {
         w.appendChild(el('span', 'sub',
@@ -1561,7 +1723,6 @@ if (typeof module !== 'undefined' && module.exports) {
       if (diff(TODAY, day(k.date)) < 0) return;
       body.appendChild(el('div', 'sheet-flag', shortDate(day(k.date)) + ' — ' + k.label));
     });
-
     if (p.urgent) body.appendChild(el('div', 'sheet-flag', p.urgent));
 
     if (p.prep && p.prep.length) {
@@ -1609,25 +1770,45 @@ if (typeof module !== 'undefined' && module.exports) {
   /* ================================================================== RUN */
   function render() {
     renderTopics();
-    renderGrid();
+
+    var y = view.getUTCFullYear(), m = view.getUTCMonth();
+    var title = document.getElementById('cal-title');
+    title.textContent = mode === 'year' ? String(y) : MONTHS[m] + ' ' + y;
+    title.setAttribute('aria-label',
+      mode === 'year' ? 'Showing ' + y + '. Back to the month view.'
+                      : 'Showing ' + MONTHS[m] + ' ' + y + '. See the whole year.');
+    document.getElementById('cal').classList.toggle('is-year', mode === 'year');
+
+    var host = document.getElementById('cal-body');
+    host.textContent = '';
+    if (mode === 'year') renderYear(host); else renderMonth(host);
+
     renderScopes();
     renderList();
     renderAlways();
   }
 
-  // Moving the calendar moves the list with it — that is the whole point of
-  // the third scope tab carrying the month's name.
-  function shift(months) {
-    view = mk(view.getUTCFullYear(), view.getUTCMonth() + months, 1);
+  // One month at a time in the month view, one year at a time in the year
+  // view — the arrows always step by whatever is on screen.
+  function step(n) {
+    view = mode === 'year'
+      ? mk(view.getUTCFullYear() + n, 0, 1)
+      : mk(view.getUTCFullYear(), view.getUTCMonth() + n, 1);
     scope = 'month';
     render();
   }
-  document.getElementById('prev').addEventListener('click', function () { shift(-1); });
-  document.getElementById('next').addEventListener('click', function () { shift(1); });
-  document.getElementById('prev-year').addEventListener('click', function () { shift(-12); });
-  document.getElementById('next-year').addEventListener('click', function () { shift(12); });
+  document.getElementById('prev').addEventListener('click', function () { step(-1); });
+  document.getElementById('next').addEventListener('click', function () { step(1); });
+
+  document.getElementById('cal-title').addEventListener('click', function () {
+    mode = mode === 'year' ? 'month' : 'year';
+    scope = 'month';
+    render();
+  });
+
   document.getElementById('jump-today').addEventListener('click', function () {
     view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
+    mode = 'month';
     scope = 'today';
     render();
   });
