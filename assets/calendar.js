@@ -54,14 +54,35 @@
   /* ---------------------------------------------------------------- STATE */
   var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
   var scope = 'today';     // today | week | month
-  var catFilter = 'all';
+  var catFilter = 'all';   // a key of LH_TOPICS, or 'all'
 
   // Only programmes with a real window go on the grid. The ones with no season
   // would paint a line across every square of every month and say nothing.
   var DATED = LH_PROGRAMS.filter(function (p) { return p.opens && p.closes && !p.watch; });
   var UNDATED = LH_PROGRAMS.filter(function (p) { return !p.opens || !p.closes || p.watch; });
 
-  function inFilter(p) { return catFilter === 'all' || p.cat === catFilter; }
+  function inFilter(p) { return catFilter === 'all' || p.topic === catFilter; }
+  function topicOf(p) { return LH_TOPICS[p.topic] || LH_TOPICS['no-season']; }
+  function colourOf(p) { return topicOf(p).color; }
+
+  // Text on a coloured line has to stay readable on every tint in the palette.
+  // Rather than guess a lightness threshold, work out the real contrast ratio
+  // against ink and against white and take whichever is higher — that is what
+  // stops a label going white-on-pale on the lighter greens and golds.
+  function luminance(hex) {
+    var c = [1, 3, 5].map(function (i) {
+      var v = parseInt(hex.substr(i, 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  var INK = '#12213F', INK_L = luminance(INK);
+  function readableOn(hex) {
+    var bg = luminance(hex);
+    var onWhite = 1.05 / (bg + 0.05);
+    var onInk = (bg + 0.05) / (INK_L + 0.05);
+    return onInk >= onWhite ? INK : '#FFFFFF';
+  }
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -159,7 +180,7 @@
       var packed = weekItems(weekStart, pool, rank);
 
       var row = el('div', 'week');
-      row.style.minHeight = (26 + packed.lanes * 16 + 8) + 'px';
+      row.style.minHeight = (26 + packed.lanes * 21 + 8) + 'px';
 
       var days = el('div', 'week-days');
       for (var i = 0; i < 7; i++) {
@@ -184,7 +205,9 @@
           b.setAttribute('aria-label', it.p.name + ': ' + it.label);
           b.title = it.label;
         } else {
-          b.style.setProperty('--c', it.p.color);
+          b.style.setProperty('--c', colourOf(it.p));
+          b.style.setProperty('--ct', readableOn(colourOf(it.p)));
+          b.textContent = it.p.name;
           if (it.cutL) b.classList.add('cut-l');
           if (it.cutR) b.classList.add('cut-r');
           b.setAttribute('aria-label', it.p.name + ', open ' +
@@ -227,7 +250,7 @@
       var p = r.p;
       var item = el('button', 'item');
       item.type = 'button';
-      item.style.setProperty('--c', p.color);
+      item.style.setProperty('--c', colourOf(p));
 
       item.appendChild(el('span', 'item-swatch'));
 
@@ -241,7 +264,11 @@
       name.appendChild(document.createTextNode(p.name));
       body.appendChild(name);
 
-      var sub = shortDate(r.o) + ' – ' + shortDate(r.c);
+      // What it is comes before the dates — the dates mean nothing if you do
+      // not know what you are looking at.
+      body.appendChild(el('span', 'item-what', p.short || p.what));
+
+      var sub = topicOf(p).name + '  ·  ' + shortDate(r.o) + ' – ' + shortDate(r.c);
       if (p.precision === 'varies') sub += '  ·  varies by state';
       else if (p.precision === 'typical') sub += '  ·  usual dates';
       body.appendChild(el('span', 'item-sub', sub));
@@ -299,7 +326,7 @@
     list.forEach(function (p) {
       var b = el('button', 'pill');
       b.type = 'button';
-      b.style.setProperty('--c', p.color);
+      b.style.setProperty('--c', colourOf(p));
       b.appendChild(el('span', 'dot'));
       b.appendChild(document.createTextNode(p.name));
       b.addEventListener('click', function () { openSheet(p); });
@@ -308,29 +335,39 @@
     host.appendChild(pills);
   }
 
-  /* ================================================================ CHIPS */
-  function renderChips() {
-    var host = document.getElementById('filter-cat');
-    host.textContent = '';
+  /* ============================================================= DROPDOWN */
+  function renderTopics() {
+    var sel = document.getElementById('topic');
+    var keys = Object.keys(LH_TOPICS).filter(function (k) { return !LH_TOPICS[k].hidden; });
 
-    function chip(label, key, glyph, colour) {
-      var b = el('button', 'chip');
-      b.type = 'button';
-      if (glyph) b.appendChild(el('span', 'suit suit-' + colour, glyph));
-      b.appendChild(document.createTextNode(label));
-      b.setAttribute('aria-pressed', String(catFilter === key));
-      b.addEventListener('click', function () {
-        catFilter = catFilter === key ? 'all' : key;
-        render();
+    if (!sel.options.length) {
+      var all = document.createElement('option');
+      all.value = 'all';
+      all.textContent = 'Every seasonal domain';
+      sel.appendChild(all);
+      keys.forEach(function (k) {
+        var o = document.createElement('option');
+        o.value = k;
+        o.textContent = LH_TOPICS[k].suit + '  ' + LH_TOPICS[k].name;
+        sel.appendChild(o);
       });
-      host.appendChild(b);
+      sel.addEventListener('change', function () { catFilter = sel.value; render(); });
     }
+    sel.value = catFilter;
 
-    chip('Everything', 'all');
-    Object.keys(LH_CATEGORIES).forEach(function (k) {
-      var c = LH_CATEGORIES[k];
-      chip(c.name, k, c.suit, c.color);
-    });
+    var n = DATED.filter(inFilter).length;
+    document.getElementById('topic-count').textContent =
+      n + ' programme' + (n === 1 ? '' : 's') + ' with a season';
+
+    var note = document.getElementById('topic-note');
+    if (catFilter === 'all') {
+      note.textContent = 'Only domains where the timing actually matters are listed. ' +
+        'Anything you can apply for on any day of the year is below the calendar instead.';
+      note.style.setProperty('--c', 'var(--rule-strong)');
+    } else {
+      note.textContent = LH_TOPICS[catFilter].note;
+      note.style.setProperty('--c', LH_TOPICS[catFilter].color);
+    }
   }
 
   /* ============================================================= THE CARD */
@@ -341,11 +378,19 @@
   function openSheet(p) {
     var body = document.getElementById('sheet-body');
     body.textContent = '';
-    sheetCard.style.setProperty('--c', p.color);
+    sheetCard.style.setProperty('--c', colourOf(p));
 
     var h = el('h3', null, p.name);
     h.id = 'sheet-title';
     body.appendChild(h);
+    var tp = topicOf(p);
+    if (!tp.hidden) {
+      var tag = el('div', 'sheet-topic');
+      tag.style.setProperty('--c', tp.color);
+      tag.appendChild(el('span', 'dot'));
+      tag.appendChild(document.createTextNode(tp.name));
+      body.appendChild(tag);
+    }
     if (p.alsoCalled) body.appendChild(el('div', 'sheet-also', 'Also called: ' + p.alsoCalled));
     body.appendChild(el('p', 'sheet-what', p.what));
 
@@ -427,7 +472,7 @@
 
   /* ================================================================== RUN */
   function render() {
-    renderChips();
+    renderTopics();
     renderGrid();
     renderScopes();
     renderList();

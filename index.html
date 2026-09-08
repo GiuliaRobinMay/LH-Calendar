@@ -37,9 +37,11 @@
   <p class="page-sub">What is open now, what closes soon, and what has not started yet.</p>
 
   <div class="topicbar">
-    <span class="eyebrow">Topics</span>
-    <div class="chips" role="group" aria-label="Filter by topic" id="filter-cat"></div>
+    <label class="eyebrow" for="topic">Seasonal domain</label>
+    <select id="topic" class="select"></select>
+    <span class="topic-count" id="topic-count"></span>
   </div>
+  <p class="topic-note" id="topic-note"></p>
 
   <!-- ------------------------------------------------------- THE CALENDAR -->
   <section class="cal" aria-label="Month calendar">

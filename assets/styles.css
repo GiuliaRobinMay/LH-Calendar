@@ -113,6 +113,18 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule);
 }
+.select {
+  font-family: var(--body); font-size: 14px; font-weight: 600; color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--rule-strong);
+  border-radius: 999px; padding: 8px 16px; cursor: pointer; min-width: 16em;
+}
+.select:hover { background: var(--cream-deep); }
+.topic-count { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); }
+.topic-note {
+  margin: 11px 0 0; padding-left: 13px;
+  border-left: 3px solid var(--c, var(--rule-strong));
+  font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); max-width: 78ch;
+}
 .chips { display: flex; gap: 7px; flex-wrap: wrap; }
 .chip {
   font-family: var(--body); font-size: 13px; color: var(--ink);
@@ -177,7 +189,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .week-events {
   position: absolute; left: 0; right: 0; top: 23px;
   display: grid; grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 13px; gap: 3px 0;
+  grid-auto-rows: 18px; gap: 3px 0;
   pointer-events: none;
 }
 
@@ -186,10 +198,15 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
    was doing the work that the "varies by state" label does better. */
 .ev {
   pointer-events: auto;
-  height: 10px; margin: 0 2px;
-  border-radius: 5px;
+  height: 16px; margin: 0 2px;
+  border-radius: 4px;
   background: var(--c);
-  border: none; padding: 0; cursor: pointer;
+  color: var(--ct, #fff);
+  font-family: var(--body); font-size: 10.5px; font-weight: 600;
+  line-height: 16px; text-align: left;
+  padding: 0 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  border: none; cursor: pointer;
   position: relative;
 }
 .ev:hover { filter: brightness(1.12); }
@@ -201,7 +218,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .ev.pin {
   background: var(--paper);
   border: 2px solid var(--hot);
-  height: 10px;
+  height: 16px;
+  padding: 0;
 }
 
 .cal-legend {
@@ -239,12 +257,16 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
 /* The colour swatch is a full-height rule, so the list reads as a key to the
    lines on the calendar above it. */
-.item-swatch { align-self: stretch; background: var(--c); min-height: 52px; }
+.item-swatch { align-self: stretch; background: var(--c); min-height: 66px; }
 .item-body { display: block; padding: 11px 0; min-width: 0; }
 .item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; }
+.item-what {
+  display: block; font-size: 13px; color: var(--ink-soft);
+  margin-top: 3px; line-height: 1.35;
+}
 .item-sub {
   display: block;
-  font-size: 12.5px; color: var(--ink-faint); margin-top: 2px;
+  font-size: 11.5px; color: var(--ink-faint); margin-top: 4px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .item-when {
@@ -303,6 +325,11 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .sheet-x:hover { background: var(--cream-deep); }
 
 .sheet-card h3 { font-size: 27px; line-height: 1.12; padding-right: 34px; }
+.sheet-topic {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--ink-soft);
+  border: 1.5px solid var(--rule-strong); border-radius: 999px; padding: 3px 11px;
+}
 .sheet-also { font-size: 12.5px; color: var(--ink-faint); margin-top: 5px; }
 .sheet-what { font-size: 14.5px; color: var(--ink-soft); margin: 13px 0 0; }
 

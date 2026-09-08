@@ -1,6 +1,7 @@
 # The seasons behind US assistance — research notes
 
-Compiled 7 September 2026, for the Lesko Help season calendar.
+Compiled 7 September 2026, extended 8 September with a sweep of which grant
+domains are genuinely seasonal. For the Lesko Help calendar.
 
 Two questions were on the table: **is there a real seasonal structure worth
 building a calendar around**, and **has anyone already built it well**.
@@ -106,6 +107,50 @@ too much. The calendar surfaces renewal as a first-class field.
 
 ---
 
+## 1b. Which domains are actually seasonal
+
+The calendar only carries domains where timing can cost you the money. This
+sweep was to decide what earns a place and what does not.
+
+**Seasonal — these are on the calendar**
+
+| Domain | Why it qualifies |
+|---|---|
+| Health coverage enrolment | The hardest deadlines in the whole set. Marketplace 1 Nov – 15 Jan, Medicare 15 Oct – 7 Dec, Medicare Advantage 1 Jan – 31 Mar. Fixed in law, identical nationwide, and missing one costs a full year. |
+| Energy & utility bills | LIHEAP opens Oct/Nov and closes on funding, not on the published date. Winter shut-off moratoriums are their own seasonal window — typically 15 Nov – 31 Mar. |
+| Student aid & scholarships | FAFSA opens ~1 Oct; state and college money runs out Dec–Mar. National scholarships Aug–Dec, local Jan–Apr. |
+| Tax credits & money back | One filing window, late Jan – 15 Apr, plus the 15 Feb EITC/ACTC refund hold and the 15 Oct extension cut-off. |
+| Food & the school year | Summer EBT closes 31 Aug; school meal applications open with the school year. |
+| Seasonal charity | Holiday assistance signs up Sep–Oct for December. Back-to-school drives run late Jul–Aug. Both are over before most people think to ask. |
+| Childcare & early years | Head Start enrols in spring for an autumn start. |
+| Farm & land | USDA set a national **15 January** batching deadline for the first EQIP, CSP and ACEP funding round. FSA safety-net and crop insurance sales closing dates are hard deadlines with no late filing. |
+| Arts & culture | NEA Grants for Arts Projects runs exactly two cycles a year (FY2026: 12 Feb and 9 Jul), and the application is two-part — part one on Grants.gov, part two on the NEA portal ~12 days later. Miss part one and the system will not let you file part two at all. ~40% of the NEA budget passes to state arts agencies, which run their own cycles. |
+
+**Not seasonal — deliberately excluded from the calendar**
+
+SNAP, WIC, Medicaid and CHIP all take applications every day of the year with
+no enrolment window; the risk there is silent lapse at recertification, not a
+missed opening. Weatherization is rolling with a long waiting list. Section 8
+waiting lists are episodic rather than seasonal — unpredictable, sometimes
+years apart, open for as little as 48 hours. FEMA Individual Assistance is
+event-driven: it opens on a federal disaster declaration and then runs about 60
+days. All of these sit in a separate list beneath the calendar, where they do
+not imply a deadline that does not exist.
+
+**A correction worth recording.** The intuition that health coverage and home
+energy are "always available" is exactly backwards. They are the two most
+rigidly seasonal domains in American assistance, and they are the main reason a
+calendar is worth building at all. What *is* always available is food and
+medical assistance — SNAP, WIC, Medicaid — which is the opposite pairing.
+
+**Property tax relief** sits awkwardly and is marked `varies`: around 29 states
+plus DC run an income-based circuit breaker and at least 26 offer a senior
+freeze, but deadlines are county-level. Most fall Mar–Jun, some as early as
+February, and Indiana wants the over-65 deduction by 31 December of the prior
+year.
+
+---
+
 ## 2. What the competition is doing
 
 ### Nonprofit-facing grant tools — Instrumentl, Candid, GrantStation
@@ -190,6 +235,7 @@ Every date in `data/programs.js` traces to one of these. Anything not marked
 - Scholarship season shape — [The Scholarship System, months with the most deadlines](https://thescholarshipsystem.com/blog-for-students-families/months-scholarship-deadlines/)
 - Weatherization — [US DOE, Weatherization Assistance Program](https://www.energy.gov/scep/wap/weatherization-assistance-program)
 - FEMA — [DisasterAssistance.gov](https://www.disasterassistance.gov/)
+- Seasonality sweep — [USDA program deadlines](https://www.farmers.gov/working-with-us/program-deadlines), [NRCS Jan 15 national batching deadline](https://www.nrcs.usda.gov/state-offices/montana/news/usda-announces-january-15-national-batching-deadline-for-major-nrcs), [FSA national deadlines](https://www.fsa.usda.gov/news-events/national-deadlines), [NEA Grants for Arts Projects](https://www.arts.gov/grants/grants-for-arts-projects), [NEA application deadlines](https://americanorchestras.org/learn/development-fundraising/nea-funding/nea-funding-opportunities/nea-grants-application-deadlines/), [winter utility shut-off protections by state](https://seenra.com/guides/utility-shutoff-protections-by-state), [NJ Winter Termination Program](https://www.nj.gov/bpu/newsroom/2025/approved/20251114.html), [Massachusetts winter moratorium](https://www.nclc.org/resources/massachusetts-winter-moratorium-protect-low-income-households/), [property tax exemptions by state](https://www.ownwell.com/blog/property-tax-exemptions-by-state), [WIC/SNAP/Medicaid year-round enrolment](https://www.cbpp.org/research/food-assistance/wic-coordination-with-medicaid-and-snap-1)
 - Competitor scan — [Instrumentl grant calendar template](https://www.instrumentl.com/templates/grant-calendar-template-for-nonprofits), [Instrumentl vs Candid vs GrantStation](https://empowerchangeconsulting.com/2025/07/31/instrumentl-vs-candid-vs-grantstation-2025-which-grant-platform-fits-small-nonprofits/), [Propel](https://www.propel.app/), [Uplift enrollment calendar](https://upliftinfo.org/enrollment-calendar), [BenefitsUSA, when to apply](https://benefitsusa.org/en/blog/when-to-apply-for-benefits)
 
 Two sources — the LIHEAP Clearinghouse table and the Uplift calendar page —
