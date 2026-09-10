@@ -1,166 +1,109 @@
-# Grant Strategy Calendar
+# Grant Calendar
 
-The Fund-Nation grant year as a working calendar, built for the Lesko Help
-community. It is a **planning tool for organisations seeking grants**: which
-funder types are open when, and what to do each month.
+A one-screen answer to "when can I apply?", for people who have never applied
+for a grant before.
 
-Built from **Grant Strategy Calendar, 2026 Edition** — Fund-Nation, 14 pages.
-
----
-
-## What it does
-
-- **Opens on the year.** Twelve cards, each with its theme from the source and
-  the seasons running through it. That is the view that answers *when does what
-  happen*.
-- **Click a month for the detail** — or step through with the arrows. You get
-  the month grid, that month's page from the source (theme, relationship note,
-  five actions), and the *Grants to apply for this month* space the PDF leaves
-  blank, which saves in your browser.
-- **Three states.** *Open*, *Closing soon*, *Opening soon* — on every row, in
-  the detail card, and as a key beside the scope tabs. A season that has ended
-  says when it comes back, because they all repeat.
-- **Today / This week / This period**, and the list always covers whatever the
-  calendar is showing.
-- **Filter by funder type**, each with a note on how its timing behaves.
-
-## The ten seasons
-
-The source gives twelve *monthly themes*. Those collapse into ten recurring
-seasons, because several consecutive months belong to one funder cycle:
-
-| Season | Runs | Funder type |
-|---|---|---|
-| Planning & preparation | January | Planning & readiness |
-| Bank grant portals open | February – October | Banks & CRA |
-| Bank relationship season | November – January | Banks & CRA |
-| Foundation grant season | March | Foundations |
-| Federal grant season | April – May | Federal |
-| State grants & mid-year review | June | State |
-| Local & community grants | July | Local & community |
-| Retail & corporate grants | August | Retail & corporate |
-| Giving Tuesday campaign | September – November | Campaigns |
-| Year-end & major gifts | November – December | Campaigns |
-
-Banks get two because the source treats them as two distinct jobs: the portal
-window, and the unfunded months that decide it.
+Built from the Fund-Nation Grant Strategy Calendar, 2026 Edition.
 
 ---
 
-## About the dates
+## The idea
 
-The source works in **whole months**, not dates — "banks open their grant
-portals this month", not "March 14" — and it ends with *"Rinse and repeat,
-every year."*
+Members told us the first version was too complicated. It was — it had funder
+types, filters, a month grid, ten overlapping "seasons" and a workbook. That is
+a tool for someone who already knows how grants work.
 
-So seasons are stored as recurring month bands and regenerated for whichever
-year is on screen, rather than pinned to 2026. A band that runs past New Year
-(the bank relationship season, November to January) sets `wraps: true` and is
-generated across the boundary.
+This version teaches two facts and then gets out of the way:
 
-The single exception is **Giving Tuesday**, which is the Tuesday after
-Thanksgiving and therefore moves every year. It is computed, not stored.
+1. **Most grants have no deadline.** Apply any day.
+2. **A few only open at set times.** Those are the seven on the page.
 
----
+Everything else was cut.
 
-## A note on the workbook
+## What is on the page
 
-The Grant Planning Workbook was built and then removed. Without the teaching
-that goes with it, it is too complicated to put in front of people cold — the
-calendar stands alone, the workbook needs a course around it. It is preserved
-under `data/archive/`, along with a note on what would need restoring if it
-comes back. It also documented a real contradiction in the source: the quick
-costing rule (salary × 1.35) and the long method disagree by $27,409.60 on a
-$60,000 salary. Worth fixing in the PDF regardless of whether the page returns.
+In this order, top to bottom:
+
+- **The two facts**, before anything moves or asks for a click.
+- **What is open right now** — worked out from today's date, with how many
+  months are left to apply.
+- **The seven grants**, each with a twelve-block strip showing the months it is
+  open. The picture is the explanation; there is no legend to read.
+- **What to do this month** — one line and up to three things.
+
+No navigation, no filters, no dropdowns, no month grid, no tabs.
+
+## The seven
+
+| Grant | Open |
+|---|---|
+| Bank grants | February to October |
+| Foundation grants | March |
+| Government grants | April and May |
+| State grants | June |
+| Local grants | July |
+| Shop & company grants | August |
+| Year-end giving | November and December |
+
+The source also has a January planning month and a November-to-January stretch
+for getting to know your bank. Neither is a grant you apply for, so putting
+them in this list only made it longer. They live in the monthly advice instead.
 
 ---
 
 ## Files
 
 ```
-index.html              The page
-assets/styles.css       Visual system — carried over from the Lesko Help quiz
-assets/calendar.js      Year view, month grid, month plan, seasons list
-data/calendar.js        Funder types, seasons, and the twelve month pages
-data/archive/           The household-benefits calendar and the workbook,
-                        both retired but kept (see its README)
-docs/research.md        Research behind the earlier version, kept for reference
-build.js                Inlines everything into a single file
-check-contrast.js       Fails if a funder colour cannot carry a legible label
-check-source.js         Fails if the data stops matching the source PDFs
+index.html          The page
+assets/styles.css   Visual system, carried over from the Lesko Help quiz
+assets/calendar.js  Works out the current month and draws everything
+data/calendar.js    The seven grants and the twelve months of advice
+data/archive/       Earlier versions, not built (see its README)
+build.js            Inlines everything into a single file
+check-source.js     Data completeness, and the plain-language rules
+check-contrast.js   Every colour can carry a readable month letter
 ```
 
-Open `index.html` directly in a browser. No build step, no dependencies, no
-server.
-
----
+Open `index.html` in a browser. No build step, no dependencies, no server.
 
 ## Keeping it current
 
-Edit `data/calendar.js`. It is plain text, with the rules written at the top.
-
-Before shipping a change, run both checks:
+Edit `data/calendar.js`. Plain text, rules written at the top.
 
 ```bash
-node check-source.js      # data still matches the source PDFs
-node check-contrast.js    # every colour can carry a label
-node build.js             # rebuild dist/
+node check-source.js
+node check-contrast.js
+node build.js
 ```
 
-`check-source.js` asserts that all twelve months are present with five actions
-each, and that every season points at a real funder type, sits in real months,
-and carries the name and description the list needs to explain itself.
+`check-source.js` enforces the things that made the last version fail:
 
-### Colours
+- **No jargon.** It fails on "funder", "portal", "proposal", "fiscal",
+  "Community Reinvestment", "stakeholder" and friends.
+- **No sentence over 25 words.**
+- **No more than three things to do** in a month.
+- **Seven grants**, few enough to take in at a glance.
+- **No empty month** — if a month has nothing open, the page tells somebody
+  "nothing for you" and they do not come back.
 
-There are exactly **four** — the bright Lesko blue, red, gold and green, the
-same four as the frame stripes. No tints, no shades, no fifth hue. Funder
-types share them by suit family, which works because every line carries its
-own name.
+If you add copy and the check fails, the copy is the problem, not the check.
 
-Pinning to the exact brand colours puts the red at 4.27:1 with white text,
-just under WCAG AA for small text. That is a deliberate call: brand fidelity
-outranks the check here, so `check-contrast.js` warns rather than fails, and
-only a colour under 3:1 fails the build. Do not "fix" the warning by inventing
-an off-brand shade.
+## Colours
 
-### Previewing another day
+Four only — the Lesko blue, red, gold and green, the same four as the frame
+stripes. The month-letter colour is worked out at runtime from the real
+contrast ratio, so gold gets dark text and the others get white.
 
-```
-index.html?date=2027-02-01
-```
-
-Useful for checking how February reads when the bank portals open.
-
----
-
-## Putting it in the community
+## Embedding
 
 ```bash
 node build.js
 ```
 
-Writes two files:
-
-- **`dist/lh-calendar.html`** — the whole page in one file, nothing external
-  except the Google Fonts link. Host it, or paste it into a Circle custom-code
-  block.
-- **`dist/lh-calendar.artifact.html`** — the same without the outer
-  `<html>`/`<head>`/`<body>`, which is what the Claude Artifact publisher wants.
-
-Both are committed, so the current build can be grabbed without running
-anything.
-
-The build inlines with replacer **functions**, not strings. `String.replace`
-treats `$'` in a string replacement as "everything after the match", which once
-spliced the tail of the document into the middle of a script four times over.
-A structural check now fails the build if more than one `</body>` reaches the
-output.
-
----
+`dist/lh-calendar.html` is the whole page in one file. Host it, or paste it
+into an embed block.
 
 ## A caution
 
-This calendar tells you **when**, in whole months, and it repeats every year.
-It is not a list of real deadlines. Confirm every actual date directly with the
-funder — which is, as the source keeps pointing out, a good reason to call them.
+Dates are guides, not promises. The source works in whole months and repeats
+every year. Always confirm with the bank, foundation or office directly.

@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Grant Strategy Calendar</title>
-<meta name="description" content="The Fund-Nation grant year — which funder types are open when, and what to do each month.">
+<title>Grant Calendar</title>
+<meta name="description" content="Most grants have no deadline. A few only open at certain times of year. Here are those few, and when they open.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&display=swap">
 <style>
 /* ============================================================================
-   Lesko Help — The Help Calendar
-   A planning tool: is it open, when does it close, when can I start.
+   Lesko Help — Grant Calendar
+   Built to be read, not admired. Big type, plenty of air, few controls.
    Light only, on purpose. No theme variants anywhere in this file.
    ========================================================================== */
 
@@ -27,24 +27,19 @@
   --rule:        #E7DCC9;
   --rule-strong: #CFC0A6;
 
-  /* The four Lesko colours — the same four as the frame stripes. Funder types
-     share them by suit family (see data/calendar.js). Nothing else. */
+  /* Four colours. The same four as the frame stripes. Nothing else. */
   --blue:  #2B62D9;
   --red:   #E5372C;
   --gold:  #F2C230;
   --green: #0F9D58;
   --gold-deep: #C79A05;
 
-  --hot:    #C2410C;
-  --hot-bg: #FCEDE3;
-
   --display: "Newsreader", "Iowan Old Style", Georgia, serif;
   --body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --card-shadow: 0 1px 2px rgba(18,33,63,.05), 0 8px 24px -14px rgba(18,33,63,.16);
+  --card: 0 1px 2px rgba(18,33,63,.05), 0 8px 24px -14px rgba(18,33,63,.16);
   --frame: 6px;
-  --frame-block: 44px;   /* length of each colour block */
+  --frame-block: 44px;
 }
 
 * { box-sizing: border-box; }
@@ -54,33 +49,30 @@ body {
   background: var(--cream);
   color: var(--ink);
   font-family: var(--body);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 17px;            /* larger than usual, on purpose */
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; }
 
-/* Form controls do NOT inherit colour — they use the browser's own
-   `buttontext`, which turns white inside a dark-scheme frame. Every list row
-   here is a <button>, which is exactly how its title came out white on white.
-   Pin the colour and the font on all of them, once, so it cannot recur. */
+/* Form controls do NOT inherit colour — they fall back to the browser's own
+   `buttontext`, which turns white inside a dark-scheme frame. Every card here
+   is a <button>, so pin the colour once and the whole class of bug is gone. */
 button, input, select, textarea, optgroup {
   color: var(--ink);
   font-family: var(--body);
 }
-:focus-visible { outline: 2.5px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
 
 /* ------------------------------------------------------------------ FRAME */
-/* The vertical strips need their own 180deg gradient, which is why this is
-   four elements and not one border-image. */
 .frame > i { position: fixed; z-index: 60; display: block; }
 .frame .fr-top, .frame .fr-bottom {
   left: 0; right: 0; height: var(--frame);
   background: repeating-linear-gradient(90deg,
-    var(--blue)  0                        var(--frame-block),
-    var(--red)   var(--frame-block)       calc(var(--frame-block) * 2),
+    var(--blue)  0                            var(--frame-block),
+    var(--red)   var(--frame-block)           calc(var(--frame-block) * 2),
     var(--gold)  calc(var(--frame-block) * 2) calc(var(--frame-block) * 3),
     var(--green) calc(var(--frame-block) * 3) calc(var(--frame-block) * 4));
 }
@@ -89,8 +81,8 @@ button, input, select, textarea, optgroup {
 .frame .fr-left, .frame .fr-right {
   top: 0; bottom: 0; width: var(--frame);
   background: repeating-linear-gradient(180deg,
-    var(--blue)  0                        var(--frame-block),
-    var(--red)   var(--frame-block)       calc(var(--frame-block) * 2),
+    var(--blue)  0                            var(--frame-block),
+    var(--red)   var(--frame-block)           calc(var(--frame-block) * 2),
     var(--gold)  calc(var(--frame-block) * 2) calc(var(--frame-block) * 3),
     var(--green) calc(var(--frame-block) * 3) calc(var(--frame-block) * 4));
 }
@@ -99,16 +91,10 @@ button, input, select, textarea, optgroup {
 @media (max-width: 720px) { :root { --frame: 5px; --frame-block: 32px; } }
 
 .shell {
-  max-width: 1080px; margin: 0 auto;
-  padding: calc(var(--frame) + 20px) calc(var(--frame) + 20px) calc(var(--frame) + 44px);
+  max-width: 760px;           /* one comfortable column, never a dashboard */
+  margin: 0 auto;
+  padding: calc(var(--frame) + 22px) calc(var(--frame) + 20px) calc(var(--frame) + 50px);
 }
-
-/* ------------------------------------------------------------------- TYPE */
-.eyebrow {
-  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
-  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint);
-}
-h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; }
 
 /* --------------------------------------------------------------- MASTHEAD */
 .masthead { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -121,410 +107,182 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .brand-name { font-family: var(--display); font-size: 19px; line-height: 1.12; }
 .brand-name em { display: block; color: var(--red); font-style: italic; font-size: 17px; }
 .brand-name b { display: block; font-weight: 500; }
-
 .suits { display: flex; gap: 9px; font-size: 17px; line-height: 1; }
 .suit-blue { color: var(--blue); } .suit-red { color: var(--red); }
 .suit-gold { color: var(--gold-deep); } .suit-green { color: var(--green); }
 
+h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; }
+
 .page-title {
-  margin: 24px 0 0; font-size: clamp(32px, 5vw, 50px);
-  line-height: 1.04; letter-spacing: -.018em;
+  margin: 26px 0 0;
+  font-size: clamp(36px, 7vw, 54px); line-height: 1.03; letter-spacing: -.02em;
 }
 .page-title em { color: var(--red); font-style: italic; }
-.page-sub { margin: 8px 0 0; font-size: 16px; color: var(--ink-soft); }
 
-/* ---------------------------------------------------------------- TOPICS */
-.topicbar {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule);
+/* ------------------------------------------------------------ TWO FACTS */
+/* The whole idea of the page, before anything moves or asks for a click. */
+.facts { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+.fact {
+  display: flex; gap: 15px; align-items: flex-start;
+  padding: 18px 20px; border-radius: 16px;
 }
-.select {
-  font-family: var(--body); font-size: 14px; font-weight: 600; color: var(--ink);
-  background: var(--paper); border: 1.5px solid var(--rule-strong);
-  border-radius: 999px; padding: 8px 16px; cursor: pointer; min-width: 16em;
-}
-.select:hover { background: var(--cream-deep); }
-.topic-count { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); }
-.topic-note {
-  margin: 11px 0 0; padding-left: 13px;
-  border-left: 3px solid var(--c, var(--rule-strong));
-  font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); max-width: 78ch;
-}
-.chips { display: flex; gap: 7px; flex-wrap: wrap; }
-.chip {
-  font-family: var(--body); font-size: 13px; color: var(--ink);
-  background: var(--paper); border: 1.5px solid var(--rule-strong);
-  border-radius: 999px; padding: 6px 13px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.chip:hover { background: var(--cream-deep); }
-.chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); font-weight: 600; }
-.chip .suit { font-size: 13px; }
+.fact-always { background: #E9F5ED; border: 2px solid var(--green); }
+.fact-season { background: var(--cream-deep); border: 2px solid var(--gold); }
+.fact-mark { font-size: 24px; line-height: 1.25; flex: none; }
+.fact-always .fact-mark { color: var(--green); font-weight: 700; }
+.fact h2 { font-size: 22px; line-height: 1.2; }
+.fact p { margin: 5px 0 0; font-size: 16.5px; color: var(--ink-soft); }
 
-/* ------------------------------------------------------------- CALENDAR */
-.cal {
-  margin-top: 18px;
+/* ------------------------------------------------------------- OPEN NOW */
+.now {
+  margin-top: 26px; padding: 22px;
   background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow);
+  border-radius: 18px; box-shadow: var(--card);
 }
-.cal-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-.cal-title {
-  font-family: var(--display); font-weight: 500; font-size: 25px;
-  letter-spacing: -.01em; color: var(--ink);
-  background: none; border: none; cursor: pointer;
-  padding: 2px 10px; border-radius: 10px;
-  min-width: 6.2em; text-align: center;
+.now-month {
+  display: inline-block; font-size: 14px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint);
 }
-.cal-title::after {
-  content: "▾"; font-size: 12px; margin-left: 8px;
-  color: var(--ink-faint); vertical-align: middle;
-}
-.cal-title:hover { background: var(--cream-deep); }
-.cal.is-year .cal-title::after { content: "▴"; }
-.navbtn, .todaybtn {
-  font-family: var(--body); color: var(--ink); background: var(--paper);
-  border: 1.5px solid var(--rule-strong); border-radius: 999px; cursor: pointer;
-}
-.navbtn { width: 31px; height: 31px; flex: none; font-size: 15px; line-height: 1; }
-.todaybtn { height: 31px; padding: 0 15px; font-size: 13px; font-weight: 600; margin-left: auto; }
-.navbtn:hover, .todaybtn:hover { background: var(--cream-deep); }
+.now-head h2 { font-size: 26px; line-height: 1.15; margin-top: 3px; }
 
-/* The default bar is a thick dark slab across the calendar. Make it thin and
-   in-palette, and lower the min-width so it only appears when truly needed. */
-.cal-scroll {
-  overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--rule-strong) transparent;
+.now-list { margin-top: 16px; display: flex; flex-direction: column; gap: 9px; }
+.now-item {
+  display: flex; align-items: center; gap: 13px;
+  width: 100%; text-align: left; cursor: pointer;
+  background: var(--cream); border: 2px solid var(--rule);
+  border-radius: 13px; padding: 14px 16px;
 }
-.cal-scroll::-webkit-scrollbar { height: 7px; }
-.cal-scroll::-webkit-scrollbar-track { background: transparent; }
-.cal-scroll::-webkit-scrollbar-thumb {
-  background: var(--rule-strong); border-radius: 999px;
-}
-.cal-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
-.cal-grid { min-width: 560px; }
-.cal.is-year .cal-grid { min-width: 0; }
-
-.weekdays {
-  display: grid; grid-template-columns: repeat(7, 1fr);
-  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
-  padding-bottom: 6px;
-}
-.weekdays div { text-align: center; }
-
-.week { position: relative; border-top: 1px solid var(--rule); }
-.week:last-child { border-bottom: 1px solid var(--rule); }
-
-/* Day squares underneath, event lines as an overlay on top, so one line can
-   span several columns the way it does in any calendar. */
-.week-days { display: grid; grid-template-columns: repeat(7, 1fr); height: 100%; }
-.week-days > div { border-right: 1px solid var(--rule); padding: 4px 6px; }
-.week-days > div:first-child { border-left: 1px solid var(--rule); }
-.week-days .out { background: #FCF8F1; }
-.week-days .out .dnum { color: var(--rule-strong); }
-.dnum {
-  font-family: var(--mono); font-size: 12px; font-weight: 500;
-  font-variant-numeric: tabular-nums; color: var(--ink-soft);
-}
-.week-days .today .dnum {
-  background: var(--red); color: #fff; font-weight: 600;
-  border-radius: 999px; padding: 1px 6px; margin-left: -3px;
-}
-
-.week-events {
-  position: absolute; left: 0; right: 0; top: 23px;
-  display: grid; grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 18px; gap: 3px 0;
-  pointer-events: none;
-}
-
-/* ------------------------------------------------------------------ LINES */
-/* Thin solid rules in the programme's own colour. No hatching — the striping
-   was doing the work that the "varies by state" label does better. */
-.ev {
-  pointer-events: auto;
-  height: 16px; margin: 0 2px;
-  border-radius: 4px;
+.now-item:hover { border-color: var(--c); background: var(--cream-deep); }
+.now-dot {
+  width: 15px; height: 15px; flex: none; border-radius: 50%;
   background: var(--c);
-  color: var(--ct, #fff);
-  font-family: var(--body); font-size: 10.5px; font-weight: 600;
-  line-height: 16px; text-align: left;
-  padding: 0 6px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  border: none; cursor: pointer;
-  position: relative;
 }
-.ev:hover { filter: brightness(1.12); }
-.ev:focus-visible { outline-offset: 3px; }
-.ev.cut-l { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0; }
-.ev.cut-r { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: 0; }
+.now-body { display: block; }
+.now-name { display: block; font-size: 18px; font-weight: 700; line-height: 1.25; }
+.now-note { display: block; font-size: 15px; color: var(--ink-soft); margin-top: 1px; }
+.now-item.is-last { border-color: var(--red); background: #FDEDEC; }
+.now-item.is-last .now-note { color: var(--red); font-weight: 600; }
 
-/* A one-day deadline inside a window — drawn as a tick, not a run. */
-.ev.pin {
-  background: var(--paper);
-  border: 2px solid var(--hot);
-  height: 16px;
-  padding: 0;
+.now-none { margin: 12px 0 0; font-size: 16px; color: var(--ink-soft); }
+.now-soon {
+  margin: 15px 0 0; padding-top: 14px; border-top: 1px solid var(--rule);
+  font-size: 15.5px; color: var(--ink-soft);
 }
+.now-soon b { color: var(--ink); }
 
-.cal-legend {
-  margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--rule);
-  font-size: 12px; color: var(--ink-faint);
+/* ---------------------------------------------------------- THE SEVEN */
+.grants { margin-top: 34px; }
+.sec-title { font-size: 27px; line-height: 1.15; }
+.sec-sub { margin: 5px 0 0; font-size: 16px; color: var(--ink-soft); }
+#grants { margin-top: 16px; display: flex; flex-direction: column; gap: 13px; }
+
+.grant {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: var(--paper); border: 2px solid var(--rule);
+  border-radius: 16px; padding: 18px 20px; box-shadow: var(--card);
 }
+.grant:hover { border-color: var(--c); }
+.grant.is-open { border-color: var(--c); }
 
-/* -------------------------------------------------------------- YEAR VIEW */
-.yeargrid {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+.grant-top { display: flex; align-items: flex-start; gap: 14px; }
+.grant-top h3 { font-size: 22px; line-height: 1.2; }
+.grant-when { font-size: 15.5px; color: var(--ink-soft); margin-top: 2px; }
+
+.tag {
+  flex: none; margin-left: auto;
+  font-size: 12.5px; font-weight: 700; letter-spacing: .05em;
+  padding: 5px 11px; border-radius: 999px; white-space: nowrap;
 }
-@media (max-width: 900px) { .yeargrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .yeargrid { grid-template-columns: minmax(0, 1fr); } }
+.tag-open { background: var(--green); color: #fff; }
+.tag-shut { background: var(--cream-deep); color: var(--ink-soft); }
 
-.ycard {
-  font-family: var(--body); text-align: left; cursor: pointer;
-  background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 12px; padding: 11px 12px 12px;
-  display: flex; flex-direction: column; gap: 9px;
-  min-height: 122px;
+/* ---------------------------------------------------------- MONTH STRIP */
+/* Twelve blocks, filled where the grant is open. No legend, no key — the
+   picture is the explanation. */
+.strip {
+  margin-top: 14px;
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px;
 }
-.ycard:hover { background: var(--cream-deep); border-color: var(--rule-strong); }
-.ycard.is-now { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
-
-.ycard-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.ycard-name { font-family: var(--display); font-size: 17px; color: var(--ink); }
-.ycard-n {
-  font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
-  font-variant-numeric: tabular-nums;
+.strip-m {
+  height: 34px; border-radius: 5px;
+  background: var(--cream-deep);
+  display: grid; place-items: center;
 }
-.ycard.is-now .ycard-n { color: var(--red); font-weight: 600; }
-
-.ybars { display: flex; flex-direction: column; gap: 3px; }
-.ybar {
-  height: 15px; border-radius: 4px; padding: 0 6px;
-  background: var(--c); color: var(--ct, #fff);
-  font-size: 9.5px; font-weight: 600; line-height: 15px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.strip-m .strip-l {
+  font-size: 12px; font-weight: 700; color: var(--ink-faint);
 }
-.ybar.cut-l { border-top-left-radius: 0; border-bottom-left-radius: 0; }
-.ybar.cut-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
-.ymore { font-family: var(--mono); font-size: 9.5px; color: var(--ink-faint); padding-top: 2px; }
+/* The label colour is set in JS from the real contrast ratio — gold needs
+   dark text, the other three need white. An attribute selector on the inline
+   style would not survive the browser rewriting it as rgb(). */
+.strip-m.is-now { outline: 3px solid var(--ink); outline-offset: 1px; }
 
-/* ------------------------------------------------------------------- LIST */
-.listing { margin-top: 22px; }
-
-.listbar {
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-.scopes { display: flex; gap: 8px; flex-wrap: wrap; }
-.key { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-.scope {
-  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
-  letter-spacing: .1em; text-transform: uppercase;
-  padding: 9px 16px; border-radius: 999px; cursor: pointer;
-  border: 1.5px solid var(--rule-strong); background: var(--paper); color: var(--ink);
-}
-.scope:hover { background: var(--cream-deep); }
-.scope[aria-selected="true"] { background: var(--gold); border-color: var(--gold); font-weight: 600; }
-
-.list {
-  background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow);
+.grant-what { margin: 14px 0 0; font-size: 16.5px; color: var(--ink-soft); }
+.grant-more {
+  display: inline-block; margin-top: 11px;
+  font-size: 15px; font-weight: 700; color: var(--red);
 }
 
-.item {
-  width: 100%; text-align: left; background: var(--paper); border: none;
-  color: var(--ink);
-  border-top: 1px solid var(--rule);
-  font-family: var(--body); cursor: pointer;
-  display: grid; grid-template-columns: 4px 1fr auto; align-items: center;
-  gap: 0 13px; padding: 0;
+/* ---------------------------------------------------------- THIS MONTH */
+.thismonth {
+  margin-top: 34px; padding: 22px;
+  background: var(--cream-deep); border-radius: 18px;
+  border-left: 6px solid var(--red);
 }
-.list > .item:first-child { border-top: none; }
-.item:hover { background: var(--cream-deep); }
+.month-line { margin: 5px 0 0; font-size: 17.5px; color: var(--ink); }
+.month-todo { margin: 15px 0 0; padding-left: 24px; }
+.month-todo li { font-size: 16.5px; color: var(--ink-soft); margin-bottom: 9px; }
 
-/* The colour swatch is a full-height rule, so the list reads as a key to the
-   lines on the calendar above it. */
-.item-swatch { align-self: stretch; background: var(--c); min-height: 66px; }
-.item-body { display: block; padding: 11px 0; min-width: 0; }
-.item-name { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.25; color: var(--ink); }
-.item-what {
-  display: block; font-size: 13px; color: var(--ink-soft);
-  margin-top: 3px; line-height: 1.35;
-}
-.item-sub {
-  display: block;
-  font-size: 11.5px; color: var(--ink-faint); margin-top: 4px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.item-when {
-  display: block;
-  padding: 11px 16px 11px 0; text-align: right;
-  font-family: var(--mono); font-size: 11.5px;
-  font-variant-numeric: tabular-nums; color: var(--ink-soft);
-  white-space: nowrap;
-}
-.item-when b { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
-.item-when .hot { color: var(--hot); }
-.item-when .soon { color: var(--blue); }
-
-.status {
-  display: inline-block; font-family: var(--mono);
-  font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 999px; margin-right: 7px;
-  border: 1.5px solid currentColor;
-}
-.status.open    { color: var(--green); }
-.status.closing { color: var(--hot); }
-.status.opening { color: var(--blue); }
-.status.later   { color: var(--ink-faint); }
-.status.closed  { color: var(--ink-faint); }
-
-.empty { padding: 26px 18px; font-size: 13.5px; color: var(--ink-faint); text-align: center; }
-
-/* ---------------------------------------------------------------- ALWAYS */
-.always { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
-.always > .eyebrow { display: block; margin-bottom: 9px; }
-.pills { display: flex; flex-wrap: wrap; gap: 7px; }
-.pill {
-  font-family: var(--body); font-size: 12.5px; color: var(--ink);
-  padding: 5px 12px; border-radius: 999px; cursor: pointer;
-  border: 1.5px solid var(--rule-strong); background: var(--paper);
-  display: inline-flex; align-items: center; gap: 7px;
-}
-.pill:hover { background: var(--cream-deep); }
-.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
-
-/* --------------------------------------------------------------- THE CARD */
-.sheet { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 22px; }
+/* ---------------------------------------------------------------- CARD */
+.sheet { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; }
 .sheet[hidden] { display: none; }
-.sheet-scrim { position: absolute; inset: 0; background: rgba(18,33,63,.42); border: none; }
+.sheet-scrim { position: absolute; inset: 0; background: rgba(18,33,63,.45); border: none; }
 .sheet-card {
   position: relative; z-index: 1;
-  width: min(560px, 100%); max-height: min(84vh, 760px); overflow-y: auto;
-  background: var(--paper); border-radius: 18px;
-  border-top: 7px solid var(--c, var(--ink));
-  padding: 24px 26px 26px;
+  width: min(540px, 100%); max-height: min(86vh, 760px); overflow-y: auto;
+  background: var(--paper); border-radius: 20px;
+  border-top: 8px solid var(--c, var(--ink));
+  padding: 26px 26px 28px;
   box-shadow: 0 24px 64px -18px rgba(18,33,63,.45);
 }
 .sheet-x {
-  position: absolute; top: 13px; right: 15px;
-  width: 30px; height: 30px; border-radius: 50%;
-  border: 1.5px solid var(--rule-strong); background: var(--paper);
-  font-size: 17px; line-height: 1; cursor: pointer; color: var(--ink-soft);
+  position: absolute; top: 14px; right: 16px;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--rule-strong); background: var(--paper);
+  font-size: 20px; line-height: 1; cursor: pointer; color: var(--ink-soft);
 }
 .sheet-x:hover { background: var(--cream-deep); }
 
-.sheet-card h3 { font-size: 27px; line-height: 1.12; padding-right: 34px; }
-.sheet-topic {
-  display: inline-flex; align-items: center; gap: 7px;
-  margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--ink-soft);
-  border: 1.5px solid var(--rule-strong); border-radius: 999px; padding: 3px 11px;
-}
-.sheet-also { font-size: 12.5px; color: var(--ink-faint); margin-top: 5px; }
-.sheet-what { font-size: 14.5px; color: var(--ink-soft); margin: 13px 0 0; }
-
-.sheet-window {
-  margin-top: 15px; padding: 12px 14px; border-radius: 11px;
-  background: var(--cream); border: 1px solid var(--rule);
-  font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums;
-  line-height: 1.7;
-}
-.sheet-window .status { margin: 0 0 7px; display: inline-block; }
-.sheet-window .big { font-size: 15px; font-weight: 600; display: block; }
-.sheet-window .sub { color: var(--ink-soft); }
-
-.sheet-flag {
-  margin-top: 13px; font-size: 13.5px; line-height: 1.45;
-  background: var(--hot-bg); border-left: 3px solid var(--hot);
-  border-radius: 0 8px 8px 0; padding: 10px 13px;
-}
+.sheet-card h3 { font-size: 29px; line-height: 1.12; padding-right: 40px; }
+.sheet-when { margin-top: 6px; font-size: 16px; font-weight: 600; color: var(--ink-soft); }
 .sheet-h {
-  margin-top: 17px; font-family: var(--mono); font-size: 10.5px; font-weight: 500;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint);
+  margin-top: 20px; font-size: 14px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint);
 }
-.sheet-card ul { margin: 7px 0 0; padding-left: 19px; font-size: 14px; color: var(--ink-soft); }
-.sheet-card li { margin-bottom: 5px; }
-.sheet-note { margin: 7px 0 0; font-size: 13.5px; color: var(--ink-soft); }
-.sheet-caveat {
-  margin-top: 15px; font-size: 12.5px; line-height: 1.45; color: var(--ink-faint);
-  padding-left: 12px; border-left: 2px solid var(--rule);
+.sheet-p { margin: 6px 0 0; font-size: 17px; color: var(--ink-soft); }
+.sheet-flag {
+  margin-top: 18px; padding: 13px 15px;
+  background: var(--cream-deep); border-left: 4px solid var(--gold);
+  border-radius: 0 10px 10px 0; font-size: 16px; line-height: 1.5;
 }
-.sheet-go {
-  display: inline-block; margin-top: 18px;
-  font-size: 14px; font-weight: 600; color: var(--red);
-  text-underline-offset: 3px; text-decoration-thickness: 1.5px;
-}
-.sheet-where { margin-top: 4px; font-size: 12.5px; color: var(--ink-faint); }
 
-/* ----------------------------------------------------------------- FOOTER */
+/* --------------------------------------------------------------- FOOTER */
 .foot {
-  margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--rule);
-  font-size: 12px; color: var(--ink-faint); max-width: 76ch;
-}
-.foot b { color: var(--ink-soft); font-weight: 600; }
-.foot code { font-family: var(--mono); font-size: 11px; }
-
-
-/* ==========================================================================
-   THE MONTH'S OWN PAGE
-   ========================================================================== */
-.monthplan {
-  margin-top: 18px; background: var(--paper);
-  border: 1px solid var(--rule); border-radius: 16px;
-  padding: 20px; box-shadow: var(--card-shadow);
-}
-.mp-head { padding-bottom: 13px; border-bottom: 2px solid var(--ink); margin-bottom: 16px; }
-.mp-head .eyebrow { display: block; margin-bottom: 5px; }
-.mp-head h2 { font-size: 27px; line-height: 1.1; }
-
-.mp-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 26px; }
-@media (max-width: 820px) { .mp-cols { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
-.mp-cols .eyebrow { display: block; margin-bottom: 8px; }
-.mp-rel p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); }
-.mp-rel {
-  padding-left: 14px; border-left: 3px solid var(--red);
-}
-.mp-actions ol { margin: 0; padding-left: 20px; }
-.mp-actions li { font-size: 14px; color: var(--ink-soft); margin-bottom: 7px; line-height: 1.45; }
-.mp-actions li b { color: var(--ink); font-weight: 600; }
-
-.mp-notes { margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--rule); }
-.mp-notes .eyebrow { display: block; margin-bottom: 8px; }
-.mp-notes textarea, .wb-field {
-  width: 100%; font-family: var(--body); font-size: 14px; color: var(--ink);
-  background: var(--cream); border: 1.5px solid var(--rule);
-  border-radius: 10px; padding: 10px 12px; resize: vertical; line-height: 1.5;
-}
-.mp-notes textarea:focus, .wb-field:focus { border-color: var(--rule-strong); }
-
-/* ==========================================================================
-   QUIET MONTH NOTE
-   ========================================================================== */
-.quiet {
-  margin-top: 22px; padding: 16px 18px;
-  background: var(--cream-deep); border-radius: 14px;
-  border-left: 4px solid var(--gold);
-}
-.quiet .eyebrow { display: block; margin-bottom: 7px; }
-.quiet p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); max-width: 72ch; }
-.quiet-repeat {
-  margin-top: 9px !important; font-family: var(--display); font-style: italic;
-  font-size: 16px; color: var(--ink) !important;
+  margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--rule);
+  font-size: 15px; color: var(--ink-faint);
 }
 
-/* Year cards carry the month's theme from the source. */
-.ycard-theme {
-  font-size: 11.5px; line-height: 1.3; color: var(--ink-faint);
-  margin-top: -3px;
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .strip-m { height: 30px; }
+  .strip-m .strip-l { font-size: 10.5px; }
+  .grant-top { flex-wrap: wrap; }
+  .tag { margin-left: 0; }
 }
 
 </style>
 </head>
 <body>
 
-<!-- Four separate strips so the colour blocks run the right way round on the
-     vertical edges as well as the horizontal ones. -->
 <div class="frame" aria-hidden="true">
   <i class="fr-top"></i><i class="fr-bottom"></i><i class="fr-left"></i><i class="fr-right"></i>
 </div>
@@ -544,58 +302,47 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
     </div>
   </header>
 
-  <h1 class="page-title">The grant <em>year.</em></h1>
-  <p class="page-sub" id="tagline"></p>
+  <h1 class="page-title">When can I <em>apply?</em></h1>
 
-  <div class="topicbar">
-    <label class="eyebrow" for="topic">Funder type</label>
-    <select id="topic" class="select"></select>
-    <span class="topic-count" id="topic-count"></span>
-  </div>
-  <p class="topic-note" id="topic-note"></p>
-
-  <section class="cal" id="cal" aria-label="Calendar">
-    <div class="cal-bar">
-      <button type="button" class="navbtn" id="prev" aria-label="Previous">&lsaquo;</button>
-      <button type="button" class="cal-title" id="cal-title">&nbsp;</button>
-      <button type="button" class="navbtn" id="next" aria-label="Next">&rsaquo;</button>
-      <button type="button" class="todaybtn" id="jump-today">Today</button>
-    </div>
-
-    <div class="cal-scroll">
-      <div class="cal-grid" id="cal-body"></div>
-    </div>
-
-    <p class="cal-legend" id="cal-legend"></p>
-  </section>
-
-  <!-- The month's own page from the PDF: theme, relationship note, actions -->
-  <section class="monthplan" id="monthplan" aria-live="polite"></section>
-
-  <section class="listing" aria-label="Season list">
-    <div class="listbar">
-      <div class="scopes" role="tablist" id="scopes"></div>
-      <div class="key" aria-hidden="true">
-        <span class="status open">Open</span>
-        <span class="status closing">Closing soon</span>
-        <span class="status opening">Opening soon</span>
+  <!-- The whole idea, in two boxes, before anything else. -->
+  <section class="facts">
+    <div class="fact fact-always">
+      <span class="fact-mark" aria-hidden="true">✓</span>
+      <div>
+        <h2 id="always-h"></h2>
+        <p id="always-b"></p>
       </div>
     </div>
-    <div id="list"></div>
+    <div class="fact fact-season">
+      <span class="fact-mark" aria-hidden="true">📅</span>
+      <div>
+        <h2 id="season-h"></h2>
+        <p id="season-b"></p>
+      </div>
+    </div>
   </section>
 
-  <section class="quiet" id="quiet"></section>
+  <!-- The live answer. -->
+  <section class="now" id="now"></section>
+
+  <!-- The seven, each with its months drawn as a strip. -->
+  <section class="grants">
+    <h2 class="sec-title">The seven grants with a season</h2>
+    <p class="sec-sub">The coloured blocks show the months each one is open.</p>
+    <div id="grants"></div>
+  </section>
+
+  <!-- What to do, right now, this month. -->
+  <section class="thismonth" id="thismonth"></section>
 
   <footer class="foot">
-    <b>Built from the Fund-Nation Grant Strategy Calendar, 2026 Edition.</b>
-    The calendar works in whole months, as the source does, and repeats every
-    year. Confirm every real deadline directly with the funder.
-    <span id="foot-src"></span>
+    Dates are guides, not promises. Always check with the bank, foundation or
+    office before you send anything.
   </footer>
 
 </div>
 
-<!-- Detail card, opened by clicking any line or list row. -->
+<!-- Tap a grant to read more. -->
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-scrim" data-close></div>
   <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title" id="sheet-card">
@@ -606,530 +353,238 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
 <script>
 /* ============================================================================
-   Lesko Help — Grant Strategy Calendar
+   Lesko Help — Grant Calendar
    ----------------------------------------------------------------------------
-   Source: "Grant Strategy Calendar, 2026 Edition" — Fund-Nation, 14 pages.
-   Everything in this file is taken from that document. Wording is the PDF's
-   own except where noted; nothing here is invented.
+   Source: "Grant Strategy Calendar, 2026 Edition" — Fund-Nation.
 
-   ABOUT THE DATES
-   ---------------
-   The PDF works in whole months, not dates — "banks open their grant portals
-   this month", not "March 14". It also ends with "Rinse and repeat, EVERY
-   YEAR". So seasons are stored as recurring month bands and rebuilt for
-   whichever year is on screen, rather than pinned to 2026.
+   WRITTEN FOR SOMEONE WHO KNOWS NOTHING ABOUT GRANTS.
+   Short sentences. Everyday words. No jargon.
 
-   A band that runs past New Year (bank relationship season, Nov–Jan) sets
-   wraps: true and is generated across the year boundary.
+   Words we do NOT use here, and what we say instead:
+       funder / funding cycle  ->  who gives the money / when they open
+       portal                  ->  the form, applying online
+       proposal / application  ->  your form
+       Community Reinvestment  ->  banks have to give money back locally
+       fiscal year, LOI, CRA   ->  cut entirely
+
+   THE ONE IDEA THIS PAGE EXISTS TO TEACH
+   Most grants have no deadline — apply any day. Only a few open at set times
+   of year. Those few are the ones you can miss, so those are the ones here.
 
    HOW TO EDIT
-   -----------
-     fromM / toM   Month numbers, 0 = January.
-     fromD / toD   Day of month. Use 31 for "the end of it" — it is clamped
-                   to the real last day of that month.
-     funder        Which funder type it belongs to (see LH_FUNDERS).
-                   Colour comes from the funder type, never from the season.
+   Months are numbers, 0 = January. `from` and `to` are the first and last
+   month a grant is open. If it runs across New Year, put the bigger number
+   first (e.g. from 10, to 1 = November to February).
 
-   Last review: 2026-09-08.
+   Last review: 2026-09-10.
    ========================================================================== */
 
-/* Straight from the cover of the PDF. */
-const LH_META = {
-  title: 'Grant Strategy Calendar',
-  edition: '2026 Edition',
-  tagline: 'Know when grants open, plan your year ahead of time, and stop ' +
-           'finding out about opportunities after the deadline has passed.',
-  quietMonth: {
-    heading: 'When nothing is due',
-    body: 'A quiet month is still contact. Send a short update on your work, ' +
-          'ask what is happening on their end, and offer something concrete: ' +
-          'volunteers, capacity, a hand at their next event.',
-  },
-  repeat: 'Rinse and repeat, every year.',
-  source: 'Fund-Nation · fund-nation.org',
+const LH_INTRO = {
+  title: 'When can I apply?',
+  alwaysHeading: 'Most grants have no deadline',
+  alwaysBody: 'You can apply on any day of the year. You do not have to wait ' +
+              'for a special date. If you find a grant that fits you, apply.',
+  seasonHeading: 'A few only open at certain times',
+  seasonBody: 'These are the ones people miss. They open, they close, and then ' +
+              'you wait a year. There are seven of them. They are all below.',
 };
 
-/* --------------------------------------------------------- FUNDER TYPES */
-/* Four colours only — the bright Lesko blue, red, gold and green, the same
-   four as the frame stripes. Funder types share them by suit family; every
-   line on the calendar carries its own name, so the colour only has to say
-   which family it is in. */
-
-const LH_FUNDERS = {
-  bank: {
-    name: 'Banks & CRA giving',
-    suit: '♠', color: '#2B62D9',
-    note: 'The Community Reinvestment Act is why bank giving exists, and it ' +
-          'is why it is local. Portals open in February and cycles close in ' +
-          'October — but the work that decides the outcome happens in ' +
-          'November and December, before anything is open.',
-  },
-  foundation: {
-    name: 'Foundations',
-    suit: '♥', color: '#E5372C',
-    note: 'Read the published priorities first, then request a call with a ' +
-          'program officer before you write anything.',
-  },
-  federal: {
-    name: 'Federal grants',
-    suit: '♦', color: '#F2C230',
-    note: 'The longest lead time of anything here. Preparation starts in ' +
-          'April for opportunities announcing in May.',
-  },
-  state: {
-    name: 'State grants',
-    suit: '♣', color: '#0F9D58',
-    note: 'State-specific opportunities, timed with the mid-year review so ' +
-          'your financial documentation is already in order.',
-  },
-  local: {
-    name: 'Local & community',
-    suit: '♠', color: '#2B62D9',
-    note: 'Grants from local businesses and organisations. Be a known face ' +
-          'before you are a name on a form.',
-  },
-  retail: {
-    name: 'Retail & corporate',
-    suit: '♥', color: '#E5372C',
-    note: 'Retail giving almost always starts with a store or regional ' +
-          'manager who knows you by name, not with a corporate portal.',
-  },
-  campaign: {
-    name: 'Campaigns & year-end giving',
-    suit: '♦', color: '#F2C230',
-    note: 'Giving Tuesday and the major-gift season. Prepared in September, ' +
-          'finalised in October, executed in November and December.',
-  },
-  readiness: {
-    name: 'Planning & readiness',
-    suit: '♣', color: '#0F9D58',
-    note: 'Goal setting, research, and getting documents and financial ' +
-          'statements updated before anything is due.',
-  },
+/* ------------------------------------------------------------- THE COLOURS */
+/* Four only — the Lesko blue, red, gold and green. */
+const LH_COLORS = {
+  blue:  '#2B62D9',
+  red:   '#E5372C',
+  gold:  '#F2C230',
+  green: '#0F9D58',
 };
 
-/* -------------------------------------------------------------- SEASONS */
-/* Recurring month bands, rebuilt for whichever year is on screen. */
+/* ------------------------------------------------------------- THE GRANTS */
+/* Seven kinds of grant with a season. That is the whole list.
 
-const LH_SEASONS = [
+   Note on what is NOT here: the source also has a January planning month and
+   a November-to-January stretch for getting to know your bank. Neither is a
+   grant you apply for, so putting them in this list only made it longer and
+   more confusing. They live in the monthly advice instead. */
+
+const LH_GRANTS = [
   {
-    id: 'bank-portals',
-    funder: 'bank',
-    name: 'Bank grant portals open',
-    short: 'Portals open in February and cycles close in October.',
-    what: 'Identify the banks that open their grant portals in February and ' +
-          'submit early where you can. Cycles close in October, so September ' +
-          'is the month to confirm the deadline and submission process ' +
-          'directly with your contact.',
-    fromM: 1, fromD: 1, toM: 9, toD: 31,
-    peak: 'February to submit, October to close',
-    prep: [
-      'Meet the branch manager and the bank’s community relations contact before the portal opens',
-      'Confirm the deadline and submission process directly with them',
-      'Offer a site visit while there is still room on the calendar',
-    ],
-    urgent: 'Bank giving is local and it runs on who they already know. ' +
-            'Walking up to a portal in February without a relationship behind ' +
-            'it is the most common way this cycle is wasted.',
+    id: 'bank',
+    name: 'Bank grants',
+    color: 'blue',
+    from: 1, to: 9,                 // February to October
+    when: 'February to October',
+    what: 'Banks have to give money back to their local area. So they give ' +
+          'grants to groups near them.',
+    tip: 'Go into your bank and meet the manager before you apply. Banks give ' +
+         'to people they already know. The best time to do that is November ' +
+         'and December, months before the form even opens.',
+    heads: 'This one is open the longest, so it is easy to think you have time. ' +
+           'Send your form early.',
   },
   {
-    id: 'bank-relationship',
-    funder: 'bank',
-    name: 'Bank relationship season',
-    short: 'The unfunded months that decide the February applications.',
-    what: 'Be of service to your local bank. Volunteer at their events, ' +
-          'staff the toy drive, work their community day. Attend every event ' +
-          'you are invited to, including the ones that look unrelated to funding.',
-    fromM: 10, fromD: 1, toM: 0, toD: 31, wraps: true,
-    peak: 'November through January',
-    prep: [
-      'Say yes to every invitation — holiday events, ribbon cuttings, community nights',
-      'Be useful rather than working the room',
-      'Thank everyone who took a meeting this year, including the ones who declined',
-    ],
-    urgent: 'This is not seasonal goodwill. November and December set the ' +
-            'scene for your February bank applications — by the time the ' +
-            'portals open, they should already know your name.',
-  },
-  {
-    id: 'foundations',
-    funder: 'foundation',
-    name: 'Foundation grant season',
-    short: 'Target foundations actively seeking applicants.',
-    what: 'Tailor every application to the individual foundation’s focus, ' +
-          'seek endorsements from community leaders, and analyse past ' +
-          'winners for what actually got funded.',
-    fromM: 2, fromD: 1, toM: 2, toD: 31,
-    peak: 'March',
-    prep: [
-      'Read the published priorities before you write anything',
-      'Request a call with a program officer',
-      'Line up endorsements from community leaders or related organisations',
-    ],
-    urgent: 'Ask the one question worth a program officer’s time: is there ' +
-            'anything I need to know about this grant that is not on your website?',
+    id: 'foundation',
+    name: 'Foundation grants',
+    color: 'red',
+    from: 2, to: 2,                 // March
+    when: 'March',
+    what: 'Foundations are set up to give money away. Each one has its own ' +
+          'list of what it pays for.',
+    tip: 'Read their website first and see what they pay for. Then phone them ' +
+         'and ask: is there anything I should know that is not on your website?',
   },
   {
     id: 'federal',
-    funder: 'federal',
-    name: 'Federal grant season',
-    short: 'Prepare in April for the opportunities announcing in May.',
-    what: 'Federal grants carry specific requirements and the longest lead ' +
-          'time on this calendar. Position your project to align with federal ' +
-          'priorities, and be ready to adapt as guidelines evolve.',
-    fromM: 3, fromD: 1, toM: 4, toD: 31,
-    peak: 'April to prepare, May to apply',
-    prep: [
-      'Introduce yourself to your congressional district staffer and your state agency program contact',
-      'Assemble a grant team for the more complex applications',
-      'Look for partners — a joint proposal is usually the stronger one',
-    ],
-    urgent: 'Both a district staffer and a state agency contact are free, ' +
-            'both remember you, and neither requires a proposal.',
+    name: 'Government grants',
+    color: 'gold',
+    from: 3, to: 4,                 // April to May
+    when: 'April and May',
+    what: 'Money from the US government. The forms are longer and they ask ' +
+          'for more.',
+    tip: 'Start in April even though most open in May. Phone the office for ' +
+         'your area and introduce yourself. It is free and they will remember you.',
+    heads: 'These take the most time to fill in. Do not leave them to the last week.',
   },
   {
     id: 'state',
-    funder: 'state',
-    name: 'State grants & mid-year review',
-    short: 'State-specific opportunities, plus the half-year checkpoint.',
-    what: 'Target state-specific grant opportunities, evaluate your progress ' +
-          'so far, and get your financial documentation in order for mid-year ' +
-          'submissions.',
-    fromM: 5, fromD: 1, toM: 5, toD: 30,
-    peak: 'June',
-    prep: [
-      'Financial documentation in order for mid-year submissions',
-      'A mid-year update ready to send',
-    ],
-    urgent: 'Send the mid-year update to everyone you have talked to this ' +
-            'year, whether or not they funded you. Especially the ones who said no.',
+    name: 'State grants',
+    color: 'green',
+    from: 5, to: 5,                 // June
+    when: 'June',
+    what: 'Money from your own state, for groups working in that state.',
+    tip: 'Have your money papers ready before June. They will ask to see them.',
   },
   {
     id: 'local',
-    funder: 'local',
-    name: 'Local & community grants',
-    short: 'Grants from local businesses and organisations.',
-    what: 'Focus on grants that fund community projects, engage with local ' +
-          'communities for support and insight, and emphasise the local ' +
-          'impact of your project in every application.',
-    fromM: 6, fromD: 1, toM: 6, toD: 31,
-    peak: 'July',
-    prep: [
-      'Show up where the funders already are — chamber events, city council, service clubs',
-      'Participate in local events to build presence and credibility',
-    ],
-    urgent: 'Be a known face before you are a name on a form.',
+    name: 'Local grants',
+    color: 'blue',
+    from: 6, to: 6,                 // July
+    when: 'July',
+    what: 'Small grants from local businesses and local groups.',
+    tip: 'Go where they are. Local meetings, town events, clubs. Be a face ' +
+         'they know before you are a name on a form.',
   },
   {
-    id: 'retail',
-    funder: 'retail',
-    name: 'Retail & corporate grants',
-    short: 'Corporate giving, which starts in the store and not the portal.',
-    what: 'Look for grants offered by retail companies, revise your existing ' +
-          'proposals with new data or achievements, and get ready for the ' +
-          'busy grant season in the autumn.',
-    fromM: 7, fromD: 1, toM: 7, toD: 31,
-    peak: 'August',
-    prep: [
-      'Walk into the store and meet the store or regional manager',
-      'Update your proposals with this year’s data and achievements',
-    ],
-    urgent: 'Retail giving almost always starts with a manager who knows you ' +
-            'by name, not with a corporate portal.',
+    id: 'company',
+    name: 'Shop & company grants',
+    color: 'red',
+    from: 7, to: 7,                 // August
+    when: 'August',
+    what: 'Big shops and companies give money to groups near their stores.',
+    tip: 'Walk into the shop and ask for the manager. This almost never ' +
+         'starts online. It starts with a person.',
   },
   {
-    id: 'giving-tuesday',
-    funder: 'campaign',
-    name: 'Giving Tuesday campaign',
-    short: 'Planned in September, finalised in October, executed in November.',
-    what: 'Start planning in September, refresh your social media for active ' +
-          'engagement, increase community outreach, then finalise and run the ' +
-          'campaign through November.',
-    fromM: 8, fromD: 1, toM: 10, toD: 30,
-    peak: 'Giving Tuesday itself — the Tuesday after Thanksgiving',
-    givingTuesday: true,   // the exact day is computed, it moves every year
-    prep: [
-      'Refresh your organisation’s social media for active engagement',
-      'Gather testimonials and impact stories',
-      'Document success stories for the end-of-year appeal',
-    ],
-  },
-  {
-    id: 'year-end',
-    funder: 'campaign',
-    name: 'Year-end & major gifts',
-    short: 'Major gift solicitation and the annual review.',
-    what: 'Focus on year-end fundraising and major gift solicitation, remind ' +
-          'donors of the tax benefits of year-end giving, and use the holiday ' +
-          'season to boost the campaign.',
-    fromM: 10, fromD: 1, toM: 11, toD: 31,
-    peak: 'November and December',
-    prep: [
-      'Thank-you messages out to donors and supporters',
-      'Annual reports for stakeholders',
-      'Testimonials and impact stories collected for future use',
-    ],
-    urgent: 'Funders are out in public this month, at holiday events, ribbon ' +
-            'cuttings and community nights. Keep showing up.',
-  },
-  {
-    id: 'planning',
-    funder: 'readiness',
-    name: 'Planning & preparation',
-    short: 'Goals, research and paperwork, before anything is due.',
-    what: 'Define what you want to achieve with grant funding this year, ' +
-          'research the grants and their deadlines, and make sure every ' +
-          'document and financial statement is updated and ready.',
-    fromM: 0, fromD: 1, toM: 0, toD: 31,
-    peak: 'January',
-    prep: [
-      'Documents and financial statements updated and ready',
-      'A list of the grants and deadlines you are targeting',
-      'Draft proposals started for the upcoming opportunities',
-    ],
-    urgent: 'Start the introduction conversations now for the summer and ' +
-            'autumn deadlines. Ask for fifteen minutes to learn what they ' +
-            'fund. Do not ask for money on a first call.',
+    id: 'yearend',
+    name: 'Year-end giving',
+    color: 'gold',
+    from: 10, to: 11,               // November to December
+    when: 'November and December',
+    what: 'Not a form. This is when people give the most money to good causes.',
+    tip: 'Ask your supporters. Tell them what you did this year. Then thank ' +
+         'everyone, whether they gave or not.',
   },
 ];
 
-/* --------------------------------------------------------------- MONTHS */
-/* One entry per month, straight from the PDF: its theme, the relationship
-   building note, and the five strategy and focus actions. */
+/* --------------------------------------------------------- MONTHLY ADVICE */
+/* One short line for each month, and up to three things to do. Plain words. */
 
 const LH_MONTHS = [
-  {
-    theme: 'Planning and Preparation',
-    relationship: 'Start the introduction conversations now for the summer and fall deadlines. Ask for fifteen minutes to learn what they fund. Do not ask for money on a first call.',
-    actions: [
-      ['Set Clear Goals', 'Define what you want to achieve with grant funding this year.'],
-      ['Research Grants', 'Start researching potential grants and deadlines.'],
-      ['Network', 'Begin networking with potential funders and partners.'],
-      ['Draft Proposals', 'Start drafting grant proposals for upcoming opportunities.'],
-      ['Organize Documents', 'Ensure all necessary documents and financial statements are updated and ready.'],
-    ],
-  },
-  {
-    theme: 'Banking on Grant Opportunities',
-    relationship: 'Meet the branch manager and the bank’s community relations contact before the portal opens. Bank giving is local and it runs on who they already know.',
-    actions: [
-      ['Target Bank Grants', 'Identify banks that open their grant portals this month.'],
-      ['Early Submissions', 'Submit applications early where possible.'],
-      ['Refine Proposals', 'Continuously refine your grant proposals based on feedback.'],
-      ['Attend Workshops', 'Participate in grant writing workshops and seminars.'],
-      ['Monitor Deadlines', 'Keep a close watch on submission deadlines.'],
-    ],
-  },
-  {
-    theme: 'Focus on Foundation Grants',
-    relationship: 'Request a call with a program officer before you write anything. Read the published priorities first, then ask the one question worth their time: is there anything I need to know about this grant that is not on your website?',
-    actions: [
-      ['Focus on Foundations', 'Target foundation grants actively seeking applicants.'],
-      ['Tailor Applications', 'Customize applications to align with each foundation’s focus.'],
-      ['Seek Endorsements', 'Get endorsements from community leaders or related organizations.'],
-      ['Review Past Winners', 'Analyze successful past applications for insights.'],
-      ['Engage with Foundation Representatives', 'Establish direct contact for better understanding and guidance.'],
-    ],
-  },
-  {
-    theme: 'Diverse Opportunities and Federal Grants',
-    relationship: 'Introduce yourself to your congressional district staffer and your state agency program contact. Both are free, both remember you, and neither requires a proposal.',
-    actions: [
-      ['Explore Various Grants', 'Look for different types including federal, state, and private.'],
-      ['Prepare Federal Grants', 'Begin preparing for federal grants and their specific requirements.'],
-      ['Build a Grant Team', 'Consider assembling a team for multiple or complex applications.'],
-      ['Stay Organized', 'Keep track of all applications and their respective stages.'],
-      ['Feedback and Revision', 'Seek feedback on your proposals and revise them accordingly.'],
-    ],
-  },
-  {
-    theme: 'Federal Grants and Strategic Positioning',
-    relationship: 'Ask your current funders who else should know your work, then ask them to make the introduction. A referred organization is not a cold applicant.',
-    actions: [
-      ['Prioritize Federal Grants', 'Focus on federal grants announcing this month.'],
-      ['Understand Requirements', 'Ensure thorough understanding of federal grant requirements.'],
-      ['Strategic Positioning', 'Position your project to align with federal priorities.'],
-      ['Collaborate', 'Look for opportunities to partner with other organizations for stronger proposals.'],
-      ['Maintain Flexibility', 'Be ready to adapt proposals as federal guidelines evolve.'],
-    ],
-  },
-  {
-    theme: 'State Grants and Mid-Year Evaluation',
-    relationship: 'Send a mid-year update to everyone you have talked to this year, whether or not they funded you. Especially the ones who said no.',
-    actions: [
-      ['Apply for State Grants', 'Target state-specific grant opportunities.'],
-      ['Mid-Year Review', 'Evaluate your progress and adapt strategies as needed.'],
-      ['Strengthen Networks', 'Strengthen relationships with funders and partners.'],
-      ['Stay Informed', 'Keep abreast of any new opportunities or changes.'],
-      ['Organize Financials', 'Ensure your financial documentation is in order for mid-year submissions.'],
-    ],
-  },
-  {
-    theme: 'Community Initiatives and Local Grants',
-    relationship: 'Show up where the funders already are. Chamber events, city council, service clubs. Be a known face before you are a name on a form.',
-    actions: [
-      ['Community Focus', 'Focus on grants that fund community projects.'],
-      ['Local Engagement', 'Engage with local communities for support and insight.'],
-      ['Seek Local Grants', 'Look for grants offered by local businesses and organizations.'],
-      ['Highlight Impact', 'Emphasize the local impact of your project in applications.'],
-      ['Stay Active in Community', 'Participate in local events to build presence and credibility.'],
-    ],
-  },
-  {
-    theme: 'Planning and Retail Grants',
-    relationship: 'Walk into the store. Retail giving almost always starts with a store or regional manager who knows you by name, not with a corporate portal.',
-    actions: [
-      ['Plan Ahead', 'Start planning for upcoming grant opportunities.'],
-      ['Retail Grants', 'Look for grants offered by retail companies.'],
-      ['Update Proposals', 'Revise your existing proposals with new data or achievements.'],
-      ['Networking', 'Continue building relationships with potential funders.'],
-      ['Prepare for Busy Season', 'Get ready for the busy grant season in the fall.'],
-    ],
-  },
-  {
-    theme: 'Bank Connections and Giving Tuesday Prep',
-    relationship: 'Reconnect before the October cycle closes. Send your bank contacts what the year has produced, confirm the deadline and submission process directly with them, and offer a site visit while there is still room on the calendar.',
-    actions: [
-      ['Reconnect with Banks', 'Engage with banks before they close their cycles in October.'],
-      ['Prepare for Giving Tuesday', 'Start planning your Giving Tuesday campaign.'],
-      ['Update Social Media', 'Refresh your organization’s social media for active engagement.'],
-      ['Outreach', 'Increase community outreach to build support for upcoming campaigns.'],
-      ['Review Past Submissions', 'Review past submissions for improvements and updates.'],
-    ],
-  },
-  {
-    theme: 'Bank Deadlines and Strategic Alliances',
-    relationship: 'Thank everyone who took a meeting this year, including the ones who declined. This is the month that decides whether next year starts warm or cold.',
-    actions: [
-      ['Finalize Bank Grants', 'Ensure all bank grant applications are submitted before deadlines.'],
-      ['Build Alliances', 'Strengthen alliances with community partners and funders.'],
-      ['Giving Tuesday Strategy', 'Finalize and begin implementing your Giving Tuesday strategy.'],
-      ['Document Success Stories', 'Gather and document success stories for end-of-year appeals.'],
-      ['Plan for Next Year', 'Start early planning for next year’s grant cycle.'],
-    ],
-  },
-  {
-    theme: 'Giving Tuesday and Annual Review',
-    relationship: 'Be of service to your local bank. Volunteer at their events, staff the toy drive, work their community day. Attend every event you are invited to, including the ones that look unrelated to funding. This is not seasonal goodwill. November and December set the scene for your February bank applications.',
-    actions: [
-      ['Maximize Giving Tuesday', 'Execute your Giving Tuesday campaign effectively.'],
-      ['Annual Review', 'Start reviewing the year’s efforts and outcomes.'],
-      ['Gather Testimonials', 'Collect testimonials and impact stories for future use.'],
-      ['Thank Donors', 'Send out thank-you messages to donors and supporters.'],
-      ['Prepare Year-End Reports', 'Begin preparing annual reports for stakeholders.'],
-    ],
-  },
-  {
-    theme: 'Season of Major Gifts',
-    relationship: 'Keep showing up. Funders are out in public this month, at holiday events, ribbon cuttings and community nights. Say yes to every invitation, stay in service to your local bank, and be useful rather than working the room. By the time the bank portals open in February, they should already know your name.',
-    actions: [
-      ['Target Major Gifts', 'Focus on year-end fundraising and major gift solicitation.'],
-      ['Tax Incentives', 'Remind donors of tax benefits associated with year-end giving.'],
-      ['Holiday Campaigns', 'Use the holiday spirit to boost fundraising efforts.'],
-      ['Reflect and Celebrate', 'Reflect on the year’s achievements and celebrate successes.'],
-      ['Set Goals for Next Year', 'Begin setting goals and strategies for the upcoming year.'],
-    ],
-  },
+  { name: 'January',
+    line: 'Nothing is due. This is the month to get ready.',
+    todo: ['Decide which grants you want this year.',
+           'Get your papers and money records up to date.',
+           'Start saying hello to people who give money. Do not ask for any yet.'] },
+  { name: 'February',
+    line: 'Bank grants open this month.',
+    todo: ['Find out which banks near you are open for grants.',
+           'Send your form early, not on the last day.',
+           'Go in and meet your bank in person.'] },
+  { name: 'March',
+    line: 'Foundations are the focus.',
+    todo: ['Read what each one pays for before you write anything.',
+           'Phone and ask them a question. It shows you are serious.',
+           'Ask someone local and well known to say a good word for you.'] },
+  { name: 'April',
+    line: 'Start on government grants now.',
+    todo: ['Begin the paperwork. It takes longer than you think.',
+           'Introduce yourself to your local government office.',
+           'Ask another group to work with you on the bigger ones.'] },
+  { name: 'May',
+    line: 'Government grants open.',
+    todo: ['Check you meet every rule they ask for.',
+           'Ask the people who already fund you who else you should meet.',
+           'Be ready to change your form if their rules change.'] },
+  { name: 'June',
+    line: 'State grants, and a look back at your year so far.',
+    todo: ['Look for grants from your own state.',
+           'Check how the year is going and what to change.',
+           'Send a short update to everyone you spoke to. Even the ones who said no.'] },
+  { name: 'July',
+    line: 'Local grants and local people.',
+    todo: ['Look for grants from local businesses.',
+           'Go to local events so people see you.',
+           'Say clearly how your work helps the area.'] },
+  { name: 'August',
+    line: 'Shops and companies. Also, get ready for autumn.',
+    todo: ['Walk into local shops and ask about grants.',
+           'Update your forms with what you did this year.',
+           'Autumn is the busy season. Get ready now.'] },
+  { name: 'September',
+    line: 'Bank grants close soon. Do not wait.',
+    todo: ['Phone your bank and check the closing date yourself.',
+           'Send them what your group has done this year.',
+           'Start planning your end-of-year fundraising.'] },
+  { name: 'October',
+    line: 'Last chance for bank grants.',
+    todo: ['Send every bank form before the date.',
+           'Write down your good news stories for the end of year.',
+           'Thank everyone who met you this year, even the ones who said no.'] },
+  { name: 'November',
+    line: 'Ask your supporters. And start on next February.',
+    todo: ['Run your end-of-year ask.',
+           'Collect thank-you notes and stories from people you helped.',
+           'Help out at your bank’s events. This is what gets you funded in February.'] },
+  { name: 'December',
+    line: 'The biggest giving month of the year.',
+    todo: ['Ask people to give before the year ends.',
+           'Say thank you to everyone.',
+           'Keep turning up at local events. Be useful, not pushy.'] },
 ];
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { LH_META, LH_FUNDERS, LH_SEASONS, LH_MONTHS };
+  module.exports = { LH_INTRO, LH_COLORS, LH_GRANTS, LH_MONTHS };
 }
 
 </script>
 <script>
 /* ============================================================================
-   Lesko Help — Grant Strategy Calendar
+   Lesko Help — Grant Calendar
 
-   The Fund-Nation grant year as a working calendar. Seasons are stored as
-   recurring month bands (the source works in whole months and says "rinse and
-   repeat, every year"), so they are generated for whichever year is on screen
-   rather than pinned to 2026.
+   Built for someone who has never applied for a grant. It answers, in order:
 
-   It opens on the whole year, which is the view that answers "when does what
-   happen". Click a month — or step through with the arrows — for the month
-   grid, that month's page from the PDF, and the seasons in detail.
+     1. Do I have to wait?          Mostly no.
+     2. What can I do right now?    This list.
+     3. When does the rest open?    This strip.
+     4. What should I do today?     This box.
 
-   Append ?date=YYYY-MM-DD to preview another day.
+   No navigation, no filters, no month grid. Everything is on one screen and
+   works out where we are in the year on its own.
    ========================================================================== */
 (function () {
   'use strict';
 
-  /* ------------------------------------------------------------- DAY MATH */
-  // Parsed at UTC noon so adding days never trips over a daylight-saving
-  // boundary and lands on the wrong calendar square.
-  function mk(y, m, d) { return new Date(Date.UTC(y, m, d, 12)); }
-  function addDays(d, n) { return new Date(d.getTime() + n * 86400000); }
-  function diff(a, b) { return Math.round((b - a) / 86400000); }
-  function lastDay(y, m) { return new Date(Date.UTC(y, m + 1, 0)).getUTCDate(); }
-
   var MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
-  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var INITIALS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
 
-  function longDate(d) { return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear(); }
-  function shortDate(d) { return MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); }
+  var now = new Date();
+  var THIS_MONTH = now.getMonth();
+  var TODAY = now.getDate();
 
-  function countdown(n) {
-    if (n === 0) return 'today';
-    if (n === 1) return 'tomorrow';
-    if (n < 60) return 'in ' + n + ' days';
-    var m = Math.round(n / 30.4);
-    return m < 13 ? 'in ' + m + ' months' : 'in ' + Math.round(n / 365) + ' years';
-  }
-  function remaining(n) {
-    if (n === 0) return 'last day';
-    if (n === 1) return '1 day left';
-    if (n < 70) return n + ' days left';
-    return Math.round(n / 30.4) + ' months left';
-  }
-
-  var qs = new URLSearchParams(location.search).get('date');
-  var TODAY = (function () {
-    if (qs && /^\d{4}-\d{2}-\d{2}$/.test(qs)) {
-      var p = qs.split('-');
-      return mk(+p[0], +p[1] - 1, +p[2]);
-    }
-    var n = new Date();
-    return mk(n.getFullYear(), n.getMonth(), n.getDate());
-  })();
-
-  // Giving Tuesday is the Tuesday after Thanksgiving, and Thanksgiving is the
-  // fourth Thursday in November — so it moves every year and has to be worked
-  // out rather than stored.
-  function givingTuesday(year) {
-    var d = mk(year, 10, 1), thursdays = 0;
-    while (true) {
-      if (d.getUTCDay() === 4 && ++thursdays === 4) break;
-      d = addDays(d, 1);
-    }
-    return addDays(d, 5);
-  }
-
-  /* ---------------------------------------------------------------- STATE */
-  var view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-  var mode = 'year';       // year | month — the year is the way in
-  var scope = 'month';     // today | week | month ("month" = whatever is shown)
-  var funderFilter = 'all';
-
-  function inFilter(s) { return funderFilter === 'all' || s.funder === funderFilter; }
-  function funderOf(s) { return LH_FUNDERS[s.funder]; }
-  function colourOf(s) { return funderOf(s).color; }
-
-  // Only four line colours exist, but gold needs ink and blue needs white, so
-  // the label colour comes from the real contrast ratio against each.
-  function luminance(hex) {
-    var c = [1, 3, 5].map(function (i) {
-      var v = parseInt(hex.substr(i, 2), 16) / 255;
-      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    });
-    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-  }
-  var INK = '#12213F', INK_L = luminance(INK);
-  function readableOn(hex) {
-    var bg = luminance(hex);
-    return (bg + 0.05) / (INK_L + 0.05) >= 1.05 / (bg + 0.05) ? INK : '#FFFFFF';
-  }
+  // Preview another month with ?month=1 (0 = January). Only for checking the
+  // page reads right in, say, February.
+  var q = new URLSearchParams(location.search).get('month');
+  if (q !== null && /^\d+$/.test(q) && +q >= 0 && +q < 12) THIS_MONTH = +q;
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -1137,503 +592,197 @@ if (typeof module !== 'undefined' && module.exports) {
     if (text != null) n.textContent = text;
     return n;
   }
+  function colourOf(g) { return LH_COLORS[g.color]; }
 
-  /* ------------------------------------------------------------- INSTANCES */
-  // A season is a month band, not a date range. Turn it into real dates for a
-  // given year — and for a band that wraps New Year, the run that started the
-  // year before is still open in January, so generate that one too.
-  function instancesFor(season, year) {
-    var out = [];
-    [year - 1, year, year + 1].forEach(function (y) {
-      var from = mk(y, season.fromM, Math.min(season.fromD, lastDay(y, season.fromM)));
-      var endYear = season.wraps ? y + 1 : y;
-      var to = mk(endYear, season.toM, Math.min(season.toD, lastDay(endYear, season.toM)));
-      out.push({ s: season, from: from, to: to });
+  // Gold carries dark text, the other three carry white. Worked out from the
+  // real contrast ratio rather than hard-coded, so a colour change cannot
+  // quietly leave a label unreadable.
+  function labelOn(hex) {
+    var c = [1, 3, 5].map(function (i) {
+      var v = parseInt(hex.substr(i, 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
     });
-    return out;
+    var L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    return (L + 0.05) / 0.0695 >= 1.05 / (L + 0.05) ? '#12213F' : '#FFFFFF';
   }
 
-  function instancesIn(from, to) {
-    var year = from.getUTCFullYear();
-    var out = [];
-    LH_SEASONS.filter(inFilter).forEach(function (s) {
-      instancesFor(s, year).forEach(function (inst) {
-        if (inst.from <= to && inst.to >= from) out.push(inst);
-      });
-    });
-    // De-duplicate: the three generated years can overlap on a wrapping band.
-    var seen = {};
-    out = out.filter(function (i) {
-      var k = i.s.id + '|' + i.from.getTime();
-      if (seen[k]) return false;
-      seen[k] = 1;
-      return true;
-    });
-    return out.sort(byOrder(from));
+  /* -------------------------------------------------------------- MONTHS */
+  // A grant can run across New Year (November to February), so "is month m
+  // inside this grant" is not a simple from <= m <= to.
+  function isOpenIn(g, m) {
+    return g.from <= g.to ? (m >= g.from && m <= g.to)
+                          : (m >= g.from || m <= g.to);
   }
+  function isOpenNow(g) { return isOpenIn(g, THIS_MONTH); }
 
-  /* -------------------------------------------------------------- STATUS */
-  var OPENING_SOON = 60, CLOSING_SOON = 30;
-
-  function statusOf(inst, on) {
-    if (on < inst.from) return diff(on, inst.from) <= OPENING_SOON ? 'opening' : 'later';
-    if (on > inst.to) return 'closed';
-    return diff(on, inst.to) <= CLOSING_SOON ? 'closing' : 'open';
-  }
-  var STATUS_LABEL = {
-    open: 'Open', closing: 'Closing soon', opening: 'Opening soon',
-    later: 'Not yet', closed: 'Finished',
-  };
-
-  // Seasons repeat, so one that has ended is not gone — it comes back. Find
-  // the next run, which is what a closed row should actually be telling you.
-  function nextRun(season, after) {
-    var year = after.getUTCFullYear();
-    var runs = instancesFor(season, year).concat(instancesFor(season, year + 1));
-    runs.sort(function (a, b) { return a.from - b.from; });
-    for (var i = 0; i < runs.length; i++) if (runs[i].from > after) return runs[i];
+  // How many months until it opens again. Used for "opens in 2 months".
+  function monthsUntilOpen(g) {
+    for (var i = 0; i < 12; i++) {
+      if (isOpenIn(g, (THIS_MONTH + i) % 12)) return i;
+    }
     return null;
   }
-
-  // What needs attention sorts above what does not: closing, then open, then
-  // opening soon, then later, then already finished.
-  var STATUS_RANK = { closing: 0, open: 1, opening: 2, later: 3, closed: 4 };
-  function byOrder(from) {
-    return function (a, b) {
-      var ra = STATUS_RANK[statusOf(a, TODAY)], rb = STATUS_RANK[statusOf(b, TODAY)];
-      if (ra !== rb) return ra - rb;
-      // Within a rank, soonest first — by end date if running, else by start.
-      var ka = ra <= 1 ? diff(TODAY, a.to) : diff(TODAY, a.from);
-      var kb = rb <= 1 ? diff(TODAY, b.to) : diff(TODAY, b.from);
-      return ka - kb;
-    };
-  }
-
-  /* -------------------------------------------------------------- PERIOD */
-  function period() {
-    if (scope === 'today') return { from: TODAY, to: TODAY, label: 'today' };
-    if (scope === 'week') return { from: TODAY, to: addDays(TODAY, 6), label: 'the next 7 days' };
-    var y = view.getUTCFullYear(), m = view.getUTCMonth();
-    if (mode === 'year') return { from: mk(y, 0, 1), to: mk(y, 11, 31), label: String(y) };
-    return { from: mk(y, m, 1), to: mk(y, m + 1, 0), label: MONTHS[m] + ' ' + y };
-  }
-
-  /* ============================================================ MONTH GRID */
-  function weekItems(weekStart, pool, rank) {
-    var weekEnd = addDays(weekStart, 6);
-    var items = [];
-
-    pool.forEach(function (inst) {
-      if (inst.to < weekStart || inst.from > weekEnd) return;
-      items.push({
-        inst: inst, kind: 'bar',
-        start: Math.max(diff(weekStart, inst.from), 0),
-        end: Math.min(diff(weekStart, inst.to), 6),
-        cutL: inst.from < weekStart, cutR: inst.to > weekEnd,
-      });
-    });
-
-    // Giving Tuesday is the one exact date in the whole source.
-    var gt = givingTuesday(weekStart.getUTCFullYear());
-    if (gt >= weekStart && gt <= weekEnd &&
-        (funderFilter === 'all' || funderFilter === 'campaign')) {
-      items.push({ kind: 'pin', label: 'Giving Tuesday',
-                   start: diff(weekStart, gt), end: diff(weekStart, gt) });
+  // The last month it is open, counting forward from now.
+  function monthsLeftOpen(g) {
+    for (var i = 0; i < 12; i++) {
+      if (!isOpenIn(g, (THIS_MONTH + i) % 12)) return i - 1;
     }
-
-    items.sort(function (a, b) {
-      if (a.kind !== b.kind) return a.kind === 'bar' ? -1 : 1;
-      if (a.kind === 'pin') return a.start - b.start;
-      return rank[a.inst.s.id] - rank[b.inst.s.id];
-    });
-
-    var lanes = [];
-    items.forEach(function (it) {
-      var i = 0;
-      while (lanes[i] && lanes[i].some(function (o) { return it.start <= o.end && o.start <= it.end; })) i++;
-      (lanes[i] = lanes[i] || []).push(it);
-      it.lane = i;
-    });
-
-    return { items: items, lanes: lanes.length };
+    return 11;
   }
 
-  function renderMonth(host) {
-    var y = view.getUTCFullYear(), m = view.getUTCMonth();
-    var first = mk(y, m, 1);
-    var gridStart = addDays(first, -first.getUTCDay());
-    var weeks = Math.ceil((diff(gridStart, mk(y, m + 1, 0)) + 1) / 7);
-    var gridEnd = addDays(gridStart, weeks * 7 - 1);
+  function plural(n, one, many) { return n === 1 ? one : many; }
 
-    var head = el('div', 'weekdays');
-    head.setAttribute('aria-hidden', 'true');
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function (d) {
-      head.appendChild(el('div', null, d));
-    });
-    host.appendChild(head);
-
-    var pool = instancesIn(gridStart, gridEnd);
-    var rank = {};
-    pool.forEach(function (inst, i) { rank[inst.s.id] = i; });
-
-    for (var w = 0; w < weeks; w++) {
-      var weekStart = addDays(gridStart, w * 7);
-      var packed = weekItems(weekStart, pool, rank);
-
-      var row = el('div', 'week');
-      row.style.minHeight = (26 + packed.lanes * 21 + 8) + 'px';
-
-      var days = el('div', 'week-days');
-      for (var i = 0; i < 7; i++) {
-        var d = addDays(weekStart, i);
-        var cell = el('div');
-        if (d.getUTCMonth() !== m) cell.classList.add('out');
-        if (diff(d, TODAY) === 0) cell.classList.add('today');
-        cell.appendChild(el('span', 'dnum', String(d.getUTCDate())));
-        days.appendChild(cell);
-      }
-      row.appendChild(days);
-
-      var overlay = el('div', 'week-events');
-      packed.items.forEach(function (it) {
-        var b = el('button', 'ev');
-        b.type = 'button';
-        b.style.gridColumn = (it.start + 1) + ' / ' + (it.end + 2);
-        b.style.gridRow = String(it.lane + 1);
-
-        if (it.kind === 'pin') {
-          b.classList.add('pin');
-          b.textContent = it.label;
-          b.title = it.label;
-          b.setAttribute('aria-label', it.label);
-        } else {
-          var col = colourOf(it.inst.s);
-          b.style.setProperty('--c', col);
-          b.style.setProperty('--ct', readableOn(col));
-          b.textContent = it.inst.s.name;
-          if (it.cutL) b.classList.add('cut-l');
-          if (it.cutR) b.classList.add('cut-r');
-          b.title = it.inst.s.name + ' · ' + shortDate(it.inst.from) + ' – ' + shortDate(it.inst.to);
-          b.setAttribute('aria-label', it.inst.s.name + ', ' +
-            STATUS_LABEL[statusOf(it.inst, TODAY)].toLowerCase());
-          b.addEventListener('click', function () { openSheet(it.inst); });
-        }
-        overlay.appendChild(b);
-      });
-      row.appendChild(overlay);
-      host.appendChild(row);
-    }
-
-    var n = pool.length;
-    setLegend(n + ' season' + (n === 1 ? '' : 's') + ' cross ' + MONTHS[m] +
-              '. Click any line for what it needs. A rounded end is where the season starts or finishes.');
-  }
-
-  /* ============================================================= YEAR VIEW */
-  function renderYear(host) {
-    var y = view.getUTCFullYear();
-    var grid = el('div', 'yeargrid');
-
+  /* --------------------------------------------------------- MONTH STRIP */
+  // Twelve blocks. Filled where the grant is open. This is the whole
+  // explanation of "when" — no legend needed, no reading required.
+  function strip(g) {
+    var wrap = el('div', 'strip');
     for (var m = 0; m < 12; m++) {
-      (function (m) {
-        var from = mk(y, m, 1), to = mk(y, m + 1, 0);
-        var active = instancesIn(from, to);
-
-        var card = el('button', 'ycard');
-        card.type = 'button';
-        if (y === TODAY.getUTCFullYear() && m === TODAY.getUTCMonth()) card.classList.add('is-now');
-
-        var top = el('div', 'ycard-top');
-        top.appendChild(el('span', 'ycard-name', MONTHS[m]));
-        top.appendChild(el('span', 'ycard-n', active.length ? String(active.length) : '—'));
-        card.appendChild(top);
-
-        // The month's theme from the PDF is the most useful line here.
-        card.appendChild(el('div', 'ycard-theme', LH_MONTHS[m].theme));
-
-        var bars = el('div', 'ybars');
-        active.slice(0, 5).forEach(function (inst) {
-          var bar = el('div', 'ybar');
-          bar.style.setProperty('--c', colourOf(inst.s));
-          bar.style.setProperty('--ct', readableOn(colourOf(inst.s)));
-          bar.textContent = inst.s.name;
-          if (inst.from < from) bar.classList.add('cut-l');
-          if (inst.to > to) bar.classList.add('cut-r');
-          bars.appendChild(bar);
-        });
-        if (active.length > 5) bars.appendChild(el('div', 'ymore', '+' + (active.length - 5) + ' more'));
-        card.appendChild(bars);
-
-        card.addEventListener('click', function () {
-          view = mk(y, m, 1);
-          mode = 'month';
-          scope = 'month';
-          render();
-        });
-        grid.appendChild(card);
-      })(m);
+      var cell = el('div', 'strip-m' + (isOpenIn(g, m) ? ' on' : ''));
+      if (isOpenIn(g, m)) {
+        cell.style.background = colourOf(g);
+        cell.style.color = labelOn(colourOf(g));
+      }
+      if (m === THIS_MONTH) cell.classList.add('is-now');
+      var lab = el('span', 'strip-l', INITIALS[m]);
+      if (isOpenIn(g, m)) lab.style.color = 'inherit';
+      cell.appendChild(lab);
+      cell.setAttribute('aria-hidden', 'true');
+      wrap.appendChild(cell);
     }
-
-    host.appendChild(grid);
-    var total = LH_SEASONS.filter(inFilter).length;
-    setLegend('The whole year at a glance — ' + total + ' recurring season' +
-              (total === 1 ? '' : 's') + ', each running for the months shown. ' +
-              'Click a month for its plan and the detail.');
+    return wrap;
   }
 
-  function setLegend(text) { document.getElementById('cal-legend').textContent = text; }
-
-  /* =========================================================== MONTH PLAN */
-  // The month's own page from the PDF, reproduced.
-  function renderMonthPlan() {
-    var host = document.getElementById('monthplan');
+  /* ============================================================ OPEN NOW */
+  function renderNow() {
+    var host = document.getElementById('now');
     host.textContent = '';
-    if (mode === 'year') { host.hidden = true; return; }
-    host.hidden = false;
 
-    var m = view.getUTCMonth(), y = view.getUTCFullYear();
-    var plan = LH_MONTHS[m];
+    var open = LH_GRANTS.filter(isOpenNow);
+    var soon = LH_GRANTS.filter(function (g) {
+      var u = monthsUntilOpen(g);
+      return u !== null && u > 0 && u <= 2;
+    });
 
-    var head = el('div', 'mp-head');
-    head.appendChild(el('span', 'eyebrow', MONTHS[m] + ' ' + y));
-    head.appendChild(el('h2', null, plan.theme));
+    var head = el('div', 'now-head');
+    head.appendChild(el('span', 'now-month', 'It is ' + MONTHS[THIS_MONTH]));
+    head.appendChild(el('h2', null, open.length
+      ? 'You can apply for ' + open.length + ' of them right now'
+      : 'None of the seven are open this month'));
     host.appendChild(head);
 
-    var cols = el('div', 'mp-cols');
-
-    var rel = el('div', 'mp-rel');
-    rel.appendChild(el('span', 'eyebrow', 'Relationship building this month'));
-    rel.appendChild(el('p', null, plan.relationship));
-    cols.appendChild(rel);
-
-    var str = el('div', 'mp-actions');
-    str.appendChild(el('span', 'eyebrow', 'Strategy and focus'));
-    var ol = el('ol');
-    plan.actions.forEach(function (a) {
-      var li = el('li');
-      li.appendChild(el('b', null, a[0] + ': '));
-      li.appendChild(document.createTextNode(a[1]));
-      ol.appendChild(li);
-    });
-    str.appendChild(ol);
-    cols.appendChild(str);
-
-    host.appendChild(cols);
-
-    // The PDF leaves this space blank for you to fill in. Kept, and saved in
-    // the browser so it survives a reload.
-    var notes = el('div', 'mp-notes');
-    notes.appendChild(el('span', 'eyebrow', 'Grants to apply for this month'));
-    var ta = el('textarea');
-    ta.rows = 3;
-    ta.placeholder = 'The ones you are actually going after — name, funder, deadline.';
-    var key = 'lh-grants-' + y + '-' + m;
-    try { ta.value = localStorage.getItem(key) || ''; } catch (e) { /* private mode */ }
-    ta.addEventListener('input', function () {
-      try { localStorage.setItem(key, ta.value); } catch (e) { /* nothing to do */ }
-    });
-    notes.appendChild(ta);
-    host.appendChild(notes);
-  }
-
-  /* ================================================================= LIST */
-  function renderList() {
-    var host = document.getElementById('list');
-    host.textContent = '';
-
-    var per = period();
-
-    // A band that wraps New Year has two runs touching the same year — last
-    // winter's and this one's. Listing both is just noise, so keep the most
-    // relevant run per season (the sort has already put it first).
-    var seenSeason = {};
-    var rows = instancesIn(per.from, per.to).filter(function (inst) {
-      if (seenSeason[inst.s.id]) return false;
-      seenSeason[inst.s.id] = 1;
-      return true;
-    });
-
-    // Anything opening just beyond the period is worth surfacing — being told
-    // to get ready is the whole reason to look ahead.
-    var ahead = [];
-    LH_SEASONS.filter(inFilter).forEach(function (s) {
-      if (seenSeason[s.id]) return;
-      instancesFor(s, per.to.getUTCFullYear()).forEach(function (inst) {
-        if (seenSeason[s.id]) return;
-        if (inst.from <= per.to && inst.to >= per.from) return;
-        var d = diff(per.to, inst.from);
-        if (d > 0 && d <= OPENING_SOON) { ahead.push(inst); seenSeason[s.id] = 1; }
+    if (open.length) {
+      var list = el('div', 'now-list');
+      open.forEach(function (g) {
+        var left = monthsLeftOpen(g);
+        var b = el('button', 'now-item');
+        b.type = 'button';
+        b.style.setProperty('--c', colourOf(g));
+        b.appendChild(el('span', 'now-dot'));
+        var body = el('span', 'now-body');
+        body.appendChild(el('span', 'now-name', g.name));
+        body.appendChild(el('span', 'now-note', left === 0
+          ? 'Last month — closes end of ' + MONTHS[THIS_MONTH]
+          : left + ' more ' + plural(left, 'month', 'months') + ' to apply'));
+        b.appendChild(body);
+        if (left === 0) b.classList.add('is-last');
+        b.addEventListener('click', function () { openSheet(g); });
+        list.appendChild(b);
       });
-    });
-    ahead.sort(byOrder(per.to));
-
-    if (!rows.length && !ahead.length) {
-      host.appendChild(el('div', 'empty', 'Nothing is running in ' + per.label + '.'));
-      return;
-    }
-
-    var list = el('div', 'list');
-    rows.concat(ahead).forEach(function (inst) {
-      var s = inst.s, st = statusOf(inst, TODAY);
-
-      var item = el('button', 'item');
-      item.type = 'button';
-      item.style.setProperty('--c', colourOf(s));
-      item.appendChild(el('span', 'item-swatch'));
-
-      var body = el('span', 'item-body');
-      var name = el('span', 'item-name');
-      name.appendChild(el('span', 'status ' + st, STATUS_LABEL[st]));
-      name.appendChild(document.createTextNode(s.name));
-      body.appendChild(name);
-      body.appendChild(el('span', 'item-what', s.short));
-      body.appendChild(el('span', 'item-sub',
-        funderOf(s).name + '  ·  ' + shortDate(inst.from) + ' – ' + shortDate(inst.to) +
-        '  ·  ' + s.peak));
-      item.appendChild(body);
-
-      var when = el('span', 'item-when');
-      if (st === 'closed') {
-        var next = nextRun(s, TODAY);
-        when.appendChild(el('b', null, 'Ended ' + shortDate(inst.to)));
-        when.appendChild(document.createTextNode(
-          next ? 'back ' + countdown(diff(TODAY, next.from)) : 'not scheduled again'));
-      } else if (st === 'opening' || st === 'later') {
-        when.appendChild(el('b', st === 'opening' ? 'soon' : null, 'Starts ' + shortDate(inst.from)));
-        when.appendChild(document.createTextNode(countdown(diff(TODAY, inst.from))));
-      } else {
-        when.appendChild(el('b', st === 'closing' ? 'hot' : null, 'Ends ' + shortDate(inst.to)));
-        when.appendChild(document.createTextNode(remaining(diff(TODAY, inst.to))));
-      }
-      item.appendChild(when);
-
-      item.addEventListener('click', function () { openSheet(inst); });
-      list.appendChild(item);
-    });
-    host.appendChild(list);
-  }
-
-  /* =============================================================== SCOPES */
-  function renderScopes() {
-    var host = document.getElementById('scopes');
-    host.textContent = '';
-
-    var y = view.getUTCFullYear(), m = view.getUTCMonth();
-    var thisMonth = y === TODAY.getUTCFullYear() && m === TODAY.getUTCMonth();
-    var third = mode === 'year' ? String(y)
-              : thisMonth ? 'This month'
-              : MONTHS[m] + ' ' + y;
-
-    [['today', 'Today'], ['week', 'This week'], ['month', third]].forEach(function (sc) {
-      var b = el('button', 'scope', sc[1]);
-      b.type = 'button';
-      b.setAttribute('role', 'tab');
-      b.setAttribute('aria-selected', String(scope === sc[0]));
-      b.addEventListener('click', function () {
-        scope = sc[0];
-        if (sc[0] !== 'month') {
-          view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-          mode = 'month';
-        }
-        render();
-      });
-      host.appendChild(b);
-    });
-  }
-
-  /* ============================================================= DROPDOWN */
-  function renderFunders() {
-    var sel = document.getElementById('topic');
-    if (!sel.options.length) {
-      var all = document.createElement('option');
-      all.value = 'all';
-      all.textContent = 'Every funder type';
-      sel.appendChild(all);
-      Object.keys(LH_FUNDERS).forEach(function (k) {
-        var o = document.createElement('option');
-        o.value = k;
-        o.textContent = LH_FUNDERS[k].suit + '  ' + LH_FUNDERS[k].name;
-        sel.appendChild(o);
-      });
-      sel.addEventListener('change', function () { funderFilter = sel.value; render(); });
-    }
-    sel.value = funderFilter;
-
-    var n = LH_SEASONS.filter(inFilter).length;
-    document.getElementById('topic-count').textContent =
-      n + ' recurring season' + (n === 1 ? '' : 's') + ' — the list below names each one';
-
-    var note = document.getElementById('topic-note');
-    if (funderFilter === 'all') {
-      note.textContent = 'A season is one funder cycle — the stretch of the year ' +
-        'when that kind of money is actually in play. They repeat every year. ' +
-        'Pick a funder type to see only its own.';
-      note.style.setProperty('--c', 'var(--rule-strong)');
+      host.appendChild(list);
     } else {
-      note.textContent = LH_FUNDERS[funderFilter].note;
-      note.style.setProperty('--c', LH_FUNDERS[funderFilter].color);
+      host.appendChild(el('p', 'now-none',
+        'That is normal. Use this month to get ready — see the box at the bottom.'));
+    }
+
+    if (soon.length) {
+      var s = el('p', 'now-soon');
+      s.appendChild(el('b', null, 'Coming up: '));
+      s.appendChild(document.createTextNode(soon.map(function (g) {
+        var u = monthsUntilOpen(g);
+        return g.name + ' opens ' + (u === 1 ? 'next month' : 'in ' + u + ' months');
+      }).join('. ') + '.'));
+      host.appendChild(s);
     }
   }
 
-  /* ============================================================= THE CARD */
+  /* ============================================================== GRANTS */
+  function renderGrants() {
+    var host = document.getElementById('grants');
+    host.textContent = '';
+
+    // Open ones first — that is what someone can act on today.
+    var sorted = LH_GRANTS.slice().sort(function (a, b) {
+      var oa = isOpenNow(a) ? 0 : 1, ob = isOpenNow(b) ? 0 : 1;
+      return oa - ob || monthsUntilOpen(a) - monthsUntilOpen(b);
+    });
+
+    sorted.forEach(function (g) {
+      var card = el('button', 'grant');
+      card.type = 'button';
+      card.style.setProperty('--c', colourOf(g));
+      if (isOpenNow(g)) card.classList.add('is-open');
+
+      var top = el('div', 'grant-top');
+      var names = el('div');
+      names.appendChild(el('h3', null, g.name));
+      names.appendChild(el('div', 'grant-when', 'Open ' + g.when));
+      top.appendChild(names);
+      top.appendChild(el('span', 'tag ' + (isOpenNow(g) ? 'tag-open' : 'tag-shut'),
+        isOpenNow(g) ? 'OPEN NOW' : 'Opens ' + MONTHS[g.from]));
+      card.appendChild(top);
+
+      card.appendChild(strip(g));
+      card.appendChild(el('p', 'grant-what', g.what));
+      card.appendChild(el('span', 'grant-more', 'Tap to read more'));
+
+      card.addEventListener('click', function () { openSheet(g); });
+      host.appendChild(card);
+    });
+  }
+
+  /* ========================================================== THIS MONTH */
+  function renderMonth() {
+    var host = document.getElementById('thismonth');
+    host.textContent = '';
+    var m = LH_MONTHS[THIS_MONTH];
+
+    host.appendChild(el('h2', 'sec-title', 'What to do in ' + MONTHS[THIS_MONTH]));
+    host.appendChild(el('p', 'month-line', m.line));
+
+    var ol = el('ol', 'month-todo');
+    m.todo.forEach(function (t) { ol.appendChild(el('li', null, t)); });
+    host.appendChild(ol);
+  }
+
+  /* ================================================================ CARD */
   var sheet = document.getElementById('sheet');
   var sheetCard = document.getElementById('sheet-card');
   var lastFocus = null;
 
-  function openSheet(inst) {
-    var s = inst.s;
+  function openSheet(g) {
     var body = document.getElementById('sheet-body');
     body.textContent = '';
-    sheetCard.style.setProperty('--c', colourOf(s));
+    sheetCard.style.setProperty('--c', colourOf(g));
 
-    var h = el('h3', null, s.name);
+    var h = el('h3', null, g.name);
     h.id = 'sheet-title';
     body.appendChild(h);
 
-    var tag = el('div', 'sheet-topic');
-    tag.style.setProperty('--c', colourOf(s));
-    tag.appendChild(el('span', 'dot'));
-    tag.appendChild(document.createTextNode(funderOf(s).name));
-    body.appendChild(tag);
+    body.appendChild(el('div', 'sheet-when',
+      isOpenNow(g) ? 'Open now · ' + g.when : 'Opens in ' + MONTHS[g.from] + ' · ' + g.when));
 
-    body.appendChild(el('p', 'sheet-what', s.what));
+    body.appendChild(strip(g));
 
-    var st = statusOf(inst, TODAY);
-    var w = el('div', 'sheet-window');
-    w.appendChild(el('span', 'status ' + st, STATUS_LABEL[st]));
-    if (st === 'open' || st === 'closing') {
-      w.appendChild(el('span', 'big', remaining(diff(TODAY, inst.to))));
-      w.appendChild(el('span', 'sub', 'Runs to ' + longDate(inst.to) + '. Peak: ' + s.peak + '.'));
-    } else if (st === 'closed') {
-      var back = nextRun(s, TODAY);
-      w.appendChild(el('span', 'big', 'Ended ' + longDate(inst.to)));
-      w.appendChild(el('span', 'sub', back
-        ? 'Back on ' + longDate(back.from) + ', ' + countdown(diff(TODAY, back.from)) +
-          '. Peak: ' + s.peak + '.'
-        : 'Peak: ' + s.peak + '.'));
-    } else {
-      w.appendChild(el('span', 'big', 'Starts ' + longDate(inst.from) + ' — ' + countdown(diff(TODAY, inst.from))));
-      w.appendChild(el('span', 'sub', 'Runs to ' + longDate(inst.to) + '. Peak: ' + s.peak + '.'));
+    body.appendChild(el('div', 'sheet-h', 'What it is'));
+    body.appendChild(el('p', 'sheet-p', g.what));
+
+    body.appendChild(el('div', 'sheet-h', 'How to get it'));
+    body.appendChild(el('p', 'sheet-p', g.tip));
+
+    if (g.heads) {
+      body.appendChild(el('div', 'sheet-flag', g.heads));
     }
-    w.appendChild(el('span', 'sub', ' Whole months, and it repeats every year.'));
-    body.appendChild(w);
-
-    if (s.givingTuesday) {
-      var gt = givingTuesday(inst.from.getUTCFullYear());
-      body.appendChild(el('div', 'sheet-flag',
-        'Giving Tuesday ' + gt.getUTCFullYear() + ' falls on ' + longDate(gt) +
-        ' — the Tuesday after Thanksgiving, so it moves every year.'));
-    }
-    if (s.urgent) body.appendChild(el('div', 'sheet-flag', s.urgent));
-
-    if (s.prep && s.prep.length) {
-      body.appendChild(el('div', 'sheet-h', 'What this season needs from you'));
-      var ul = el('ul');
-      s.prep.forEach(function (x) { ul.appendChild(el('li', null, x)); });
-      body.appendChild(ul);
-    }
-
-    body.appendChild(el('div', 'sheet-where', 'From the Fund-Nation Grant Strategy Calendar.'));
 
     lastFocus = document.activeElement;
     sheet.hidden = false;
@@ -1646,7 +795,6 @@ if (typeof module !== 'undefined' && module.exports) {
     document.body.style.overflow = '';
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
-
   Array.prototype.forEach.call(sheet.querySelectorAll('[data-close]'), function (n) {
     n.addEventListener('click', closeSheet);
   });
@@ -1654,62 +802,15 @@ if (typeof module !== 'undefined' && module.exports) {
     if (e.key === 'Escape' && !sheet.hidden) closeSheet();
   });
 
-  /* ================================================================== RUN */
-  function render() {
-    renderFunders();
+  /* ================================================================= RUN */
+  document.getElementById('always-h').textContent = LH_INTRO.alwaysHeading;
+  document.getElementById('always-b').textContent = LH_INTRO.alwaysBody;
+  document.getElementById('season-h').textContent = LH_INTRO.seasonHeading;
+  document.getElementById('season-b').textContent = LH_INTRO.seasonBody;
 
-    var y = view.getUTCFullYear(), m = view.getUTCMonth();
-    var title = document.getElementById('cal-title');
-    title.textContent = mode === 'year' ? String(y) : MONTHS[m] + ' ' + y;
-    title.setAttribute('aria-label', mode === 'year'
-      ? 'Showing ' + y + '. Back to the month view.'
-      : 'Showing ' + MONTHS[m] + ' ' + y + '. See the whole year.');
-    document.getElementById('cal').classList.toggle('is-year', mode === 'year');
-
-    var host = document.getElementById('cal-body');
-    host.textContent = '';
-    if (mode === 'year') renderYear(host); else renderMonth(host);
-
-    renderMonthPlan();
-    renderScopes();
-    renderList();
-  }
-
-  function step(n) {
-    view = mode === 'year'
-      ? mk(view.getUTCFullYear() + n, 0, 1)
-      : mk(view.getUTCFullYear(), view.getUTCMonth() + n, 1);
-    scope = 'month';
-    render();
-  }
-  document.getElementById('prev').addEventListener('click', function () { step(-1); });
-  document.getElementById('next').addEventListener('click', function () { step(1); });
-  document.getElementById('cal-title').addEventListener('click', function () {
-    mode = mode === 'year' ? 'month' : 'year';
-    scope = 'month';
-    render();
-  });
-  document.getElementById('jump-today').addEventListener('click', function () {
-    view = mk(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), 1);
-    mode = 'month';
-    scope = 'today';
-    render();
-  });
-
-  // Stepping with the arrows from the year view drops into the month, which
-  // is what "scroll month by month for the detail" means.
-  document.getElementById('cal-title').title = 'Switch between the year and the month';
-
-  /* ------------------------------------------------------------- STATIC */
-  document.getElementById('tagline').textContent = LH_META.tagline;
-  document.getElementById('foot-src').textContent = ' ' + LH_META.source + '.';
-
-  var quiet = document.getElementById('quiet');
-  quiet.appendChild(el('span', 'eyebrow', LH_META.quietMonth.heading));
-  quiet.appendChild(el('p', null, LH_META.quietMonth.body));
-  quiet.appendChild(el('p', 'quiet-repeat', LH_META.repeat));
-
-  render();
+  renderNow();
+  renderGrants();
+  renderMonth();
 })();
 
 </script>

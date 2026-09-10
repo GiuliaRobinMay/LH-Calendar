@@ -2,7 +2,7 @@
 /* ============================================================================
    Contrast check —  node check-contrast.js
 
-   Every funder-type colour has to carry a bold label on the calendar line. This
+   Each of the four colours has to carry a readable month letter. This
    works out the real WCAG contrast ratio of that colour against ink and
    against white and takes the better of the two — exactly what the page does
    at runtime.
@@ -16,7 +16,7 @@
    ========================================================================== */
 'use strict';
 
-const { LH_FUNDERS } = require('./data/calendar.js');
+const { LH_COLORS } = require('./data/calendar.js');
 
 const INK = '#12213F';
 const AA = 4.5;           // WCAG AA for text below 18px
@@ -35,8 +35,8 @@ let failed = 0;
 let warned = 0;
 let worst = Infinity;
 
-for (const [key, topic] of Object.entries(LH_FUNDERS)) {
-  const bg = luminance(topic.color);
+for (const [key, hex] of Object.entries(LH_COLORS)) {
+  const bg = luminance(hex);
   const onWhite = 1.05 / (bg + 0.05);
   const onInk = (bg + 0.05) / (inkL + 0.05);
   const ratio = Math.max(onWhite, onInk);
@@ -48,7 +48,7 @@ for (const [key, topic] of Object.entries(LH_FUNDERS)) {
   if (verdict === 'warn') warned++;
 
   console.log(
-    `${verdict}  ${ratio.toFixed(2)}:1  ${label.padEnd(5)} ${topic.color}  ${key}`
+    `${verdict}  ${ratio.toFixed(2)}:1  ${label.padEnd(5)} ${hex}  ${key}`
   );
 }
 
@@ -64,7 +64,7 @@ if (warned) {
 }
 
 if (failed) {
-  console.error(`\n${failed} funder colour(s) cannot carry a legible label at all.`);
-  console.error('Pick a different one of the four brand colours for that funder type.');
+  console.error(`\n${failed} colour(s) cannot carry a legible label at all.`);
+  console.error('That should not happen with the four brand colours — check the hex.');
   process.exit(1);
 }

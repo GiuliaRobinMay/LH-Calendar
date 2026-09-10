@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 /* ============================================================================
-   Source fidelity check —  node check-source.js
+   Data check —  node check-source.js
 
-   The calendar is a transcription of the Fund-Nation Grant Strategy Calendar.
-   This asserts the things that would quietly go wrong if someone edited the
-   data: that all twelve months are present with their five actions, and that
-   every season points at a real funder type and sits in real months.
+   The page is deliberately simple, which means there is very little of it and
+   every piece has to be right. This asserts the data is complete and that the
+   plain-language rules actually held.
    ========================================================================== */
 'use strict';
 
-const { LH_FUNDERS, LH_SEASONS, LH_MONTHS } = require('./data/calendar.js');
+const { LH_INTRO, LH_COLORS, LH_GRANTS, LH_MONTHS } = require('./data/calendar.js');
 
 let bad = 0;
 const ok = (cond, msg) => {
@@ -17,15 +16,46 @@ const ok = (cond, msg) => {
   if (!cond) bad++;
 };
 
-ok(LH_MONTHS.length === 12, 'twelve months present');
-ok(LH_MONTHS.every((m) => m.theme && m.relationship && m.actions.length === 5),
-   'every month has a theme, a relationship note and five actions');
-ok(LH_SEASONS.every((s) => LH_FUNDERS[s.funder]), 'every season points at a real funder type');
-ok(LH_SEASONS.every((s) => s.fromM >= 0 && s.fromM < 12 && s.toM >= 0 && s.toM < 12),
-   'every season has valid month numbers');
-// Every season must name the months it covers, so the list can explain itself.
-ok(LH_SEASONS.every((s) => s.name && s.short && s.peak),
-   'every season has a name, a one-line description and a peak');
+ok(LH_MONTHS.length === 12, 'twelve months of advice');
+ok(LH_MONTHS.every((m) => m.name && m.line && m.todo.length && m.todo.length <= 3),
+   'every month has a line and no more than three things to do');
+ok(LH_GRANTS.length === 7, 'seven grants — few enough to take in at a glance');
+ok(LH_GRANTS.every((g) => g.name && g.when && g.what && g.tip),
+   'every grant says what it is and how to get it');
+ok(LH_GRANTS.every((g) => LH_COLORS[g.color]), 'every grant uses one of the four brand colours');
+ok(LH_GRANTS.every((g) => g.from >= 0 && g.from < 12 && g.to >= 0 && g.to < 12),
+   'every grant sits in real months');
 
-console.log(bad ? `\n${bad} check(s) failed.` : '\nAll source-fidelity checks pass.');
+// Every month of the year should have at least one grant open, or the page
+// tells somebody "nothing for you" and they never come back.
+const covered = [];
+for (let m = 0; m < 12; m++) {
+  covered[m] = LH_GRANTS.some((g) =>
+    g.from <= g.to ? m >= g.from && m <= g.to : m >= g.from || m <= g.to);
+}
+const empty = covered.map((c, m) => (c ? null : m)).filter((m) => m !== null);
+ok(empty.length <= 1,
+   `at most one empty month (empty: ${empty.length ? empty.join(', ') : 'none'})`);
+
+// Reading level. These are the words that sent members away last time.
+const JARGON = ['funder', 'funding cycle', 'portal', 'proposal', 'fiscal',
+                'Community Reinvestment', 'CRA', 'letter of intent', 'LOI',
+                'de minimis', 'capacity building', 'stakeholder', 'leverage'];
+const allText = JSON.stringify({ LH_INTRO, LH_GRANTS, LH_MONTHS }).toLowerCase();
+const found = JARGON.filter((w) => allText.includes(w.toLowerCase()));
+ok(found.length === 0, `no jargon in the copy${found.length ? ' — found: ' + found.join(', ') : ''}`);
+
+// Long sentences are the other thing that loses people.
+const sentences = [];
+const walk = (v) => {
+  if (typeof v === 'string') sentences.push(...v.split(/(?<=[.!?])\s+/));
+  else if (Array.isArray(v)) v.forEach(walk);
+  else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+};
+walk({ LH_INTRO, LH_GRANTS, LH_MONTHS });
+const longOnes = sentences.filter((s) => s.split(/\s+/).length > 25);
+ok(longOnes.length === 0,
+   `every sentence under 25 words${longOnes.length ? ' — longest: "' + longOnes[0].slice(0, 60) + '..."' : ''}`);
+
+console.log(bad ? `\n${bad} check(s) failed.` : '\nAll checks pass.');
 process.exit(bad ? 1 : 0);
