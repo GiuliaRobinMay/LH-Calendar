@@ -126,15 +126,18 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
 /* ------------------------------------------------------------- OPEN NOW */
 .now {
-  margin-top: 26px; padding: 22px;
-  background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 18px; box-shadow: var(--card);
+  padding: 20px 22px;
+  background: var(--paper); border: 2px solid var(--rule);
+  border-radius: 16px; box-shadow: var(--card);
 }
+/* Gold on the pale gold box would vanish, so the highlighted grant name
+   takes the darker gold there. It is the same colour family. */
+.now-hl { font-weight: 700; }
 .now-month {
   display: inline-block; font-size: 14px; font-weight: 700;
   letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint);
 }
-.now-head h2 { font-size: 26px; line-height: 1.15; margin-top: 3px; }
+.now-head h2 { font-size: 26px; line-height: 1.2; margin-top: 3px; }
 
 .now-list { margin-top: 16px; display: flex; flex-direction: column; gap: 9px; }
 .now-item {

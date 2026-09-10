@@ -35,6 +35,14 @@
   }
   function colourOf(g) { return LH_COLORS[g.color]; }
 
+  // The brand gold is fine as a block of colour but far too pale to read as
+  // text on white. Anywhere a grant's colour is used for words rather than
+  // fill, gold drops to the darker shade of itself.
+  var GOLD_TEXT = '#A67C00';
+  function textColourOf(g) {
+    return g.color === 'gold' ? GOLD_TEXT : LH_COLORS[g.color];
+  }
+
   // Gold carries dark text, the other three carry white. Worked out from the
   // real contrast ratio rather than hard-coded, so a colour change cannot
   // quietly leave a label unreadable.
@@ -149,9 +157,24 @@
 
     var head = el('div', 'now-head');
     head.appendChild(el('span', 'now-month', 'It is ' + MONTHS[THIS_MONTH]));
-    head.appendChild(el('h2', null, open.length
-      ? 'You can apply for ' + open.length + ' of them right now'
-      : 'None of the seven are open this month'));
+
+    var h = el('h2');
+    if (open.length) {
+      h.appendChild(document.createTextNode('You can apply for '));
+      open.forEach(function (g, i) {
+        if (i > 0) {
+          h.appendChild(document.createTextNode(
+            i === open.length - 1 ? ' and ' : ', '));
+        }
+        var nm = el('b', 'now-hl', g.name);
+        nm.style.color = textColourOf(g);
+        h.appendChild(nm);
+      });
+      h.appendChild(document.createTextNode(' right now'));
+    } else {
+      h.textContent = 'None of the seven are open this month';
+    }
+    head.appendChild(h);
     host.appendChild(head);
 
     if (open.length) {
@@ -175,7 +198,7 @@
       host.appendChild(list);
     } else {
       host.appendChild(el('p', 'now-none',
-        'That is normal. Use this month to get ready — see the box at the bottom.'));
+        'That is normal. Use this month to get ready — scroll down for what to do.'));
     }
 
     if (soon.length) {

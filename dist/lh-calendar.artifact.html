@@ -132,15 +132,18 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 
 /* ------------------------------------------------------------- OPEN NOW */
 .now {
-  margin-top: 26px; padding: 22px;
-  background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 18px; box-shadow: var(--card);
+  padding: 20px 22px;
+  background: var(--paper); border: 2px solid var(--rule);
+  border-radius: 16px; box-shadow: var(--card);
 }
+/* Gold on the pale gold box would vanish, so the highlighted grant name
+   takes the darker gold there. It is the same colour family. */
+.now-hl { font-weight: 700; }
 .now-month {
   display: inline-block; font-size: 14px; font-weight: 700;
   letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint);
 }
-.now-head h2 { font-size: 26px; line-height: 1.15; margin-top: 3px; }
+.now-head h2 { font-size: 26px; line-height: 1.2; margin-top: 3px; }
 
 .now-list { margin-top: 16px; display: flex; flex-direction: column; gap: 9px; }
 .now-item {
@@ -356,6 +359,10 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
         <p id="always-b"></p>
       </div>
     </div>
+    <!-- What you can do today. Sits between the two facts because it is the
+         answer, not a footnote to them. -->
+    <div class="now" id="now"></div>
+
     <div class="fact fact-season">
       <div class="fact-row">
         <span class="fact-mark" aria-hidden="true">📅</span>
@@ -369,9 +376,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
       <ol class="seven" id="seven"></ol>
     </div>
   </section>
-
-  <!-- The live answer. -->
-  <section class="now" id="now"></section>
 
   <!-- The seven, each with its months drawn as a strip. -->
   <section class="grants">
@@ -432,9 +436,9 @@ const LH_INTRO = {
   alwaysHeading: 'Most grants have no deadline',
   alwaysBody: 'You can apply on any day of the year. You do not have to wait ' +
               'for a special date. If you find a grant that fits you, apply.',
-  seasonHeading: 'A few only open at certain times',
+  seasonHeading: 'The grants that open at certain times',
   seasonBody: 'These are the ones people miss. They open, they close, and then ' +
-              'you wait a year. There are seven of them. They are all below.',
+              'you wait a year. There are seven of them. Here they are.',
 };
 
 /* ------------------------------------------------------------- THE COLOURS */
@@ -642,6 +646,14 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function colourOf(g) { return LH_COLORS[g.color]; }
 
+  // The brand gold is fine as a block of colour but far too pale to read as
+  // text on white. Anywhere a grant's colour is used for words rather than
+  // fill, gold drops to the darker shade of itself.
+  var GOLD_TEXT = '#A67C00';
+  function textColourOf(g) {
+    return g.color === 'gold' ? GOLD_TEXT : LH_COLORS[g.color];
+  }
+
   // Gold carries dark text, the other three carry white. Worked out from the
   // real contrast ratio rather than hard-coded, so a colour change cannot
   // quietly leave a label unreadable.
@@ -756,9 +768,24 @@ if (typeof module !== 'undefined' && module.exports) {
 
     var head = el('div', 'now-head');
     head.appendChild(el('span', 'now-month', 'It is ' + MONTHS[THIS_MONTH]));
-    head.appendChild(el('h2', null, open.length
-      ? 'You can apply for ' + open.length + ' of them right now'
-      : 'None of the seven are open this month'));
+
+    var h = el('h2');
+    if (open.length) {
+      h.appendChild(document.createTextNode('You can apply for '));
+      open.forEach(function (g, i) {
+        if (i > 0) {
+          h.appendChild(document.createTextNode(
+            i === open.length - 1 ? ' and ' : ', '));
+        }
+        var nm = el('b', 'now-hl', g.name);
+        nm.style.color = textColourOf(g);
+        h.appendChild(nm);
+      });
+      h.appendChild(document.createTextNode(' right now'));
+    } else {
+      h.textContent = 'None of the seven are open this month';
+    }
+    head.appendChild(h);
     host.appendChild(head);
 
     if (open.length) {
@@ -782,7 +809,7 @@ if (typeof module !== 'undefined' && module.exports) {
       host.appendChild(list);
     } else {
       host.appendChild(el('p', 'now-none',
-        'That is normal. Use this month to get ready — see the box at the bottom.'));
+        'That is normal. Use this month to get ready — scroll down for what to do.'));
     }
 
     if (soon.length) {

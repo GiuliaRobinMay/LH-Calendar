@@ -24,11 +24,12 @@ Everything else was cut.
 
 In this order, top to bottom:
 
-- **The two facts**, before anything moves or asks for a click. The second one
-  lists all seven straight away, numbered, so nobody has to scroll to find out
-  what they are.
-- **What is open right now** — worked out from today's date, with how many
-  months are left to apply.
+- **Most grants have no deadline** — the first thing anyone reads.
+- **What is open right now**, naming the grant: *"You can apply for Bank grants
+  right now."* This sits between the two facts because it is the answer, not a
+  footnote to them.
+- **The grants that open at certain times** — all seven listed straight away,
+  numbered, so nobody has to scroll to find out what they are.
 - **The seven grants**, each with a twelve-block strip showing the months it is
   open. The picture is the explanation; there is no legend to read.
 - **What to do this month** — one line and up to three things.
@@ -107,6 +108,12 @@ alone says whether to do anything today:
 
 The month-letter and number colours are worked out at runtime from the real
 contrast ratio, so gold gets dark text and the others get white.
+
+One exception worth knowing: the brand gold is fine as a block of colour but
+only 1.68:1 on white, so it cannot be used for words. Anywhere a grant's
+colour becomes text rather than fill — the highlighted name in "you can apply
+for X right now" — gold drops to `#A67C00`. The headline is 26px, which is
+WCAG large text, so 3:1 is the bar there and all four clear it.
 
 ## Embedding
 

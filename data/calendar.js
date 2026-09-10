@@ -30,9 +30,9 @@ const LH_INTRO = {
   alwaysHeading: 'Most grants have no deadline',
   alwaysBody: 'You can apply on any day of the year. You do not have to wait ' +
               'for a special date. If you find a grant that fits you, apply.',
-  seasonHeading: 'A few only open at certain times',
+  seasonHeading: 'The grants that open at certain times',
   seasonBody: 'These are the ones people miss. They open, they close, and then ' +
-              'you wait a year. There are seven of them. They are all below.',
+              'you wait a year. There are seven of them. Here they are.',
 };
 
 /* ------------------------------------------------------------- THE COLOURS */
