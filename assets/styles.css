@@ -115,6 +115,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   display: flex; gap: 15px; align-items: flex-start;
   padding: 18px 20px; border-radius: 16px;
 }
+.fact-season { display: block; }
+.fact-row { display: flex; gap: 15px; align-items: flex-start; }
 .fact-always { background: #E9F5ED; border: 2px solid var(--green); }
 .fact-season { background: var(--cream-deep); border: 2px solid var(--gold); }
 .fact-mark { font-size: 24px; line-height: 1.25; flex: none; }
@@ -177,13 +179,17 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .grant-top h3 { font-size: 22px; line-height: 1.2; }
 .grant-when { font-size: 15.5px; color: var(--ink-soft); margin-top: 2px; }
 
-.tag {
+/* Green = go, yellow = get ready, red = a long wait. The colour alone should
+   tell you whether to do anything today. */
+.pill {
   flex: none; margin-left: auto;
-  font-size: 12.5px; font-weight: 700; letter-spacing: .05em;
-  padding: 5px 11px; border-radius: 999px; white-space: nowrap;
+  font-size: 12px; font-weight: 700; letter-spacing: .04em;
+  padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  text-transform: uppercase;
 }
-.tag-open { background: var(--green); color: #fff; }
-.tag-shut { background: var(--cream-deep); color: var(--ink-soft); }
+.pill-now   { background: var(--green); color: #fff; }
+.pill-soon  { background: var(--gold);  color: #3B2C00; }
+.pill-later { background: var(--red);   color: #fff; }
 
 /* ---------------------------------------------------------- MONTH STRIP */
 /* Twelve blocks, filled where the grant is open. No legend, no key — the
@@ -266,4 +272,48 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   .strip-m .strip-l { font-size: 10.5px; }
   .grant-top { flex-wrap: wrap; }
   .tag { margin-left: 0; }
+}
+
+/* ==========================================================================
+   THE SEVEN, LISTED UP FRONT
+   So nobody has to scroll to find out what the seven actually are.
+   ========================================================================== */
+.seven {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.seven-row {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; text-align: left; cursor: pointer;
+  background: var(--paper); border: 2px solid transparent;
+  border-radius: 12px; padding: 9px 12px;
+}
+.seven-row:hover { border-color: var(--c); }
+
+/* The number, in the grant's own colour, so the list and the cards below
+   read as the same thing. */
+.seven-n {
+  width: 28px; height: 28px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 700; line-height: 1;
+}
+.seven-name {
+  font-size: 15px; font-weight: 700; line-height: 1.25;
+  text-transform: uppercase; letter-spacing: .02em;
+  min-width: 0;
+}
+
+/* The same numbered circle on the card further down the page. */
+.grant-n {
+  width: 32px; height: 32px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 16px; font-weight: 700; line-height: 1;
+  margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+  .seven-row { flex-wrap: wrap; gap: 8px 10px; }
+  .seven-name { font-size: 14px; }
+  .pill { margin-left: 0; font-size: 11px; padding: 5px 10px; }
+  .seven-row .pill { margin-left: 40px; }
 }

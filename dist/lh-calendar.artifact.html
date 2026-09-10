@@ -121,6 +121,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   display: flex; gap: 15px; align-items: flex-start;
   padding: 18px 20px; border-radius: 16px;
 }
+.fact-season { display: block; }
+.fact-row { display: flex; gap: 15px; align-items: flex-start; }
 .fact-always { background: #E9F5ED; border: 2px solid var(--green); }
 .fact-season { background: var(--cream-deep); border: 2px solid var(--gold); }
 .fact-mark { font-size: 24px; line-height: 1.25; flex: none; }
@@ -183,13 +185,17 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
 .grant-top h3 { font-size: 22px; line-height: 1.2; }
 .grant-when { font-size: 15.5px; color: var(--ink-soft); margin-top: 2px; }
 
-.tag {
+/* Green = go, yellow = get ready, red = a long wait. The colour alone should
+   tell you whether to do anything today. */
+.pill {
   flex: none; margin-left: auto;
-  font-size: 12.5px; font-weight: 700; letter-spacing: .05em;
-  padding: 5px 11px; border-radius: 999px; white-space: nowrap;
+  font-size: 12px; font-weight: 700; letter-spacing: .04em;
+  padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  text-transform: uppercase;
 }
-.tag-open { background: var(--green); color: #fff; }
-.tag-shut { background: var(--cream-deep); color: var(--ink-soft); }
+.pill-now   { background: var(--green); color: #fff; }
+.pill-soon  { background: var(--gold);  color: #3B2C00; }
+.pill-later { background: var(--red);   color: #fff; }
 
 /* ---------------------------------------------------------- MONTH STRIP */
 /* Twelve blocks, filled where the grant is open. No legend, no key — the
@@ -274,6 +280,50 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
   .tag { margin-left: 0; }
 }
 
+/* ==========================================================================
+   THE SEVEN, LISTED UP FRONT
+   So nobody has to scroll to find out what the seven actually are.
+   ========================================================================== */
+.seven {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.seven-row {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; text-align: left; cursor: pointer;
+  background: var(--paper); border: 2px solid transparent;
+  border-radius: 12px; padding: 9px 12px;
+}
+.seven-row:hover { border-color: var(--c); }
+
+/* The number, in the grant's own colour, so the list and the cards below
+   read as the same thing. */
+.seven-n {
+  width: 28px; height: 28px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 700; line-height: 1;
+}
+.seven-name {
+  font-size: 15px; font-weight: 700; line-height: 1.25;
+  text-transform: uppercase; letter-spacing: .02em;
+  min-width: 0;
+}
+
+/* The same numbered circle on the card further down the page. */
+.grant-n {
+  width: 32px; height: 32px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 16px; font-weight: 700; line-height: 1;
+  margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+  .seven-row { flex-wrap: wrap; gap: 8px 10px; }
+  .seven-name { font-size: 14px; }
+  .pill { margin-left: 0; font-size: 11px; padding: 5px 10px; }
+  .seven-row .pill { margin-left: 40px; }
+}
+
 </style>
 
 <div class="frame" aria-hidden="true">
@@ -307,11 +357,16 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap
       </div>
     </div>
     <div class="fact fact-season">
-      <span class="fact-mark" aria-hidden="true">📅</span>
-      <div>
-        <h2 id="season-h"></h2>
-        <p id="season-b"></p>
+      <div class="fact-row">
+        <span class="fact-mark" aria-hidden="true">📅</span>
+        <div>
+          <h2 id="season-h"></h2>
+          <p id="season-b"></p>
+        </div>
       </div>
+      <!-- The seven, right here, so nobody has to scroll to find out what
+           they are. -->
+      <ol class="seven" id="seven"></ol>
     </div>
   </section>
 
@@ -625,6 +680,20 @@ if (typeof module !== 'undefined' && module.exports) {
 
   function plural(n, one, many) { return n === 1 ? one : many; }
 
+  /* -------------------------------------------------------------- STATUS */
+  // Green = go, yellow = get ready, red = a long wait. Reading the colour
+  // alone should tell you whether to do anything today.
+  var SOON_MONTHS = 3;
+
+  function statusOf(g) {
+    if (isOpenNow(g)) return { label: 'OPEN NOW', tone: 'now' };
+    var u = monthsUntilOpen(g);
+    return {
+      label: 'OPENS IN ' + MONTHS[g.from].toUpperCase(),
+      tone: u <= SOON_MONTHS ? 'soon' : 'later',
+    };
+  }
+
   /* --------------------------------------------------------- MONTH STRIP */
   // Twelve blocks. Filled where the grant is open. This is the whole
   // explanation of "when" — no legend needed, no reading required.
@@ -644,6 +713,34 @@ if (typeof module !== 'undefined' && module.exports) {
       wrap.appendChild(cell);
     }
     return wrap;
+  }
+
+  /* ============================================================== THE SEVEN */
+  // A numbered list in the same order as the cards below, so "number 3" means
+  // the same thing in both places.
+  function renderSeven(sorted) {
+    var host = document.getElementById('seven');
+    host.textContent = '';
+
+    sorted.forEach(function (g, i) {
+      var st = statusOf(g);
+      var li = el('li');
+      var b = el('button', 'seven-row');
+      b.type = 'button';
+      b.style.setProperty('--c', colourOf(g));
+
+      var n = el('span', 'seven-n', String(i + 1));
+      n.style.background = colourOf(g);
+      n.style.color = labelOn(colourOf(g));
+      b.appendChild(n);
+
+      b.appendChild(el('span', 'seven-name', g.name));
+      b.appendChild(el('span', 'pill pill-' + st.tone, st.label));
+
+      b.addEventListener('click', function () { openSheet(g); });
+      li.appendChild(b);
+      host.appendChild(li);
+    });
   }
 
   /* ============================================================ OPEN NOW */
@@ -700,29 +797,27 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   /* ============================================================== GRANTS */
-  function renderGrants() {
+  function renderGrants(sorted) {
     var host = document.getElementById('grants');
     host.textContent = '';
 
-    // Open ones first — that is what someone can act on today.
-    var sorted = LH_GRANTS.slice().sort(function (a, b) {
-      var oa = isOpenNow(a) ? 0 : 1, ob = isOpenNow(b) ? 0 : 1;
-      return oa - ob || monthsUntilOpen(a) - monthsUntilOpen(b);
-    });
-
-    sorted.forEach(function (g) {
+    sorted.forEach(function (g, i) {
       var card = el('button', 'grant');
       card.type = 'button';
       card.style.setProperty('--c', colourOf(g));
       if (isOpenNow(g)) card.classList.add('is-open');
 
       var top = el('div', 'grant-top');
+      var num = el('span', 'grant-n', String(i + 1));
+      num.style.background = colourOf(g);
+      num.style.color = labelOn(colourOf(g));
+      top.appendChild(num);
       var names = el('div');
       names.appendChild(el('h3', null, g.name));
       names.appendChild(el('div', 'grant-when', 'Open ' + g.when));
       top.appendChild(names);
-      top.appendChild(el('span', 'tag ' + (isOpenNow(g) ? 'tag-open' : 'tag-shut'),
-        isOpenNow(g) ? 'OPEN NOW' : 'Opens ' + MONTHS[g.from]));
+      var st = statusOf(g);
+      top.appendChild(el('span', 'pill pill-' + st.tone, st.label));
       card.appendChild(top);
 
       card.appendChild(strip(g));
@@ -801,8 +896,16 @@ if (typeof module !== 'undefined' && module.exports) {
   document.getElementById('season-h').textContent = LH_INTRO.seasonHeading;
   document.getElementById('season-b').textContent = LH_INTRO.seasonBody;
 
+  // Open first, then soonest. The seven cards and the numbered list share
+  // this order.
+  var sorted = LH_GRANTS.slice().sort(function (a, b) {
+    var oa = isOpenNow(a) ? 0 : 1, ob = isOpenNow(b) ? 0 : 1;
+    return oa - ob || monthsUntilOpen(a) - monthsUntilOpen(b);
+  });
+
+  renderSeven(sorted);
   renderNow();
-  renderGrants();
+  renderGrants(sorted);
   renderMonth();
 })();
 

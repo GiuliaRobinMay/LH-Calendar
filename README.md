@@ -24,7 +24,9 @@ Everything else was cut.
 
 In this order, top to bottom:
 
-- **The two facts**, before anything moves or asks for a click.
+- **The two facts**, before anything moves or asks for a click. The second one
+  lists all seven straight away, numbered, so nobody has to scroll to find out
+  what they are.
 - **What is open right now** — worked out from today's date, with how many
   months are left to apply.
 - **The seven grants**, each with a twelve-block strip showing the months it is
@@ -91,7 +93,19 @@ If you add copy and the check fails, the copy is the problem, not the check.
 ## Colours
 
 Four only — the Lesko blue, red, gold and green, the same four as the frame
-stripes. The month-letter colour is worked out at runtime from the real
+stripes. Each grant keeps its own one, used for its number and its month
+blocks.
+
+The status pill is separate and works like a traffic light, so the colour
+alone says whether to do anything today:
+
+| | |
+|---|---|
+| **Green** | Open now |
+| **Yellow** | Opens within three months — get ready |
+| **Red** | A longer wait |
+
+The month-letter and number colours are worked out at runtime from the real
 contrast ratio, so gold gets dark text and the others get white.
 
 ## Embedding

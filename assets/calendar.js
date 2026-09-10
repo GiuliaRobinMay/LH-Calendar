@@ -73,6 +73,20 @@
 
   function plural(n, one, many) { return n === 1 ? one : many; }
 
+  /* -------------------------------------------------------------- STATUS */
+  // Green = go, yellow = get ready, red = a long wait. Reading the colour
+  // alone should tell you whether to do anything today.
+  var SOON_MONTHS = 3;
+
+  function statusOf(g) {
+    if (isOpenNow(g)) return { label: 'OPEN NOW', tone: 'now' };
+    var u = monthsUntilOpen(g);
+    return {
+      label: 'OPENS IN ' + MONTHS[g.from].toUpperCase(),
+      tone: u <= SOON_MONTHS ? 'soon' : 'later',
+    };
+  }
+
   /* --------------------------------------------------------- MONTH STRIP */
   // Twelve blocks. Filled where the grant is open. This is the whole
   // explanation of "when" — no legend needed, no reading required.
@@ -92,6 +106,34 @@
       wrap.appendChild(cell);
     }
     return wrap;
+  }
+
+  /* ============================================================== THE SEVEN */
+  // A numbered list in the same order as the cards below, so "number 3" means
+  // the same thing in both places.
+  function renderSeven(sorted) {
+    var host = document.getElementById('seven');
+    host.textContent = '';
+
+    sorted.forEach(function (g, i) {
+      var st = statusOf(g);
+      var li = el('li');
+      var b = el('button', 'seven-row');
+      b.type = 'button';
+      b.style.setProperty('--c', colourOf(g));
+
+      var n = el('span', 'seven-n', String(i + 1));
+      n.style.background = colourOf(g);
+      n.style.color = labelOn(colourOf(g));
+      b.appendChild(n);
+
+      b.appendChild(el('span', 'seven-name', g.name));
+      b.appendChild(el('span', 'pill pill-' + st.tone, st.label));
+
+      b.addEventListener('click', function () { openSheet(g); });
+      li.appendChild(b);
+      host.appendChild(li);
+    });
   }
 
   /* ============================================================ OPEN NOW */
@@ -148,29 +190,27 @@
   }
 
   /* ============================================================== GRANTS */
-  function renderGrants() {
+  function renderGrants(sorted) {
     var host = document.getElementById('grants');
     host.textContent = '';
 
-    // Open ones first — that is what someone can act on today.
-    var sorted = LH_GRANTS.slice().sort(function (a, b) {
-      var oa = isOpenNow(a) ? 0 : 1, ob = isOpenNow(b) ? 0 : 1;
-      return oa - ob || monthsUntilOpen(a) - monthsUntilOpen(b);
-    });
-
-    sorted.forEach(function (g) {
+    sorted.forEach(function (g, i) {
       var card = el('button', 'grant');
       card.type = 'button';
       card.style.setProperty('--c', colourOf(g));
       if (isOpenNow(g)) card.classList.add('is-open');
 
       var top = el('div', 'grant-top');
+      var num = el('span', 'grant-n', String(i + 1));
+      num.style.background = colourOf(g);
+      num.style.color = labelOn(colourOf(g));
+      top.appendChild(num);
       var names = el('div');
       names.appendChild(el('h3', null, g.name));
       names.appendChild(el('div', 'grant-when', 'Open ' + g.when));
       top.appendChild(names);
-      top.appendChild(el('span', 'tag ' + (isOpenNow(g) ? 'tag-open' : 'tag-shut'),
-        isOpenNow(g) ? 'OPEN NOW' : 'Opens ' + MONTHS[g.from]));
+      var st = statusOf(g);
+      top.appendChild(el('span', 'pill pill-' + st.tone, st.label));
       card.appendChild(top);
 
       card.appendChild(strip(g));
@@ -249,7 +289,15 @@
   document.getElementById('season-h').textContent = LH_INTRO.seasonHeading;
   document.getElementById('season-b').textContent = LH_INTRO.seasonBody;
 
+  // Open first, then soonest. The seven cards and the numbered list share
+  // this order.
+  var sorted = LH_GRANTS.slice().sort(function (a, b) {
+    var oa = isOpenNow(a) ? 0 : 1, ob = isOpenNow(b) ? 0 : 1;
+    return oa - ob || monthsUntilOpen(a) - monthsUntilOpen(b);
+  });
+
+  renderSeven(sorted);
   renderNow();
-  renderGrants();
+  renderGrants(sorted);
   renderMonth();
 })();
